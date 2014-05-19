@@ -1,7 +1,7 @@
 NAME    = rpi
 CC      = gcc
 CFLAGS  = -g -Wall -DDEBUG
-INCDIR  = ./include
+INCDIR  = -I./include
 LDFLAGS =
 DEFS    =
-OBJECTS = rpi_main.o
+OBJECTS = rpi_main.o rpi_modules.o
