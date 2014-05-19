@@ -4,6 +4,7 @@
 #include "webservice.h"
 
 #include "rpi_modules.h"
+#include "rpi_security.h"
 
 DUDA_REGISTER("Duda Raspberry Pi interface", "Raspberry Pi interface");
 
@@ -15,6 +16,11 @@ void rpi_global_callback(duda_request_t *dr)
         response->http_status(dr, 404);
         response->printf(dr, "Module does not exist!");
         response->end(dr, NULL);
+        return;
+    }
+
+    if (rpi_validate_user(dr, module) == -1) {
+        rpi_send_auth_request(dr);
         return;
     }
 
@@ -30,12 +36,16 @@ int duda_main()
 {
     map->static_add("", "rpi_global_callback");
     
-    rpi_module_list_init();
+    session->init("rpi");
     
+    mk_list_init(&rpi_module_list);
+    
+    /* init test module */
     rpi_module_t * test_module = (rpi_module_t *)malloc(sizeof(rpi_module_t));
     test_module->name.data = "test";
     test_module->name.len = 4;
-    rpi_module_list_add(test_module);
+    mk_list_add(&(test_module->_head), &rpi_module_list);
+    
     
     return 0;
 }

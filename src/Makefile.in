@@ -4,4 +4,4 @@ CFLAGS  = -g -Wall -DDEBUG
 INCDIR  = -I./include
 LDFLAGS =
 DEFS    =
-OBJECTS = rpi_main.o rpi_modules.o
+OBJECTS = rpi_main.o rpi_modules.o rpi_security.o

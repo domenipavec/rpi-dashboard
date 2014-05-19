@@ -12,16 +12,16 @@
 typedef struct rpi_module {
     mk_pointer name;
 
+    /* access permissions */
+    int allow_flag;
+    struct mk_list allowed_users;
+
     struct mk_list _head;
 } rpi_module_t;
 
+extern struct mk_list rpi_module_list;
+
 /* find module by name */
 rpi_module_t * rpi_module_list_find(mk_pointer find);
-
-/* init list of modules */
-void rpi_module_list_init();
-
-/* add module to list */
-void rpi_module_list_add(rpi_module_t * add);
 
 #endif
