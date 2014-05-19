@@ -1,0 +1,7 @@
+NAME    = rpi
+CC      = gcc
+CFLAGS  = -g -Wall -DDEBUG
+INCDIR  = ./include
+LDFLAGS =
+DEFS    =
+OBJECTS = rpi_main.o
