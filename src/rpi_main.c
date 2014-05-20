@@ -41,11 +41,11 @@ int duda_main()
     mk_list_init(&rpi_module_list);
     
     /* init test module */
-    rpi_module_t * test_module = (rpi_module_t *)malloc(sizeof(rpi_module_t));
-    test_module->name.data = "test";
-    test_module->name.len = 4;
+    rpi_module_t * test_module = (rpi_module_t *)mem->alloc(sizeof(rpi_module_t));
+    test_module->name = "test";
     mk_list_add(&(test_module->_head), &rpi_module_list);
     
+    rpi_module_list_read_conf();
     
     return 0;
 }
