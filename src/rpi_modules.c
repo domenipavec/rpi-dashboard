@@ -2,9 +2,9 @@
 
 #include "rpi_modules.h"
 
-struct mk_list rpi_module_list;
+static struct mk_list rpi_module_list;
 
-rpi_module_t * rpi_module_list_find(mk_pointer find)
+rpi_module_t * rpi_modules_find(mk_pointer find)
 {
     struct mk_list * head;
     rpi_module_t * module;
@@ -19,7 +19,7 @@ rpi_module_t * rpi_module_list_find(mk_pointer find)
     return NULL;
 }
 
-void rpi_module_list_read_conf()
+static void rpi_modules_read_conf()
 {
     struct mk_list *entry;
     struct mk_list *entry_next;
@@ -57,8 +57,10 @@ void rpi_module_list_read_conf()
             dconf_string = (char *)fconf->section_key(dconf_sect, "Access", DUDA_CONFIG_STR);
             if (dconf_string == NULL) {
                 module->allow_flag = RPI_ALLOW_ALLUSERS;
+                continue;
             }
-            else if (strcmp(dconf_string, "guests") == 0) {
+            
+            if (strcmp(dconf_string, "guests") == 0) {
                 module->allow_flag = RPI_ALLOW_GUESTS;
             }
             else if (strcmp(dconf_string, "list") == 0) {
@@ -73,11 +75,21 @@ void rpi_module_list_read_conf()
             else {
                 module->allow_flag = RPI_ALLOW_ALLUSERS;
             }
-            
+            mem->free(dconf_string);
         }
-        
-        mem->free(dconf_sect);
     }
     
     fconf->free_conf(dconf);
+}
+
+void rpi_modules_init(void)
+{
+    mk_list_init(&rpi_module_list);
+
+    /* init test module */
+    rpi_module_t * test_module = (rpi_module_t *)mem->alloc(sizeof(rpi_module_t));
+    test_module->name = "test";
+    mk_list_add(&(test_module->_head), &rpi_module_list);
+
+    rpi_modules_read_conf();
 }

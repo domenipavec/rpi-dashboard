@@ -2,6 +2,8 @@
 
 
 #include "webservice.h"
+#include "packages/base64/base64.h"
+#include "packages/sha1/sha1.h"
 
 #include "rpi_modules.h"
 #include "rpi_security.h"
@@ -11,7 +13,10 @@ DUDA_REGISTER("Duda Raspberry Pi interface", "Raspberry Pi interface");
 /* handle all requests to REST api */
 void rpi_global_callback(duda_request_t *dr)
 {
-    rpi_module_t *module = rpi_module_list_find(dr->interface);
+    rpi_module_t *module;
+    int ret;
+    
+    module = rpi_modules_find(dr->interface);
     if (module == NULL) {
         response->http_status(dr, 404);
         response->printf(dr, "Module does not exist!");
@@ -19,8 +24,17 @@ void rpi_global_callback(duda_request_t *dr)
         return;
     }
 
-    if (rpi_validate_user(dr, module) == -1) {
-        rpi_send_auth_request(dr);
+    ret = rpi_security_check_permission(dr, module);
+    if (ret == -2) {
+        response->http_status(dr, 403);
+        response->printf(dr, "You do not have permission to access this module!");
+        response->end(dr, NULL);
+        return;
+    }
+    else if (ret == -1) {
+        response->http_status(dr, 401);
+        response->http_header(dr, "WWW-Authenticate: Basic realm=\"Duda Raspberry Pi interface\"");
+        response->end(dr, NULL);
         return;
     }
 
@@ -34,18 +48,15 @@ void rpi_global_callback(duda_request_t *dr)
 /* initialize webservice */
 int duda_main()
 {
-    map->static_add("", "rpi_global_callback");
-    
+    duda_load_package(base64, "base64");
+    duda_load_package(sha1, "sha1");
     session->init("rpi");
+
+    rpi_modules_init();
+    rpi_security_init();
     
-    mk_list_init(&rpi_module_list);
-    
-    /* init test module */
-    rpi_module_t * test_module = (rpi_module_t *)mem->alloc(sizeof(rpi_module_t));
-    test_module->name = "test";
-    mk_list_add(&(test_module->_head), &rpi_module_list);
-    
-    rpi_module_list_read_conf();
-    
+ 
+    map->static_add("", "rpi_global_callback");
+   
     return 0;
 }

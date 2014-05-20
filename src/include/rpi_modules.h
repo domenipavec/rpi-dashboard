@@ -19,12 +19,10 @@ typedef struct rpi_module {
     struct mk_list _head;
 } rpi_module_t;
 
-extern struct mk_list rpi_module_list;
-
 /* find module by name */
-rpi_module_t * rpi_module_list_find(mk_pointer find);
+rpi_module_t * rpi_modules_find(mk_pointer find);
 
-/* read module config from file */
-void rpi_module_list_read_conf();
+/* initialize modules */
+void rpi_modules_init(void);
 
 #endif

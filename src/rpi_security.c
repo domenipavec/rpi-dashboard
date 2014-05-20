@@ -1,13 +1,102 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
+#include "webservice.h"
+#include "packages/base64/base64.h"
+#include "packages/sha1/sha1.h"
+
 #include "rpi_security.h"
 
 #include <time.h>
 
-int rpi_validate_user(duda_request_t *dr, rpi_module_t * module)
+static struct mk_list users;
+
+/* check http authorization and save user in session */
+/* based on monkey/plugins/auth/auth.c */
+static int parse_http_authorization(duda_request_t *dr)
+{
+    char *res;
+    char *sep_pointer;
+    int len, sep, basic_len;
+    size_t auth_len;
+    unsigned char *decoded = NULL;
+    unsigned char digest[SHA1_DIGEST_LEN];
+    struct mk_list *head;
+    struct user *entry;
+    const char * basic = "Basic ";
+    basic_len = strlen(basic);
+
+    res = request->header_get(dr, "Authorization:");
+    if (res == NULL) {
+        return -1;
+    }
+
+    len = strlen(res);
+
+    /* Validate value length */
+    if (len <= basic_len + 1) {
+        goto error;
+    }
+
+    /* Validate 'basic' credential type */
+    if (strncmp(res, basic, basic_len) != 0) {
+        goto error;
+    }
+
+    decoded = base64->decode((unsigned char *) res + basic_len, len - basic_len, &auth_len);
+
+    if (decoded == NULL) {
+        goto error;
+    }
+    
+    if (auth_len <= 3) {
+        goto error;
+    }
+    
+    sep_pointer = memchr(decoded, ':', auth_len);
+    sep = ((unsigned long)sep_pointer - (unsigned long)decoded);
+    if (sep_pointer == NULL || sep == 0 || sep == auth_len - 1) {
+        goto error;
+    }
+    
+    sha1->encode(sep_pointer + 1, digest, auth_len - (sep + 1));
+    
+    mk_list_foreach(head, &users) {
+        entry = mk_list_entry(head, struct user, _head);
+        /* match user */
+        if (strlen(entry->user) != (unsigned int) sep) {
+            continue;
+        }
+        if (strncmp(entry->user, (char *) decoded, sep) != 0) {
+            continue;
+        }
+
+        /* match password */
+        if (memcmp(entry->passwd_decoded, digest, SHA1_DIGEST_LEN) == 0) {
+
+            session->create(dr, "user", entry->user, time(NULL) + 3600);
+
+            mem->free(decoded);
+            mem->free(res);
+            return 0;
+        }
+
+        break;
+    }
+    
+    error:
+    if (decoded != NULL) {
+        mem->free(decoded);
+    }
+    mem->free(res);
+    return -1;
+}
+
+/* check if user has permission to access the module */
+int rpi_security_check_permission(duda_request_t *dr, rpi_module_t * module)
 {
     struct mk_list *entry;
     struct mk_string_line *sl;
+    char *logged_user;
 
     /* testing */
     response->printf(dr, "Allow flag: %d\n\n", module->allow_flag);
@@ -19,41 +108,114 @@ int rpi_validate_user(duda_request_t *dr, rpi_module_t * module)
             response->printf(dr, "\n");
         }
     }
+    struct user *us;
+    response->printf(dr, "Users: %s\n\n", fconf->get_path());
+    mk_list_foreach(entry, &users) {
+        us = mk_list_entry(entry, struct user, _head);
+        response->printf(dr, "Puser: %s\n", us->user);
+    }
     /* end testing */
-    
+
     if (module->allow_flag == RPI_ALLOW_GUESTS) {
         return 0;
     }
-    
-    char *logged_user = session->get(dr, "user");
-    if (logged_user != NULL) {
-        response->printf(dr, "Logged in user: %s\n\n", session->get(dr, "user"));
-        if (module->allow_flag == RPI_ALLOW_ALLUSERS) {
-            return 0;
-        }
-        
-        if (module->allow_flag == RPI_ALLOW_LIST) {
-            mk_list_foreach(entry, module->allowed_users) {
-                sl = mk_list_entry(entry, struct mk_string_line, _head);
-                if (strncmp(logged_user, sl->val, sl->len) == 0) {
-                    return 0;
-                }
-            }
-        }
-        
-        return -1;
-    } else {
-        /* create user for testing */
-        session->create(dr, "user", "john", time(NULL) + 3600);
+
+    parse_http_authorization(dr);
+
+    logged_user = session->get(dr, "user");
+    if (logged_user == NULL) {
         return -1;
     }
+
+    // testing
+    response->printf(dr, "Logged in user: %s\n\n", session->get(dr, "user"));
+
+    if (module->allow_flag == RPI_ALLOW_ALLUSERS) {
+        return 0;
+    }
+
+    if (module->allow_flag == RPI_ALLOW_LIST) {
+        mk_list_foreach(entry, module->allowed_users) {
+            sl = mk_list_entry(entry, struct mk_string_line, _head);
+            if (strncmp(logged_user, sl->val, sl->len) == 0) {
+                return 0;
+            }
+        }
+    }
+    
+    session->destroy(dr, "user");
+    
+    return -2;
 }
 
-void rpi_send_auth_request(duda_request_t *dr)
+/* initialize users list from password file */
+void rpi_security_init(void)
 {
-    response->http_status(dr, 403);
-
-    response->printf(dr, "Forbidden!");
-
-    response->end(dr, NULL);
+    char *buf;
+    char *sep_pointer;
+    int len, i, sep;
+    struct user *cred;
+    int offset = 0;
+    size_t decoded_len;
+    
+    mk_list_init(&users);
+    
+    const char * filename = "rpi.users";
+    const char * filepath = fconf->get_path();
+    int lenpath = strlen(filepath);
+    int lenname = strlen(filename);
+    char * path = (char *)mem->alloc(lenpath + lenname + 1);
+    memcpy(path, filepath, lenpath);
+    memcpy(path + lenpath, filename, lenname);
+    path[lenpath + lenname] = '\0';
+    buf = (fconf->read_file)(path);
+    if (buf == NULL) {
+        return;
+    }
+    
+    len = strlen(buf);
+    for (i = 0; i < len; i++) {
+        if (buf[i] == '\n' || (i) == len - 1) {
+            sep_pointer = strchr(buf + offset, ':');
+            sep = ((unsigned long)sep_pointer - (unsigned long)(buf + offset));
+            
+            if (sep >= (int)sizeof(cred->user)) {
+                offset = i+1;
+                continue;
+            }
+            
+            if (i - offset - sep - 1 - 5 >= (int)sizeof(cred->passwd_raw)) {
+                offset = i+1;
+                continue;
+            }
+            
+            cred = mem->alloc(sizeof(struct user));
+            
+            /* Copy username */
+            strncpy(cred->user, buf + offset, sep);
+            cred->user[sep] = '\0';
+            
+            /* Copy raw password */
+            offset += sep + 1 + 5;
+            strncpy(cred->passwd_raw,
+                    buf + offset,
+                    i - (offset));
+            cred->passwd_raw[i - offset] = '\0';
+            
+            /* Decode raw password */
+            cred->passwd_decoded = base64->decode((unsigned char *)(cred->passwd_raw),
+                                                  strlen(cred->passwd_raw),
+                                                  &decoded_len);
+            
+            offset = i + 1;
+            
+            if (cred->passwd_decoded == NULL) {
+                mem->free(cred);
+                continue;
+            }
+            mk_list_add(&cred->_head, &users);
+        }
+    }
+    
+    mem->free(buf);
 }
