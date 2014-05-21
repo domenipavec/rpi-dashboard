@@ -26,3 +26,6 @@
 *.d
 Makefile
 *.duda
+
+# gitbook
+_book

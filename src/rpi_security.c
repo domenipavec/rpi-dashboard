@@ -175,6 +175,7 @@ void rpi_security_init(void)
 
     mk_list_init(&users);
     
+    /* concat fiepath and filename */
     const char * filename = "rpi.users";
     const char * filepath = fconf->get_path();
     int lenpath = strlen(filepath);
@@ -183,11 +184,12 @@ void rpi_security_init(void)
     memcpy(path, filepath, lenpath);
     memcpy(path + lenpath, filename, lenname);
     path[lenpath + lenname] = '\0';
+
     buf = (fconf->read_file)(path);
     if (buf == NULL) {
         return;
     }
-    
+
     len = strlen(buf);
     for (i = 0; i < len; i++) {
         if (buf[i] == '\n' || (i) == len - 1) {
