@@ -12,7 +12,7 @@ static struct mk_list users;
 
 /* check http authorization and save user in session */
 /* based on monkey/plugins/auth/auth.c */
-static int parse_http_authorization(duda_request_t *dr)
+static char * parse_http_authorization(duda_request_t *dr)
 {
     char *res;
     char *sep_pointer;
@@ -27,7 +27,7 @@ static int parse_http_authorization(duda_request_t *dr)
 
     res = request->header_get(dr, "Authorization:");
     if (res == NULL) {
-        return -1;
+        return NULL;
     }
 
     len = strlen(res);
@@ -77,7 +77,8 @@ static int parse_http_authorization(duda_request_t *dr)
 
             mem->free(decoded);
             mem->free(res);
-            return 0;
+
+            return entry->user;
         }
 
         break;
@@ -88,7 +89,7 @@ static int parse_http_authorization(duda_request_t *dr)
         mem->free(decoded);
     }
     mem->free(res);
-    return -1;
+    return NULL;
 }
 
 /* check if user has permission to access the module */
@@ -120,9 +121,12 @@ int rpi_security_check_permission(duda_request_t *dr, rpi_module_t * module)
         return 0;
     }
 
-    parse_http_authorization(dr);
-
     logged_user = session->get(dr, "user");
+
+    if (logged_user == NULL) {
+        logged_user = parse_http_authorization(dr);
+    }
+
     if (logged_user == NULL) {
         return -1;
     }
@@ -149,6 +153,7 @@ int rpi_security_check_permission(duda_request_t *dr, rpi_module_t * module)
 }
 
 /* initialize users list from password file */
+/* based on monkey/plugins/auth/conf.c */
 void rpi_security_init(void)
 {
     char *buf;

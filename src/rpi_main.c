@@ -34,6 +34,7 @@ void rpi_global_callback(duda_request_t *dr)
     else if (ret == -1) {
         response->http_status(dr, 401);
         response->http_header(dr, "WWW-Authenticate: Basic realm=\"Duda Raspberry Pi interface\"");
+        response->printf(dr, "You have to be logged in to access this module!");
         response->end(dr, NULL);
         return;
     }
