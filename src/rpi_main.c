@@ -7,6 +7,7 @@
 
 #include "rpi_modules.h"
 #include "rpi_security.h"
+#include "rpi_config.h"
 
 DUDA_REGISTER("Duda Raspberry Pi interface", "Raspberry Pi interface");
 
@@ -53,11 +54,11 @@ int duda_main()
     duda_load_package(sha1, "sha1");
     session->init("rpi");
 
+    rpi_config_init();
     rpi_modules_init();
     rpi_security_init();
-    
- 
+
     map->static_add("", "rpi_global_callback");
-   
+
     return 0;
 }

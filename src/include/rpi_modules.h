@@ -22,6 +22,9 @@ typedef struct rpi_module {
 /* find module by name */
 rpi_module_t * rpi_modules_find(mk_pointer find);
 
+/* parse allow flag from string */
+int rpi_modules_parse_allow_flag(char *str);
+
 /* initialize modules */
 void rpi_modules_init(void);
 

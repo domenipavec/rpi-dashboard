@@ -1,6 +1,7 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 #include "rpi_modules.h"
+#include "rpi_config.h"
 
 static struct mk_list rpi_module_list;
 
@@ -19,6 +20,17 @@ rpi_module_t * rpi_modules_find(mk_pointer find)
     return NULL;
 }
 
+int rpi_modules_parse_allow_flag(char *str)
+{
+    if (strcmp(str, "guests") == 0) {
+        return RPI_ALLOW_GUESTS;
+    }
+    if (strcmp(str, "list") == 0) {
+        return RPI_ALLOW_LIST;
+    }
+    return RPI_ALLOW_ALLUSERS;
+}
+
 static void rpi_modules_read_conf()
 {
     struct mk_list *entry;
@@ -26,15 +38,10 @@ static void rpi_modules_read_conf()
     rpi_module_t *module;
     struct duda_config *dconf;
     struct duda_config_section *dconf_sect;
-    char *dconf_string;
+    void *dconf_value;
 
     dconf = fconf->read_conf("modules.conf");
     if (dconf == NULL) {
-        /* by defualt allow access from all users */
-        mk_list_foreach(entry, &rpi_module_list) {
-            module = mk_list_entry(entry, rpi_module_t, _head);
-            module->allow_flag = RPI_ALLOW_ALLUSERS;
-        }
         return;
     }
 
@@ -43,7 +50,6 @@ static void rpi_modules_read_conf()
         
         dconf_sect = fconf->section_get(dconf, module->name);
         if (dconf_sect == NULL) {
-            module->allow_flag = RPI_ALLOW_ALLUSERS;
             continue;
         }
 
@@ -54,28 +60,16 @@ static void rpi_modules_read_conf()
         }
         else {
             /* parse access settings */
-            dconf_string = (char *)fconf->section_key(dconf_sect, "Access", DUDA_CONFIG_STR);
-            if (dconf_string == NULL) {
-                module->allow_flag = RPI_ALLOW_ALLUSERS;
-                continue;
+            dconf_value = fconf->section_key(dconf_sect, "Access", DUDA_CONFIG_STR);
+            if (dconf_value != NULL) {
+                module->allow_flag = rpi_modules_parse_allow_flag((char *)dconf_value);
+                mem->free(dconf_value);
             }
-            
-            if (strcmp(dconf_string, "guests") == 0) {
-                module->allow_flag = RPI_ALLOW_GUESTS;
+
+            dconf_value = fconf->section_key(dconf_sect, "AllowedUsers", DUDA_CONFIG_LIST);
+            if (dconf_value != NULL) {
+                module->allowed_users = (struct mk_list *)dconf_value;
             }
-            else if (strcmp(dconf_string, "list") == 0) {
-                module->allow_flag = RPI_ALLOW_LIST;
-                
-                module->allowed_users = (struct mk_list *)fconf->section_key(dconf_sect, "AllowedUsers", DUDA_CONFIG_LIST);
-                if (module->allowed_users == NULL) {
-                    module->allowed_users = (struct mk_list *)mem->alloc(sizeof(struct mk_list));
-                    mk_list_init(module->allowed_users);
-                }
-            }
-            else {
-                module->allow_flag = RPI_ALLOW_ALLUSERS;
-            }
-            mem->free(dconf_string);
         }
     }
     
@@ -90,6 +84,15 @@ void rpi_modules_init(void)
     rpi_module_t * test_module = (rpi_module_t *)mem->alloc(sizeof(rpi_module_t));
     test_module->name = "test";
     mk_list_add(&(test_module->_head), &rpi_module_list);
+
+    /* set defaults from global config */
+    struct mk_list *entry;
+    rpi_module_t *module;
+    mk_list_foreach(entry, &rpi_module_list) {
+        module = mk_list_entry(entry, rpi_module_t, _head);
+        module->allow_flag = rpi_config.default_allow_flag;
+        module->allowed_users = rpi_config.default_allowed_users;
+    }
 
     rpi_modules_read_conf();
 }

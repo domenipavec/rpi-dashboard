@@ -5,10 +5,21 @@
 #include "packages/sha1/sha1.h"
 
 #include "rpi_security.h"
+#include "rpi_config.h"
 
 #include <time.h>
 
 static struct mk_list users;
+
+static void start_session(duda_request_t *dr, char * user)
+{
+    if (rpi_config.session_expires == 0) {
+        session->create(dr, "user", user, 0);
+    }
+    else {
+        session->create(dr, "user", user, time(NULL) + rpi_config.session_expires);
+    }
+}
 
 /* check http authorization and save user in session */
 /* based on monkey/plugins/auth/auth.c */
@@ -72,8 +83,7 @@ static char * parse_http_authorization(duda_request_t *dr)
 
         /* match password */
         if (memcmp(entry->passwd_decoded, digest, SHA1_DIGEST_LEN) == 0) {
-
-            session->create(dr, "user", entry->user, time(NULL) + 3600);
+            start_session(dr, entry->user);
 
             mem->free(decoded);
             mem->free(res);
@@ -162,7 +172,7 @@ void rpi_security_init(void)
     struct user *cred;
     int offset = 0;
     size_t decoded_len;
-    
+
     mk_list_init(&users);
     
     const char * filename = "rpi.users";
