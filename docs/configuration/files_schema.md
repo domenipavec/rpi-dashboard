@@ -19,7 +19,7 @@ A simple example of a configuration file is as follows:
 
 ## Sections
 
-A section is defined by a name or title inside brackets. Looking at the example above a Global section have been set using __[GLOBAL]__ definition. Section rules:
+A section is defined by a name or title inside brackets. Looking at the example above a Global section have been set using __[GLOBAL]__ definition. Section names are case insensitive. Section rules:
 
 * All section content must be indented.
 * Multiples sections can exists on the same file.
@@ -28,7 +28,7 @@ A section is defined by a name or title inside brackets. Looking at the example 
 
 ## Entries: Key/Value
 
-A section may contain __Entries__, an entry is defined by a line of text that contains a __Key__ and a __Value__, using the above example, the __[GLOBAL]__ section contains two entries, one is the key __SessionExpires__ with value __0__ and the other the key __DefaultAccess__ with the value __users__. Entries rules:
+A section may contain __Entries__, an entry is defined by a line of text that contains a __Key__ and a __Value__, using the above example, the __[GLOBAL]__ section contains two entries, one is the key __SessionExpires__ with value __0__ and the other the key __DefaultAccess__ with the value __users__. Key names are case insensitive. Entries rules:
 
 * An entry is defined by a key and a value.
 * A key must be indented.
