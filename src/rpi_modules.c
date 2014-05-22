@@ -12,8 +12,10 @@ rpi_module_t * rpi_modules_find(mk_pointer find)
     
     mk_list_foreach(head, &rpi_module_list) {
         module = mk_list_entry(head, rpi_module_t, _head);
-        if (strncmp(find.data, module->name, find.len) == 0) {
-            return module;
+        if (strlen(module->name) == find.len) {
+            if (memcmp(find.data, module->name, find.len) == 0) {
+                return module;
+            }
         }
     }
     
