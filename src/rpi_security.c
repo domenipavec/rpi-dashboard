@@ -98,24 +98,6 @@ int rpi_security_check_permission(duda_request_t *dr, rpi_module_t * module)
     struct mk_string_line *sl;
     char *logged_user;
 
-    /* testing */
-    response->printf(dr, "Allow flag: %d\n\n", module->allow_flag);
-    if (module->allow_flag == RPI_ALLOW_LIST) {
-        mk_list_foreach(entry, module->allowed_users) {
-            sl = mk_list_entry(entry, struct mk_string_line, _head);
-            response->printf(dr, "User: ");
-            response->print(dr, sl->val, sl->len);
-            response->printf(dr, "\n");
-        }
-    }
-    struct user *us;
-    response->printf(dr, "Users: %s\n\n", fconf->get_path());
-    mk_list_foreach(entry, &users) {
-        us = mk_list_entry(entry, struct user, _head);
-        response->printf(dr, "Puser: %s\n", us->user);
-    }
-    /* end testing */
-
     if (module->allow_flag == RPI_ALLOW_GUESTS) {
         return 0;
     }
@@ -124,9 +106,6 @@ int rpi_security_check_permission(duda_request_t *dr, rpi_module_t * module)
     if (logged_user == NULL) {
         return -1;
     }
-
-    // testing
-    response->printf(dr, "Logged in user: %s\n\n", logged_user);
 
     if (module->allow_flag == RPI_ALLOW_ALLUSERS) {
         return 0;

@@ -17,7 +17,7 @@ void rpi_global_callback(duda_request_t *dr)
     rpi_module_t *module;
     int ret;
     
-    module = rpi_modules_find(dr->interface);
+    module = rpi_modules_find(dr->method);
     if (module == NULL) {
         response->http_status(dr, 404);
         response->printf(dr, "Module does not exist!");
@@ -42,7 +42,7 @@ void rpi_global_callback(duda_request_t *dr)
 
     response->http_status(dr, 200);
 
-    response->printf(dr, "Module exists!");
+    response->printf(dr, "Module exists!\n\nRequest path: %s", dr->method.data);
 
     response->end(dr, NULL);
 }
@@ -57,7 +57,7 @@ int duda_main()
     rpi_modules_init();
     rpi_security_init();
 
-    map->static_add("/test", "rpi_global_callback");
+    map->static_add("/api/", "rpi_global_callback");
 
     return 0;
 }
