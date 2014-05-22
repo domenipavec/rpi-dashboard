@@ -52,6 +52,7 @@ int duda_main()
 {
     duda_load_package(base64, "base64");
     duda_load_package(sha1, "sha1");
+    duda_load_package(json, "json");
 
     rpi_config_init();
     rpi_modules_init();
