@@ -9,7 +9,6 @@ rpi_config_t rpi_config;
 
 static void load_default_values(void)
 {
-    rpi_config.session_expires = 0;
     rpi_config.default_allow_flag = RPI_ALLOW_ALLUSERS;
     rpi_config.default_allowed_users = (struct mk_list *)mem->alloc(sizeof(struct mk_list));
     mk_list_init(rpi_config.default_allowed_users);
@@ -32,9 +31,6 @@ void rpi_config_init(void)
     if (dconf_sect == NULL) {
         return;
     }
-    
-    dconf_value = fconf->section_key(dconf_sect, "SessionExpires", DUDA_CONFIG_NUM);
-    rpi_config.session_expires = (long int)dconf_value;
     
     dconf_value = fconf->section_key(dconf_sect, "DefaultAccess", DUDA_CONFIG_STR);
     if (dconf_value != NULL) {

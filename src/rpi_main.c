@@ -52,13 +52,12 @@ int duda_main()
 {
     duda_load_package(base64, "base64");
     duda_load_package(sha1, "sha1");
-    session->init("rpi");
 
     rpi_config_init();
     rpi_modules_init();
     rpi_security_init();
 
-    map->static_add("", "rpi_global_callback");
+    map->static_add("/test", "rpi_global_callback");
 
     return 0;
 }

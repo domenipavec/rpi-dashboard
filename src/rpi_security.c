@@ -11,17 +11,7 @@
 
 static struct mk_list users;
 
-static void start_session(duda_request_t *dr, char * user)
-{
-    if (rpi_config.session_expires == 0) {
-        session->create(dr, "user", user, 0);
-    }
-    else {
-        session->create(dr, "user", user, time(NULL) + rpi_config.session_expires);
-    }
-}
-
-/* check http authorization and save user in session */
+/* check http authorization */
 /* based on monkey/plugins/auth/auth.c */
 static char * parse_http_authorization(duda_request_t *dr)
 {
@@ -83,8 +73,7 @@ static char * parse_http_authorization(duda_request_t *dr)
 
         /* match password */
         if (memcmp(entry->passwd_decoded, digest, SHA1_DIGEST_LEN) == 0) {
-            start_session(dr, entry->user);
-
+            
             mem->free(decoded);
             mem->free(res);
 
@@ -131,18 +120,13 @@ int rpi_security_check_permission(duda_request_t *dr, rpi_module_t * module)
         return 0;
     }
 
-    logged_user = session->get(dr, "user");
-
-    if (logged_user == NULL) {
-        logged_user = parse_http_authorization(dr);
-    }
-
+    logged_user = parse_http_authorization(dr);
     if (logged_user == NULL) {
         return -1;
     }
 
     // testing
-    response->printf(dr, "Logged in user: %s\n\n", session->get(dr, "user"));
+    response->printf(dr, "Logged in user: %s\n\n", logged_user);
 
     if (module->allow_flag == RPI_ALLOW_ALLUSERS) {
         return 0;
@@ -156,8 +140,6 @@ int rpi_security_check_permission(duda_request_t *dr, rpi_module_t * module)
             }
         }
     }
-    
-    session->destroy(dr, "user");
     
     return -2;
 }

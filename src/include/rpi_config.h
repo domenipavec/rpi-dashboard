@@ -4,9 +4,6 @@
 #define RPI_CONFIG_H
 
 typedef struct {
-    /* session cookie expires */
-    int session_expires;
-
     /* default access permissions */
     int default_allow_flag;
     struct mk_list *default_allowed_users;

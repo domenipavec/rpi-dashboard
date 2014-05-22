@@ -3,16 +3,6 @@
 This is the main configuration file. All settings are stored under **[GLOBAL]** section.
 Below is a description of all options:
 
-### SessionExpires
-
-Sets the expire time for the Duda session cookie. Sessions are used to keep the user logged in.
-Number can be any int value, representing the number of seconds to store the cookie.
-If 0 is used, it means to keep the cookie until current browser session is finished.
-
-    SessionExpires 0
-
-By default the configuration is 0.
-
 ### DefaultAccess
 
 Sets who has access to modules. Available options are:
