@@ -37,7 +37,7 @@ void rpi_global_callback(duda_request_t *dr)
 {
     rpi_module_t *module;
     int ret;
-    char *json_text
+    char *json_text;
     
     module = rpi_modules_find(dr->method);
     if (module == NULL) {
