@@ -3,6 +3,8 @@
 #include "rpi_modules.h"
 #include "rpi_config.h"
 
+#include "rpi_memory.h"
+
 static struct mk_list modules_list;
 static struct duda_config *modules_config;
 
@@ -113,6 +115,7 @@ void rpi_modules_init(void)
     modules_config = fconf->read_conf("modules.conf");
 
     /* init modules */
+    rpi_memory_init();
     
     fconf->free_conf(modules_config);
     modules_config = NULL;
