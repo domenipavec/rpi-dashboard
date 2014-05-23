@@ -40,6 +40,7 @@ rpi_module_t * rpi_modules_module_init(const char *name)
     void *config_value;
     rpi_module_t *module;
     
+    /* initialize module */
     module = (rpi_module_t *)mem->alloc(sizeof(rpi_module_t));
     module->name = name;
     mk_list_init(&(module->values));
@@ -76,6 +77,34 @@ rpi_module_t * rpi_modules_module_init(const char *name)
     return module;
 }
 
+rpi_module_value_t * rpi_modules_value_init(const char *name, 
+                                            rpi_module_get_value_t gv, 
+                                            struct mk_list *parent)
+{
+    rpi_module_value_t *value;
+    
+    value = (rpi_module_value_t *)mem->alloc(sizeof(rpi_module_value_t));
+    value->name = name;
+    value->get_value = gv;
+    mk_list_add(&(value->_head), parent);
+    
+    return value;
+}
+
+rpi_module_value_t * rpi_modules_branch_init(const char *name,
+                                             struct mk_list *parent)
+{
+    rpi_module_value_t *branch;
+    
+    branch = (rpi_module_value_t *)mem->alloc(sizeof(rpi_module_value_t));
+    branch->name = name;
+    branch->get_value = NULL;
+    mk_list_init(&(branch->values));
+    mk_list_add(&(branch->_head), parent);
+    
+    return branch;
+}
+
 void rpi_modules_init(void)
 {
     mk_list_init(&modules_list);
@@ -83,8 +112,7 @@ void rpi_modules_init(void)
     /* config only available during init */
     modules_config = fconf->read_conf("modules.conf");
 
-    /* init test module */
-    rpi_module_t * test_module = rpi_modules_module_init("test");
+    /* init modules */
     
     fconf->free_conf(modules_config);
     modules_config = NULL;

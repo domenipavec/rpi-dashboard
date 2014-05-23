@@ -51,4 +51,13 @@ void rpi_modules_init(void);
 /* initialize one module */
 rpi_module_t * rpi_modules_module_init(const char *name);
 
+/* initialize module value */
+rpi_module_value_t * rpi_modules_value_init(const char *name, 
+                                            rpi_module_get_value_t gv, 
+                                            struct mk_list *parent);
+
+/* initialize module branch */
+rpi_module_value_t * rpi_modules_branch_init(const char *name,
+                                             struct mk_list *parent);
+
 #endif

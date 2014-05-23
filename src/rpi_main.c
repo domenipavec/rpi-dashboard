@@ -11,11 +11,33 @@
 
 DUDA_REGISTER("Duda Raspberry Pi interface", "Raspberry Pi interface");
 
+/* takes list of rpi_module_value_t and construct json object of all subvalues */
+static json_t * construct_full_json(struct mk_list *values)
+{
+    json_t *object;
+    struct mk_list *entry;
+    rpi_module_value_t *value;
+    
+    object = json->create_object();
+    
+    mk_list_foreach(entry, values) {
+        value = mk_list_entry(entry, rpi_module_value_t, _head);
+        if (value->get_value == NULL) {
+            json->add_to_object(object, value->name, construct_full_json(&(value->values)));
+        } else {
+            json->add_to_object(object, value->name, value->get_value());
+        }
+    }
+    
+    return object;
+}
+
 /* handle all requests to REST api */
 void rpi_global_callback(duda_request_t *dr)
 {
     rpi_module_t *module;
     int ret;
+    char *json_text
     
     module = rpi_modules_find(dr->method);
     if (module == NULL) {
@@ -42,7 +64,14 @@ void rpi_global_callback(duda_request_t *dr)
 
     response->http_status(dr, 200);
 
-    response->printf(dr, "Module exists!\n\nRequest path: %s", dr->method.data);
+    /* start testing */
+    response->printf(dr, "Module exists!\n\nRequest path: %s", dr->method.data + dr->method.len);
+    
+    json_text = json->print_gc(dr, construct_full_json(&(module->values)));
+    
+    /* end testing */
+    
+    response->printf(dr, json_text);
 
     response->end(dr, NULL);
 }
