@@ -11,40 +11,27 @@
 
 DUDA_REGISTER("Duda Raspberry Pi interface", "Raspberry Pi interface");
 
-/* takes list of rpi_module_value_t and construct json object of all subvalues */
-static json_t * construct_full_json(struct mk_list *values)
-{
-    json_t *object;
-    struct mk_list *entry;
-    rpi_module_value_t *value;
-    
-    object = json->create_object();
-    
-    mk_list_foreach(entry, values) {
-        value = mk_list_entry(entry, rpi_module_value_t, _head);
-        if (value->get_value == NULL) {
-            json->add_to_object(object, value->name, construct_full_json(&(value->values)));
-        } else {
-            json->add_to_object(object, value->name, value->get_value());
-        }
-    }
-    
-    return object;
-}
-
 /* handle all requests to REST api */
 void rpi_global_callback(duda_request_t *dr)
 {
     rpi_module_t *module;
     int ret;
+    json_t *json_object;
     char *json_text;
     
-    module = rpi_modules_find(dr->method);
-    if (module == NULL) {
-        response->http_status(dr, 404);
-        response->printf(dr, "Module does not exist!");
+    if (*(dr->interface.data + dr->interface.len + 1) == ' ') {
+        response->http_status(dr, 200);
+        // TODO: list modules available to user
+        response->printf(dr, "Please select module!");
         response->end(dr, NULL);
-        return;
+    } else {
+        module = rpi_modules_find(dr->method);
+        if (module == NULL) {
+            response->http_status(dr, 404);
+            response->printf(dr, "Module does not exist!");
+            response->end(dr, NULL);
+            return;
+        }
     }
 
     ret = rpi_security_check_permission(dr, module);
@@ -62,16 +49,20 @@ void rpi_global_callback(duda_request_t *dr)
         return;
     }
 
-    response->http_status(dr, 200);
+    json_object = rpi_modules_json(module, dr->method.data + dr->method.len);
+    if (json_object == NULL) {
+        response->http_status(dr, 404);
+        response->printf(dr, "Module does not contain this value!");
+        response->end(dr, NULL);
+        return;
+    }
 
-    /* start testing */
-    response->printf(dr, "Module exists!\n\nRequest path: %s", dr->method.data + dr->method.len);
-    
-    json_text = json->print_gc(dr, construct_full_json(&(module->values)));
-    
-    /* end testing */
-    
+    response->http_status(dr, 200);
+   
+    json_text = json->print_gc(dr, json_object);
     response->printf(dr, json_text);
+    
+    json->delete(json_object);
 
     response->end(dr, NULL);
 }

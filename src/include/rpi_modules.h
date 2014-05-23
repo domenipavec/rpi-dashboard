@@ -42,6 +42,9 @@ typedef struct {
 /* find module by name */
 rpi_module_t * rpi_modules_find(mk_pointer find);
 
+/* takes path, and constructs corresponding json */
+json_t * rpi_modules_json(rpi_module_t *module, char *path);
+
 /* parse allow flag from string */
 int rpi_modules_parse_allow_flag(char *str);
 
