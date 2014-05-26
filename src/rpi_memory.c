@@ -44,9 +44,14 @@ json_t * rpi_memory_get_swap_free()
     return json->create_number(2000.0);
 }
 
+void * rpi_memory_get_buffer()
+{
+    return NULL;
+}
+
 void rpi_memory_init(void)
 {
-    rpi_module_t *module = rpi_modules_module_init("memory");
+    rpi_module_t *module = rpi_modules_module_init("memory", rpi_memory_get_buffer);
     
     rpi_modules_value_init("total", rpi_memory_get_total, &(module->values));
     rpi_modules_value_init("used", rpi_memory_get_used, &(module->values));

@@ -27,7 +27,7 @@ rpi_module_t * rpi_modules_find(mk_pointer find)
 }
 
 /* takes list of rpi_module_value_t and construct json object of all subvalues */
-static json_t * construct_full_json(struct mk_list *values)
+static json_t * construct_full_json(struct mk_list *values, void *buffer)
 {
     json_t *object;
     struct mk_list *entry;
@@ -38,9 +38,9 @@ static json_t * construct_full_json(struct mk_list *values)
     mk_list_foreach(entry, values) {
         value = mk_list_entry(entry, rpi_module_value_t, _head);
         if (value->get_value == NULL) {
-            json->add_to_object(object, value->name, construct_full_json(&(value->values)));
+            json->add_to_object(object, value->name, construct_full_json(&(value->values), buffer));
         } else {
-            json->add_to_object(object, value->name, value->get_value());
+            json->add_to_object(object, value->name, value->get_value(buffer));
         }
     }
     
@@ -55,10 +55,18 @@ json_t * rpi_modules_json(rpi_module_t *module, char *path)
     struct mk_list *entry;
     rpi_module_value_t *entry_value;
     struct mk_list *search_list;
+    void *buffer;
+    json_t *ret;
+    
+    buffer = module->get_buffer();
     
     /* root of module */
     if (path[0] == ' ' || path[1] == ' ') {
-        return construct_full_json(&(module->values));
+        ret = construct_full_json(&(module->values), buffer);
+        if (buffer != NULL) {
+            mem->free(buffer);
+        }
+        return ret;
     }
     
     for (i = 1, last = 0; ; ++i) {
@@ -111,9 +119,16 @@ json_t * rpi_modules_json(rpi_module_t *module, char *path)
     
     /* construct json or return value */
     if (current_value->get_value != NULL) {
-        return current_value->get_value();
+        ret = current_value->get_value(buffer);
     }
-    return construct_full_json(&(current_value->values));
+    else {
+        ret = construct_full_json(&(current_value->values), buffer);
+    }
+    
+    if (buffer != NULL) {
+        mem->free(buffer);
+    }
+    return ret;
 }
 
 /* parse allow flag from string */
@@ -129,7 +144,7 @@ int rpi_modules_parse_allow_flag(char *str)
 }
 
 /* initialize one module */
-rpi_module_t * rpi_modules_module_init(const char *name)
+rpi_module_t * rpi_modules_module_init(const char *name, rpi_module_get_buffer_t gb)
 {
     struct duda_config_section *config_sect;
     void *config_value;
@@ -138,6 +153,7 @@ rpi_module_t * rpi_modules_module_init(const char *name)
     /* initialize module */
     module = (rpi_module_t *)mem->alloc(sizeof(rpi_module_t));
     module->name = name;
+    module->get_buffer = gb;
     mk_list_init(&(module->values));
     mk_list_add(&(module->_head), &modules_list);
     

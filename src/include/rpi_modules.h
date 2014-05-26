@@ -11,7 +11,10 @@
 #define RPI_ALLOW_ALLUSERS  2
 
 /* function called to get value */
-typedef json_t* (*rpi_module_get_value_t)(void);
+typedef json_t* (*rpi_module_get_value_t)(void *);
+
+/* function called to initialize buffer of module */
+typedef void* (*rpi_module_get_buffer_t)(void);
 
 /* module list structure */
 typedef struct rpi_module {
@@ -23,6 +26,9 @@ typedef struct rpi_module {
 
     /* values tree */
     struct mk_list values;
+    
+    /* initialize buffer for a request */
+    rpi_module_get_buffer_t get_buffer;
     
     struct mk_list _head;
 } rpi_module_t;
@@ -52,7 +58,7 @@ int rpi_modules_parse_allow_flag(char *str);
 void rpi_modules_init(void);
 
 /* initialize one module */
-rpi_module_t * rpi_modules_module_init(const char *name);
+rpi_module_t * rpi_modules_module_init(const char *name, rpi_module_get_buffer_t gb);
 
 /* initialize module value */
 rpi_module_value_t * rpi_modules_value_init(const char *name, 
