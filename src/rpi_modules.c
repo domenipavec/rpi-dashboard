@@ -5,6 +5,7 @@
 
 #include "rpi_memory.h"
 #include "rpi_cpu.h"
+#include "rpi_network.h"
 
 static struct mk_list modules_list;
 static struct duda_config *modules_config;
@@ -233,6 +234,7 @@ void rpi_modules_init(void)
     /* init modules */
     rpi_memory_init();
     rpi_cpu_init();
+    rpi_network_init();
     
     fconf->free_conf(modules_config);
     modules_config = NULL;
