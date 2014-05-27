@@ -16,8 +16,8 @@ rpi_module_t * rpi_modules_find(mk_pointer find)
     
     mk_list_foreach(head, &modules_list) {
         module = mk_list_entry(head, rpi_module_t, _head);
-        if (strlen(module->name) == find.len) {
-            if (memcmp(find.data, module->name, find.len) == 0) {
+        if (strlen(module->values_head.name) == find.len) {
+            if (memcmp(find.data, module->values_head.name, find.len) == 0) {
                 return module;
             }
         }
@@ -26,109 +26,108 @@ rpi_module_t * rpi_modules_find(mk_pointer find)
     return NULL;
 }
 
-/* takes list of rpi_module_value_t and construct json object of all subvalues */
-static json_t * construct_full_json(struct mk_list *values, void *buffer)
+/* takes rpi_module_value_t and constructs its json object */
+static json_t * construct_full_json(rpi_module_value_t *value)
 {
     json_t *object;
     struct mk_list *entry;
-    rpi_module_value_t *value;
+    rpi_module_value_t *entry_value;
+    
+    if (value->get_value != NULL) {
+        return value->get_value();
+    }
     
     object = json->create_object();
     
-    mk_list_foreach(entry, values) {
-        value = mk_list_entry(entry, rpi_module_value_t, _head);
-        if (value->get_value == NULL) {
-            json->add_to_object(object, value->name, construct_full_json(&(value->values), buffer));
-        } else {
-            json->add_to_object(object, value->name, value->get_value(buffer));
-        }
+    mk_list_foreach(entry, &(value->values)) {
+        entry_value = mk_list_entry(entry, rpi_module_value_t, _head);
+        json->add_to_object(object, value->name, construct_full_json(entry_value));
     }
     
     return object;
 }
 
-/* takes path, and constructs corresponding json */
-json_t * rpi_modules_json(rpi_module_t *module, char *path)
+/* search for path in json object */
+static json_t * json_search(char *path, json_t *object)
 {
-    int i, last;
-    rpi_module_value_t *current_value = NULL;
+    int end, beginning;
+    json_t *item;
+    char *segment;
+
+    /* beginning after initial slashes */
+    beginning = 0;
+    while (path[beginning] == '/') {
+        beginning++;
+    }
+
+    /* end at next slash or end of path */
+    end = beginning;
+    while (path[end] != '/' && path[end] != ' ') {
+        end++;
+    }
+    
+    /* no new segment */
+    if (end == beginning) {
+        return object;
+    }
+    
+    if (object->type != cJSON_Object) {
+        return NULL;
+    }
+    
+    segment = mem->alloc(end-beginning+1);
+    memcpy(segment, &path[beginning], end-beginning);
+    segment[end-beginning] = '\0';
+    item = json->get_object_item(object, segment);
+    mem->free(segment);
+    if (item == NULL) {
+        return NULL;
+    }
+    return json_search(&path[end], item);
+}
+
+/* takes path, and finds corresponding json in value */
+json_t * rpi_modules_json(rpi_module_value_t *value, char *path, json_t **to_delete)
+{
+    int end, beginning;
     struct mk_list *entry;
     rpi_module_value_t *entry_value;
-    struct mk_list *search_list;
-    void *buffer;
-    json_t *ret;
-    
-    buffer = module->get_buffer();
-    
-    /* root of module */
-    if (path[0] == ' ' || path[1] == ' ') {
-        ret = construct_full_json(&(module->values), buffer);
-        if (buffer != NULL) {
-            mem->free(buffer);
-        }
-        return ret;
+
+    /* beginning after initial slashes */
+    beginning = 0;
+    while (path[beginning] == '/') {
+        beginning++;
     }
-    
-    for (i = 1, last = 0; ; ++i) {
-        /* search slash or end of path */
-        if (path[i] != '/' && path[i] != ' ') {
-            continue;
-        }
-        /* take care of multiple slashes */
-        if (i == last + 1) {
-            if (path[i+1] == ' ') {
-                break;
-            }
-            last = i;
-            continue;
-        }
-        
-        /* search module or current value */
-        if (current_value == NULL) {
-            search_list = &(module->values);
-        }
-        else {
-            if (current_value->get_value != NULL) {
-                return NULL;
-            }
-            search_list = &(current_value->values);
-            current_value = NULL;
-        }
-        
-        /* find value with name of this path segment */
-        mk_list_foreach(entry, search_list) {
-            entry_value = mk_list_entry(entry, rpi_module_value_t, _head);
-            if (strlen(entry_value->name) == (i - last - 1)) {
-                if (memcmp(path + last + 1, entry_value->name, (i - last - 1)) == 0) {
-                    current_value = entry_value;
-                    break;
-                }
+
+    /* end at next slash or end of path */
+    end = beginning;
+    while (path[end] != '/' && path[end] != ' ') {
+        end++;
+    }
+
+    /* no new segment */
+    if (end == beginning) {
+        *to_delete = construct_full_json(value);
+        return *to_delete;
+    }
+
+    /* search within current value json if necessary */
+    if (value->get_value != NULL) {
+        *to_delete = value->get_value();
+        return json_search(&path[beginning], *to_delete);
+    }
+
+    /* find value with name of this path segment */
+    mk_list_foreach(entry, &(value->values)) {
+        entry_value = mk_list_entry(entry, rpi_module_value_t, _head);
+        if (strlen(entry_value->name) == (end - beginning)) {
+            if (memcmp(&path[beginning], entry_value->name, end - beginning) == 0) {
+                return rpi_modules_json(entry_value, &path[end], to_delete);
             }
         }
-        if (current_value == NULL) {
-            return NULL;
-        }
-        
-        /* check for end of path */
-        if (path[i] == ' ' || path[i+1] == ' ') {
-            break;
-        }
-        
-        last = i;
     }
-    
-    /* construct json or return value */
-    if (current_value->get_value != NULL) {
-        ret = current_value->get_value(buffer);
-    }
-    else {
-        ret = construct_full_json(&(current_value->values), buffer);
-    }
-    
-    if (buffer != NULL) {
-        mem->free(buffer);
-    }
-    return ret;
+
+    return NULL;
 }
 
 /* parse allow flag from string */
@@ -144,7 +143,7 @@ int rpi_modules_parse_allow_flag(char *str)
 }
 
 /* initialize one module */
-rpi_module_t * rpi_modules_module_init(const char *name, rpi_module_get_buffer_t gb)
+rpi_module_t * rpi_modules_module_init(const char *name, rpi_module_get_value_t gv)
 {
     struct duda_config_section *config_sect;
     void *config_value;
@@ -152,9 +151,13 @@ rpi_module_t * rpi_modules_module_init(const char *name, rpi_module_get_buffer_t
     
     /* initialize module */
     module = (rpi_module_t *)mem->alloc(sizeof(rpi_module_t));
-    module->name = name;
-    module->get_buffer = gb;
-    mk_list_init(&(module->values));
+    module->values_head.name = name;
+    if (gv == NULL) {
+        mk_list_init(&(module->values_head.values));
+    }
+    else {
+        module->values_head.get_value = gv;
+    }
     mk_list_add(&(module->_head), &modules_list);
     
     /* set defaults from global config */

@@ -17,6 +17,7 @@ void rpi_global_callback(duda_request_t *dr)
     rpi_module_t *module;
     int ret;
     json_t *json_object;
+    json_t *json_delete;
     char *json_text;
     
     if (*(dr->interface.data + dr->interface.len + 1) == ' ') {
@@ -49,7 +50,7 @@ void rpi_global_callback(duda_request_t *dr)
         return;
     }
 
-    json_object = rpi_modules_json(module, dr->method.data + dr->method.len);
+    json_object = rpi_modules_json(&(module->values_head), dr->method.data + dr->method.len, &json_delete);
     if (json_object == NULL) {
         response->http_status(dr, 404);
         response->printf(dr, "Module does not contain this value!");
@@ -62,7 +63,7 @@ void rpi_global_callback(duda_request_t *dr)
     json_text = json->print_gc(dr, json_object);
     response->printf(dr, json_text);
     
-    json->delete(json_object);
+    json->delete(json_delete);
 
     response->end(dr, NULL);
 }

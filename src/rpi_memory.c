@@ -6,106 +6,64 @@
 
 #include "packages/json/json.h"
 
-json_t * rpi_memory_get_total(void * buffer)
-{
-    return json->create_number((double)((rpi_memory_buffer_t *)buffer)->total);
-}
-
-json_t * rpi_memory_get_used(void * buffer)
-{
-    rpi_memory_buffer_t *memory_buffer;
-    
-    memory_buffer = (rpi_memory_buffer_t *)buffer;
-    return json->create_number((double)(memory_buffer->total - memory_buffer->free));
-}
-
-json_t * rpi_memory_get_free(void * buffer)
-{
-    return json->create_number((double)((rpi_memory_buffer_t *)buffer)->free);
-}
-
-json_t * rpi_memory_get_buffers(void * buffer)
-{
-    return json->create_number((double)((rpi_memory_buffer_t *)buffer)->buffers);
-}
-
-json_t * rpi_memory_get_cached(void * buffer)
-{
-    return json->create_number((double)((rpi_memory_buffer_t *)buffer)->cached);
-}
-
-json_t * rpi_memory_get_swap_total(void * buffer)
-{
-    return json->create_number((double)((rpi_memory_buffer_t *)buffer)->swap_total);
-}
-
-json_t * rpi_memory_get_swap_used(void * buffer)
-{
-    rpi_memory_buffer_t *memory_buffer;
-    
-    memory_buffer = (rpi_memory_buffer_t *)buffer;
-    return json->create_number((double)(memory_buffer->swap_total - memory_buffer->swap_free));
-}
-
-json_t * rpi_memory_get_swap_free(void * buffer)
-{
-    return json->create_number((double)((rpi_memory_buffer_t *)buffer)->swap_free);
-}
 
 /* find a line in /proc/meminfo, return value */
-static int parse_meminfo_entry(FILE *f, const char *key)
+static long parse_meminfo_entry(FILE *f, const char *key)
 {
     int ret;
-    int value;
+    long value;
     char current[20];
     
-    ret = fscanf(f, " %[^:]: %d kB", current, &value);
+    ret = fscanf(f, " %[^:]: %ld kB", current, &value);
     while (ret == 2) {
         if (strcmp(key, current) == 0) {
             return value;
         }
-        ret = fscanf(f, " %[^:]: %d kB", current, &value);
+        ret = fscanf(f, " %[^:]: %ld kB", current, &value);
     }
     
     return ret;
 }
 
-/* process /proc/meminfo into rpi_memory_buffer_t struct */
-void * rpi_memory_get_buffer()
+json_t * rpi_memory_get(void)
 {
-    rpi_memory_buffer_t *memory_buffer;
     FILE *f;
-    
-    memory_buffer = mem->alloc_z(sizeof(rpi_memory_buffer_t));
+    json_t *ret;
+    json_t *swap;
+    long total, free, buffers, cached, swap_total, swap_free;
+
+    ret = json->create_object();
     
     f = fopen("/proc/meminfo", "r");
     if (f == NULL) {
-        return (void *)memory_buffer;
+        return ret;
     }
     
-    memory_buffer->total = parse_meminfo_entry(f, "MemTotal");
-    memory_buffer->free = parse_meminfo_entry(f, "MemFree");
-    memory_buffer->buffers = parse_meminfo_entry(f, "Buffers");
-    memory_buffer->cached = parse_meminfo_entry(f, "Cached");
-    memory_buffer->swap_total = parse_meminfo_entry(f, "SwapTotal");
-    memory_buffer->swap_free = parse_meminfo_entry(f, "SwapFree");
-    
+    total = parse_meminfo_entry(f, "MemTotal");
+    free = parse_meminfo_entry(f, "MemFree");
+    buffers = parse_meminfo_entry(f, "Buffers");
+    cached = parse_meminfo_entry(f, "Cached");
+    swap_total = parse_meminfo_entry(f, "SwapTotal");
+    swap_free = parse_meminfo_entry(f, "SwapFree");
+
     fclose(f);
-    return (void *)memory_buffer;
+
+    json->add_to_object(ret, "total", json->create_number((double)total));
+    json->add_to_object(ret, "used", json->create_number((double)(total - free)));
+    json->add_to_object(ret, "free", json->create_number((double)free));
+    json->add_to_object(ret, "buffers", json->create_number((double)buffers));
+    json->add_to_object(ret, "cached", json->create_number((double)cached));
+    
+    swap = json->create_object();
+    json->add_to_object(ret, "swap", swap);
+    json->add_to_object(swap, "total", json->create_number((double)swap_total));
+    json->add_to_object(swap, "used", json->create_number((double)(swap_total - swap_free)));
+    json->add_to_object(swap, "free", json->create_number((double)swap_free));
+
+    return ret;
 }
 
 void rpi_memory_init(void)
 {
-    rpi_module_t *module = rpi_modules_module_init("memory", rpi_memory_get_buffer);
-    
-    rpi_modules_value_init("total", rpi_memory_get_total, &(module->values));
-    rpi_modules_value_init("used", rpi_memory_get_used, &(module->values));
-    rpi_modules_value_init("free", rpi_memory_get_free, &(module->values));
-    rpi_modules_value_init("buffers", rpi_memory_get_buffers, &(module->values));
-    rpi_modules_value_init("cached", rpi_memory_get_cached, &(module->values));
-    
-    rpi_module_value_t *swap = rpi_modules_branch_init("swap", &(module->values));
-    rpi_modules_value_init("total", rpi_memory_get_swap_total, &(swap->values));
-    rpi_modules_value_init("used", rpi_memory_get_swap_used, &(swap->values));
-    rpi_modules_value_init("free", rpi_memory_get_swap_free, &(swap->values));
+    rpi_modules_module_init("memory", rpi_memory_get);
 }
