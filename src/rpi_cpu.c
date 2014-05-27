@@ -10,7 +10,7 @@ json_t * rpi_cpu_get_usage(void)
 {
     FILE *f;
     int ret;
-    long user, nice, system, idle, iowait, irq, softirq;
+    double user, nice, system, idle, iowait, irq, softirq, total, busy;
     json_t *object;
     
     object = json->create_object();
@@ -20,7 +20,7 @@ json_t * rpi_cpu_get_usage(void)
         return object;
     }
     
-    ret = fscanf(f, " cpu %ld %ld %ld %ld %ld %ld %ld", 
+    ret = fscanf(f, " cpu %lf %lf %lf %lf %lf %lf %lf", 
                  &user, &nice, &system, &idle, &iowait, &irq, &softirq);
     if (ret != 7) {
         return object;
@@ -28,18 +28,18 @@ json_t * rpi_cpu_get_usage(void)
     
     fclose(f);
     
-    long total = user+nice+system+idle+iowait+irq+softirq;
-    long busy = user+nice+system+irq+softirq;
+    total = user+nice+system+idle+iowait+irq+softirq;
+    busy = user+nice+system+irq+softirq;
     
-    json->add_to_object(object, "total", json->create_number((double)total));
-    json->add_to_object(object, "busy", json->create_number((double)busy));
-    json->add_to_object(object, "user", json->create_number((double)user));
-    json->add_to_object(object, "nice", json->create_number((double)nice));
-    json->add_to_object(object, "system", json->create_number((double)system));
-    json->add_to_object(object, "idle", json->create_number((double)idle));
-    json->add_to_object(object, "iowait", json->create_number((double)iowait));
-    json->add_to_object(object, "irq", json->create_number((double)irq));
-    json->add_to_object(object, "softirq", json->create_number((double)softirq));
+    json->add_to_object(object, "total", json->create_number(total));
+    json->add_to_object(object, "busy", json->create_number(busy));
+    json->add_to_object(object, "user", json->create_number(user));
+    json->add_to_object(object, "nice", json->create_number(nice));
+    json->add_to_object(object, "system", json->create_number(system));
+    json->add_to_object(object, "idle", json->create_number(idle));
+    json->add_to_object(object, "iowait", json->create_number(iowait));
+    json->add_to_object(object, "irq", json->create_number(irq));
+    json->add_to_object(object, "softirq", json->create_number(softirq));
     
     return object;
 }

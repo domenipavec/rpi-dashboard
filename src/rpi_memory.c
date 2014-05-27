@@ -8,18 +8,18 @@
 
 
 /* find a line in /proc/meminfo, return value */
-static long parse_meminfo_entry(FILE *f, const char *key)
+static double parse_meminfo_entry(FILE *f, const char *key)
 {
     int ret;
-    long value;
+    double value;
     char current[20];
     
-    ret = fscanf(f, " %[^:]: %ld kB", current, &value);
+    ret = fscanf(f, " %[^:]: %lf kB", current, &value);
     while (ret == 2) {
         if (strcmp(key, current) == 0) {
             return value;
         }
-        ret = fscanf(f, " %[^:]: %ld kB", current, &value);
+        ret = fscanf(f, " %[^:]: %lf kB", current, &value);
     }
     
     return -1;
@@ -31,7 +31,7 @@ json_t * rpi_memory_get(void)
     FILE *f;
     json_t *ret;
     json_t *swap;
-    long total, free, buffers, cached, swap_total, swap_free;
+    double total, free, buffers, cached, swap_total, swap_free;
 
     ret = json->create_object();
     
@@ -49,17 +49,17 @@ json_t * rpi_memory_get(void)
 
     fclose(f);
 
-    json->add_to_object(ret, "total", json->create_number((double)total));
-    json->add_to_object(ret, "used", json->create_number((double)(total - free)));
-    json->add_to_object(ret, "free", json->create_number((double)free));
-    json->add_to_object(ret, "buffers", json->create_number((double)buffers));
-    json->add_to_object(ret, "cached", json->create_number((double)cached));
+    json->add_to_object(ret, "total", json->create_number(total));
+    json->add_to_object(ret, "used", json->create_number(total - free));
+    json->add_to_object(ret, "free", json->create_number(free));
+    json->add_to_object(ret, "buffers", json->create_number(buffers));
+    json->add_to_object(ret, "cached", json->create_number(cached));
     
     swap = json->create_object();
     json->add_to_object(ret, "swap", swap);
-    json->add_to_object(swap, "total", json->create_number((double)swap_total));
-    json->add_to_object(swap, "used", json->create_number((double)(swap_total - swap_free)));
-    json->add_to_object(swap, "free", json->create_number((double)swap_free));
+    json->add_to_object(swap, "total", json->create_number(swap_total));
+    json->add_to_object(swap, "used", json->create_number(swap_total - swap_free));
+    json->add_to_object(swap, "free", json->create_number(swap_free));
 
     return ret;
 }
