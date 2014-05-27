@@ -25,6 +25,7 @@ static long parse_meminfo_entry(FILE *f, const char *key)
     return ret;
 }
 
+/* return json object of all values */
 json_t * rpi_memory_get(void)
 {
     FILE *f;
@@ -63,6 +64,7 @@ json_t * rpi_memory_get(void)
     return ret;
 }
 
+/* register and initialize module */
 void rpi_memory_init(void)
 {
     rpi_modules_module_init("memory", rpi_memory_get);
