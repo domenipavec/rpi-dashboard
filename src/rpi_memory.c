@@ -22,7 +22,7 @@ static long parse_meminfo_entry(FILE *f, const char *key)
         ret = fscanf(f, " %[^:]: %ld kB", current, &value);
     }
     
-    return ret;
+    return -1;
 }
 
 /* return json object of all values */
