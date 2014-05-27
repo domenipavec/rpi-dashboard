@@ -41,7 +41,7 @@ static json_t * construct_full_json(rpi_module_value_t *value)
     
     mk_list_foreach(entry, &(value->values)) {
         entry_value = mk_list_entry(entry, rpi_module_value_t, _head);
-        json->add_to_object(object, value->name, construct_full_json(entry_value));
+        json->add_to_object(object, entry_value->name, construct_full_json(entry_value));
     }
     
     return object;
