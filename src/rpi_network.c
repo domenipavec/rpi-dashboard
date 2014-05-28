@@ -42,7 +42,7 @@ static double rpi_network_read_file(const char *if_name,
     return value;
 }
 
-static json_t *rpi_network_get(const char *bytes_packets)
+static json_t *rpi_network_get(duda_request_t *dr, const char *bytes_packets)
 {
     DIR *d;
     struct dirent *de;
@@ -86,14 +86,14 @@ static json_t *rpi_network_get(const char *bytes_packets)
     return object;
 }
 
-json_t *rpi_network_get_bytes(void)
+json_t *rpi_network_get_bytes(duda_request_t *dr)
 {
-    return rpi_network_get("bytes");
+    return rpi_network_get(dr, "bytes");
 }
 
-json_t *rpi_network_get_packets(void)
+json_t *rpi_network_get_packets(duda_request_t *dr)
 {
-    return rpi_network_get("packets");
+    return rpi_network_get(dr, "packets");
 }
 
 /* register and initialize module */

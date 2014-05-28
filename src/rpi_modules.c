@@ -29,21 +29,21 @@ rpi_module_t * rpi_modules_find(mk_pointer find)
 }
 
 /* takes rpi_module_value_t and constructs its json object */
-static json_t * construct_full_json(rpi_module_value_t *value)
+static json_t * construct_full_json(duda_request_t *dr, rpi_module_value_t *value)
 {
     json_t *object;
     struct mk_list *entry;
     rpi_module_value_t *entry_value;
     
     if (value->get_value != NULL) {
-        return value->get_value();
+        return value->get_value(dr);
     }
     
     object = json->create_object();
     
     mk_list_foreach(entry, &(value->values)) {
         entry_value = mk_list_entry(entry, rpi_module_value_t, _head);
-        json->add_to_object(object, entry_value->name, construct_full_json(entry_value));
+        json->add_to_object(object, entry_value->name, construct_full_json(dr, entry_value));
     }
     
     return object;
@@ -89,42 +89,46 @@ static json_t * json_search(char *path, json_t *object)
 }
 
 /* takes path, and finds corresponding json in value */
-json_t * rpi_modules_json(rpi_module_value_t *value, char *path, json_t **to_delete)
+json_t * rpi_modules_json(duda_request_t *dr, 
+                          rpi_module_value_t *value, 
+                          char *path, 
+                          json_t **to_delete)
 {
-    int end, beginning;
+    int end;
     struct mk_list *entry;
     rpi_module_value_t *entry_value;
+    
+    path = dr->method.data + dr->method.len;
 
     /* beginning after initial slashes */
-    beginning = 0;
-    while (path[beginning] == '/') {
-        beginning++;
+    while (path[0] == '/') {
+        path++;
     }
 
     /* end at next slash or end of path */
-    end = beginning;
+    end = 0;
     while (path[end] != '/' && path[end] != ' ') {
         end++;
     }
 
     /* no new segment */
-    if (end == beginning) {
-        *to_delete = construct_full_json(value);
+    if (end == 0) {
+        *to_delete = construct_full_json(dr, value);
         return *to_delete;
     }
 
     /* search within current value json if necessary */
     if (value->get_value != NULL) {
-        *to_delete = value->get_value();
-        return json_search(&path[beginning], *to_delete);
+        *to_delete = value->get_value(dr);
+        return json_search(path, *to_delete);
     }
 
     /* find value with name of this path segment */
     mk_list_foreach(entry, &(value->values)) {
         entry_value = mk_list_entry(entry, rpi_module_value_t, _head);
-        if (strlen(entry_value->name) == (end - beginning)) {
-            if (memcmp(&path[beginning], entry_value->name, end - beginning) == 0) {
-                return rpi_modules_json(entry_value, &path[end], to_delete);
+        if (strlen(entry_value->name) == end) {
+            if (memcmp(path, entry_value->name, end) == 0) {
+                return rpi_modules_json(dr, entry_value, &path[end], to_delete);
             }
         }
     }

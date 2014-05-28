@@ -6,7 +6,7 @@
 
 #include "packages/json/json.h"
 
-json_t * rpi_cpu_get_usage(void)
+json_t * rpi_cpu_get_usage(duda_request_t *dr)
 {
     FILE *f;
     int ret;
@@ -44,7 +44,7 @@ json_t * rpi_cpu_get_usage(void)
     return object;
 }
 
-json_t * rpi_cpu_get_loadavg(void)
+json_t * rpi_cpu_get_loadavg(duda_request_t *dr)
 {
     FILE *f;
     int ret;
@@ -72,7 +72,7 @@ json_t * rpi_cpu_get_loadavg(void)
     return object;
 }
 
-json_t *rpi_cpu_get_uptime(void)
+json_t *rpi_cpu_get_uptime(duda_request_t *dr)
 {
     FILE *f;
     int ret;
@@ -93,7 +93,7 @@ json_t *rpi_cpu_get_uptime(void)
     return json->create_number(uptime);
 }
 
-json_t *rpi_cpu_get_temperature(void)
+json_t *rpi_cpu_get_temperature(duda_request_t *dr)
 {
     FILE *f;
     int ret;

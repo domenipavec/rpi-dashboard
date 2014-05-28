@@ -26,7 +26,7 @@ static double parse_meminfo_entry(FILE *f, const char *key)
 }
 
 /* return json object of all values */
-json_t * rpi_memory_get(void)
+json_t * rpi_memory_get(duda_request_t *dr)
 {
     FILE *f;
     json_t *ret;

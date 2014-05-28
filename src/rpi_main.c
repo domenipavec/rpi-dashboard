@@ -50,7 +50,7 @@ void rpi_global_callback(duda_request_t *dr)
         return;
     }
 
-    json_object = rpi_modules_json(&(module->values_head), dr->method.data + dr->method.len, &json_delete);
+    json_object = rpi_modules_json(dr, &(module->values_head), dr->method.data + dr->method.len, &json_delete);
     if (json_object == NULL) {
         response->http_status(dr, 404);
         response->printf(dr, "Module does not contain this value!");
