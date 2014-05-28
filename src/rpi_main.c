@@ -19,6 +19,9 @@ void rpi_global_callback(duda_request_t *dr)
     json_t *json_object;
     json_t *json_delete;
     char *json_text;
+    char *user;
+    
+    user = rpi_security_get_user(dr);
     
     if (*(dr->interface.data + dr->interface.len + 1) == ' ') {
         response->http_status(dr, 200);
@@ -35,7 +38,7 @@ void rpi_global_callback(duda_request_t *dr)
         }
     }
 
-    ret = rpi_security_check_permission(dr, module);
+    ret = rpi_security_check_permission(user, module);
     if (ret == -2) {
         response->http_status(dr, 403);
         response->printf(dr, "You do not have permission to access this module!");

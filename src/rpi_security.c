@@ -13,7 +13,7 @@ static struct mk_list users;
 
 /* check http authorization */
 /* based on monkey/plugins/auth/auth.c */
-static char * parse_http_authorization(duda_request_t *dr)
+char * rpi_security_get_user(duda_request_t *dr)
 {
     char *res;
     char *sep_pointer;
@@ -92,18 +92,16 @@ static char * parse_http_authorization(duda_request_t *dr)
 }
 
 /* check if user has permission to access the module */
-int rpi_security_check_permission(duda_request_t *dr, rpi_module_t * module)
+int rpi_security_check_permission(const char *user, rpi_module_t * module)
 {
     struct mk_list *entry;
     struct mk_string_line *sl;
-    char *logged_user;
 
     if (module->allow_flag == RPI_ALLOW_GUESTS) {
         return 0;
     }
 
-    logged_user = parse_http_authorization(dr);
-    if (logged_user == NULL) {
+    if (user == NULL) {
         return -1;
     }
 
@@ -114,7 +112,7 @@ int rpi_security_check_permission(duda_request_t *dr, rpi_module_t * module)
     if (module->allow_flag == RPI_ALLOW_LIST) {
         mk_list_foreach(entry, module->allowed_users) {
             sl = mk_list_entry(entry, struct mk_string_line, _head);
-            if (strncmp(logged_user, sl->val, sl->len) == 0) {
+            if (strncmp(user, sl->val, sl->len) == 0) {
                 return 0;
             }
         }
