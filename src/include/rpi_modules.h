@@ -40,6 +40,9 @@ typedef struct rpi_module {
 /* find module by name */
 rpi_module_t * rpi_modules_find(mk_pointer find);
 
+/* find all modules that user has permission to access */
+json_t * rpi_modules_user_list(char *user);
+
 /* takes path, and constructs corresponding json */
 json_t * rpi_modules_json(duda_request_t *dr, 
                           rpi_module_value_t *value, 

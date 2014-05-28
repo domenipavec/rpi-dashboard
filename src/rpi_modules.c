@@ -2,6 +2,7 @@
 
 #include "rpi_modules.h"
 #include "rpi_config.h"
+#include "rpi_security.h"
 
 #include "rpi_memory.h"
 #include "rpi_cpu.h"
@@ -26,6 +27,25 @@ rpi_module_t * rpi_modules_find(mk_pointer find)
     }
     
     return NULL;
+}
+
+/* find all modules that user has permission to access */
+json_t * rpi_modules_user_list(char *user)
+{
+    struct mk_list * head;
+    rpi_module_t * module;
+    json_t *array;
+    
+    array = json->create_array();
+    
+    mk_list_foreach(head, &modules_list) {
+        module = mk_list_entry(head, rpi_module_t, _head);
+        if (rpi_security_check_permission(user, module) == 0) {
+            json->add_to_array(array, json->create_string(module->values_head.name));
+        }
+    }
+    
+    return array;
 }
 
 /* takes rpi_module_value_t and constructs its json object */

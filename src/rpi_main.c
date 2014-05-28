@@ -25,8 +25,12 @@ void rpi_global_callback(duda_request_t *dr)
     
     if (*(dr->interface.data + dr->interface.len + 1) == ' ') {
         response->http_status(dr, 200);
-        // TODO: list modules available to user
-        response->printf(dr, "Please select module!");
+        
+        json_object = rpi_modules_user_list(user);
+        json_text = json->print_gc(dr, json_object);
+        response->printf(dr, json_text);
+        json->delete(json_object);
+        
         response->end(dr, NULL);
     } else {
         module = rpi_modules_find(dr->method);
