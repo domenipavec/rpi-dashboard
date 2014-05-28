@@ -64,7 +64,7 @@ static json_t * json_search(char *path, json_t *object)
 
     /* end at next slash or end of path */
     end = beginning;
-    while (path[end] != '/' && path[end] != ' ') {
+    while (path[end] != '/' && path[end] != ' ' && path[end] != '?') {
         end++;
     }
     
@@ -107,7 +107,7 @@ json_t * rpi_modules_json(duda_request_t *dr,
 
     /* end at next slash or end of path */
     end = 0;
-    while (path[end] != '/' && path[end] != ' ') {
+    while (path[end] != '/' && path[end] != ' ' && path[end] != '?') {
         end++;
     }
 
