@@ -42,6 +42,33 @@ static double rpi_network_read_file(const char *if_name,
     return value;
 }
 
+static int check_iface(char *qsiface, char *iface) {
+    int i, last;
+    
+    if (qsiface == NULL) {
+        return 0;
+    }
+    
+    for (i = 0, last = 0; ; ++i) {
+        if (qsiface[i] != '\0' && qsiface[i] != '|') {
+            continue;
+        }
+        
+        if (strlen(iface) == i - last) {
+            if (strncmp(iface, qsiface + last, i - last) == 0) {
+                return 0;
+            }
+        }
+        
+        if (qsiface[i] == '\0') {
+            break;
+        }
+        last = i + 1;
+    }
+    
+    return -1;
+}
+
 static json_t *rpi_network_get(duda_request_t *dr, const char *bytes_packets)
 {
     DIR *d;
@@ -51,6 +78,7 @@ static json_t *rpi_network_get(duda_request_t *dr, const char *bytes_packets)
     json_t *tx_object;
     json_t *total_object;
     double rx_value, tx_value;
+    char *qsiface;
 
     object = json->create_object();
     
@@ -67,12 +95,17 @@ static json_t *rpi_network_get(duda_request_t *dr, const char *bytes_packets)
 
     total_object = json->create_object();
     json->add_to_object(object, "total", total_object);
+    
+    qsiface = qs->get(dr, "iface");
 
     for (de = readdir(d); de != NULL; de = readdir(d)) {
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) {
             continue;
         }
-        // TODO: check iface filter
+        
+        if (check_iface(qsiface, de->d_name) == -1) {
+            continue;
+        }
         
         rx_value = rpi_network_read_file(de->d_name, RX, bytes_packets);
         tx_value = rpi_network_read_file(de->d_name, TX, bytes_packets);
