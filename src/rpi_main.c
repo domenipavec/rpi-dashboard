@@ -25,6 +25,7 @@ void rpi_global_callback(duda_request_t *dr)
     
     if (*(dr->interface.data + dr->interface.len + 1) == ' ') {
         response->http_status(dr, 200);
+        response->http_content_type(dr, "json");
         
         json_object = rpi_modules_user_list(user);
         json_text = json->print_gc(dr, json_object);
@@ -66,6 +67,7 @@ void rpi_global_callback(duda_request_t *dr)
     }
 
     response->http_status(dr, 200);
+    response->http_content_type(dr, "json");
    
     json_text = json->print_gc(dr, json_object);
     response->printf(dr, json_text);
