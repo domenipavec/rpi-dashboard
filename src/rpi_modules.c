@@ -52,24 +52,23 @@ static json_t * construct_full_json(duda_request_t *dr, rpi_module_value_t *valu
 /* search for path in json object */
 static json_t * json_search(char *path, json_t *object)
 {
-    int end, beginning;
+    int end;
     json_t *item;
     char *segment;
-
+    
     /* beginning after initial slashes */
-    beginning = 0;
-    while (path[beginning] == '/') {
-        beginning++;
+    while (path[0] == '/') {
+        path++;
     }
 
     /* end at next slash or end of path */
-    end = beginning;
+    end = 0;
     while (path[end] != '/' && path[end] != ' ' && path[end] != '?') {
         end++;
     }
     
     /* no new segment */
-    if (end == beginning) {
+    if (end == 0) {
         return object;
     }
     
@@ -77,9 +76,10 @@ static json_t * json_search(char *path, json_t *object)
         return NULL;
     }
     
-    segment = mem->alloc(end-beginning+1);
-    memcpy(segment, &path[beginning], end-beginning);
-    segment[end-beginning] = '\0';
+    segment = mem->alloc(end+1);
+    memcpy(segment, path, end);
+    segment[end] = '\0';
+
     item = json->get_object_item(object, segment);
     mem->free(segment);
     if (item == NULL) {
@@ -97,8 +97,6 @@ json_t * rpi_modules_json(duda_request_t *dr,
     int end;
     struct mk_list *entry;
     rpi_module_value_t *entry_value;
-    
-    path = dr->method.data + dr->method.len;
 
     /* beginning after initial slashes */
     while (path[0] == '/') {
