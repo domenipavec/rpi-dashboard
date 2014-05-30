@@ -7,4 +7,10 @@
     * [rpi.conf](configuration/rpiconf.md)
     * [rpi.users](configuration/rpiusers.md)
     * [modules.conf](configuration/modulesconf.md)
+* [REST api](rest_api/README.md)
+    * [/api/](rest_api/api.md)
+    * [/api/memory](rest_api/apimemory.md)
+    * [/api/cpu](rest_api/apicpu.md)
+    * [/api/network](rest_api/apinetwork.md)
+    * [/api/storage](rest_api/apistorage.md)
 
