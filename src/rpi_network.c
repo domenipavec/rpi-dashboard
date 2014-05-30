@@ -16,8 +16,6 @@ static const char *dir_name = "/sys/class/net/";
 #define RX "/statistics/rx_"
 #define TX "/statistics/tx_"
 
-#define MAX_INTERFACES 5
-
 #define IPV6_ADDR_GLOBAL        0x0000U
 #define IPV6_ADDR_LOOPBACK      0x0010U
 #define IPV6_ADDR_LINKLOCAL     0x0020U
@@ -109,7 +107,7 @@ static json_t *rpi_network_get(duda_request_t *dr, const char *bytes_packets)
     
     qsiface = qs->get(dr, "iface");
 
-    for (de = readdir(d); de != NULL; de = readdir(d)) {
+    while (NULL != (de = readdir(d))) {
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) {
             continue;
         }
@@ -207,7 +205,7 @@ static void rpi_network_parse_ioctl(const char *ifname, json_t *object)
 
 static void rpi_network_parse_inet6(json_t *object) {
     FILE *f;
-    int ret, scope, prefix;
+    int scope, prefix;
     json_t *ipv6_array;
     json_t *interface_object;
     json_t *ipv6_object;
@@ -221,49 +219,27 @@ static void rpi_network_parse_inet6(json_t *object) {
         return;
     }
     
-    for (ret = fscanf(f, 
-                      " %2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx %*x %x %x %*x %s",
-                      &ipv6[0], 
-                      &ipv6[1], 
-                      &ipv6[2], 
-                      &ipv6[3], 
-                      &ipv6[4], 
-                      &ipv6[5], 
-                      &ipv6[6], 
-                      &ipv6[7], 
-                      &ipv6[8], 
-                      &ipv6[9], 
-                      &ipv6[10], 
-                      &ipv6[11], 
-                      &ipv6[12], 
-                      &ipv6[13], 
-                      &ipv6[14], 
-                      &ipv6[15], 
-                      &prefix, 
-                      &scope, 
-                      dname);
-         ret == 19;
-         ret = fscanf(f, 
-                      " %2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx %*x %x %x %*x %s",
-                      &ipv6[0], 
-                      &ipv6[1], 
-                      &ipv6[2], 
-                      &ipv6[3], 
-                      &ipv6[4], 
-                      &ipv6[5], 
-                      &ipv6[6], 
-                      &ipv6[7], 
-                      &ipv6[8], 
-                      &ipv6[9], 
-                      &ipv6[10], 
-                      &ipv6[11], 
-                      &ipv6[12], 
-                      &ipv6[13], 
-                      &ipv6[14], 
-                      &ipv6[15], 
-                      &prefix, 
-                      &scope, 
-                      dname)) {
+    while (19 == fscanf(f, 
+                        " %2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx %*x %x %x %*x %s",
+                        &ipv6[0], 
+                        &ipv6[1], 
+                        &ipv6[2], 
+                        &ipv6[3], 
+                        &ipv6[4], 
+                        &ipv6[5], 
+                        &ipv6[6], 
+                        &ipv6[7], 
+                        &ipv6[8], 
+                        &ipv6[9], 
+                        &ipv6[10], 
+                        &ipv6[11], 
+                        &ipv6[12], 
+                        &ipv6[13], 
+                        &ipv6[14], 
+                        &ipv6[15], 
+                        &prefix, 
+                        &scope, 
+                        dname)) {
         
         interface_object = json->get_object_item(object, dname);
         if (interface_object == NULL) {
@@ -328,7 +304,7 @@ json_t * rpi_network_get_list(duda_request_t *dr)
 
     qsiface = qs->get(dr, "iface");
 
-    for (de = readdir(d); de != NULL; de = readdir(d)) {
+    while (NULL != (de = readdir(d))) {
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) {
             continue;
         }
