@@ -31,9 +31,9 @@
                 Authorization: "Basic " + btoa($.rpijs.username + ":" + $.rpijs.password)
             }
         }).done(function(value) {
-            callback($.rpijs.parseNumber(value, options));
+            var ret = callback($.rpijs.parseNumber(value, options));
             
-            if (settings.update != 0) {
+            if (ret && settings.update != 0) {
                 setTimeout(function() {
                     $.rpijs.get(name, callback, options);
                 }, settings.update);
@@ -87,9 +87,9 @@
                     }, 500);
                 } else {
                     var rate = (value - $.rpijs.rates[name].value)/(t - $.rpijs.rates[name].time)*1000;
-                    callback($.rpijs.parseNumber(rate, options));
+                    var ret = callback($.rpijs.parseNumber(rate, options));
                 
-                    if (settings.update != 0) {
+                    if (ret && settings.update != 0) {
                         setTimeout(function() {
                             $.rpijs.getRate(name,callback,options);
                         }, settings.update);
@@ -111,6 +111,7 @@
             var self = this;
             $.rpijs.get(name, function(value) {
                 $(self).html(value);
+                return true;
             }, options);
         });
     }
