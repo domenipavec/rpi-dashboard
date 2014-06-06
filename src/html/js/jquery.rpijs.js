@@ -7,16 +7,24 @@
     $.rpijs.defaults = {
         update: 0,
         rate: false,
-        format: "none",
-        decimals: 1
-    }
+        format: [{}]
+    };
     
+    $.rpijs.formatDefaults = {
+        key: [],
+        rate: false,
+        valueType: "none",
+        decimals: 2
+    };
+    
+    /* initialize REST api details */
     $.rpijs.init = function(apiUrl, username, password) {
         $.rpijs.apiUrl = apiUrl;
         $.rpijs.username = username;
         $.rpijs.password = password;
-    }
-        
+    };
+    
+    /* get value according to specified options */
     $.rpijs.get = function(name, callback, options) {
         var settings = $.extend({}, $.rpijs.defaults, options);
         
@@ -30,8 +38,8 @@
             headers: {
                 Authorization: "Basic " + btoa($.rpijs.username + ":" + $.rpijs.password)
             }
-        }).done(function(value) {
-            var ret = callback($.rpijs.parseNumber(value, options));
+        }).done(function(object) {
+            var ret = callback($.rpijs.parse(object, name, options));
             
             if (ret && settings.update != 0) {
                 setTimeout(function() {
@@ -39,26 +47,73 @@
                 }, settings.update);
             }
         });
-    }
+    };
     
-    $.rpijs.parseNumber = function(value, options) {
+    /* Format all values specified in format option */
+    $.rpijs.parse = function(objectArg, name, options) {
         var settings = $.extend({}, $.rpijs.defaults, options);
+        
+        /* if only one value */
+        if (typeof objectArg !== "object") {
+            var formatSettings = $.extend({}, $.rpijs.formatDefaults, settings.format[0]);
+            
+            /* calculate rate */
+            if (typeof objectArg === "number" && formatSettings.rate) {
+                objectArg = (objectArg - $.rpijs.rates[name].object)/($.now() - $.rpijs.rates[name].time)*1000;
+            }
+            
+            return $.rpijs.parseNumber(objectArg, settings.format[0]);
+        }
 
-        if (typeof value !== "number" || settings.format === "none") {
+        /* make a copy of object for modification */
+        var object = $.extend(true, {}, objectArg);
+        
+        $.each(settings.format, function(index, formatOptions) {
+            var formatSettings = $.extend({}, $.rpijs.formatDefaults, formatOptions);
+            
+            /* get object owner of value and key */
+            var value = object;
+            var i;
+            for (i = 0; i < formatSettings.key.length - 1; i++) {
+                value = value[formatSettings.key[i]];
+            }
+            var key = formatSettings.key[i];
+            
+            /* calculate rate */
+            if (typeof value[key] === "number" && formatSettings.rate) {
+                var oldValue = $.rpijs.rates[name].object;
+                $.each(formatSettings.key, function(index, key) {
+                    oldValue = oldValue[key];
+                });
+                
+                value[key] = (value[key] - oldValue)/($.now() - $.rpijs.rates[name].time)*1000;
+            }
+            
+            value[key] = $.rpijs.parseNumber(value[key], formatOptions);
+        });
+        
+        return object;
+    };
+    
+    /* format the number according to format options */
+    $.rpijs.parseNumber = function(value, formatOptions) {
+        var formatSettings = $.extend({}, $.rpijs.formatDefaults, formatOptions);
+
+        if (typeof value !== "number" || formatSettings.valueType === "none") {
             return value;
         } else {
             var divider, units;
-            if (settings.format == "decimal") {
+            if (formatSettings.valueType == "decimal") {
                 divider = 1000;
                 units = ['B', 'kB','MB','GB','TB','PB','EB','ZB','YB'];
-            } else if (settings.format == "binary") {
+            } else if (formatSettings.valueType == "binary") {
                 divider = 1024;
                 units = ['B', 'KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
-            }else {
-                return value.toFixed(settings.decimals);
+            } else {
+                return value.toFixed(formatSettings.decimals);
             }
             var ps = "";
-            if (settings.rate) {
+            if (formatSettings.rate) {
                 ps = "/s";
             }
             var i = 0;
@@ -66,54 +121,56 @@
                 value /= divider;
                 i++;
             }
-            return value.toFixed(settings.decimals) + " " + units[i] + ps;
+            return value.toFixed(formatSettings.decimals) + " " + units[i] + ps;
         }
-    }
+    };
     
+    /* get values and store for rate calculation */
     $.rpijs.getRate = function(name, callback, options) {
         var settings = $.extend({}, $.rpijs.defaults, options);
         var getOptions = {
             update: 0,
             rate: false,
-            format: "none"
+            format: [{
+                key: [],
+                rate: false,
+                format: "none"
+            }]
         };
         
-        $.rpijs.get(name, function(value) {
-            if (typeof value === "number") {
-                var t = $.now();
-                if ($.rpijs.rates[name] === undefined) {
+        $.rpijs.get(name, function(object) {
+            /* if we do not have previous value we make another request in 500 */
+            if ($.rpijs.rates[name] === undefined) {
+                setTimeout(function() {
+                    $.rpijs.getRate(name,callback,options);
+                }, 500);
+            } else {
+                var ret = callback($.rpijs.parse(object, name, options));
+            
+                /* only update if callback returns true */
+                if (ret && settings.update != 0) {
                     setTimeout(function() {
                         $.rpijs.getRate(name,callback,options);
-                    }, 500);
-                } else {
-                    var rate = (value - $.rpijs.rates[name].value)/(t - $.rpijs.rates[name].time)*1000;
-                    var ret = callback($.rpijs.parseNumber(rate, options));
-                
-                    if (ret && settings.update != 0) {
-                        setTimeout(function() {
-                            $.rpijs.getRate(name,callback,options);
-                        }, settings.update);
-                    }
+                    }, settings.update);
                 }
-                $.rpijs.rates[name] = {
-                    value: value,
-                    time: t
-                };
-
-            } else {
-                callback(NaN);
             }
+            /* store current value */
+            $.rpijs.rates[name] = {
+                object: object,
+                time: $.now()
+            };
         }, getOptions);
-    }
+    };
     
+    /* Stores value in jQuery html object */
     $.fn.rpijs = function(name, options) {
         return this.each(function() {
             var self = this;
             $.rpijs.get(name, function(value) {
-                $(self).html(value);
+                $(self).html(JSON.stringify(value));
                 return true;
             }, options);
         });
-    }
+    };
     
 }(jQuery));
