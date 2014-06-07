@@ -109,6 +109,25 @@
             } else if (formatSettings.valueType == "binary") {
                 divider = 1024;
                 units = ['B', 'KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+            } else if (formatSettings.valueType == "time") {
+                var seconds = value;
+                var ret = "";
+                if (seconds > 60) {
+                    var minutes = Math.floor(seconds/60);
+                    seconds = seconds % 60;
+                    if (minutes > 60) {
+                        var hours = Math.floor(minutes/60);
+                        minutes = minutes % 60;
+                        if (hours > 24) {
+                            ret += Math.floor(hours/24) + " days ";
+                            hours = hours % 24;
+                        }
+                        ret += hours + " hours ";
+                    }
+                    ret += minutes + " min ";
+                }
+                ret += seconds.toFixed(formatSettings.decimals) + " s";
+                return ret;
             } else {
                 return value.toFixed(formatSettings.decimals);
             }
