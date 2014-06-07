@@ -6,6 +6,7 @@
 
 #include "packages/json/json.h"
 
+#define KB_MULTIPLIER (1024.0)
 
 /* find a line in /proc/meminfo, return value */
 static double parse_meminfo_entry(FILE *f, const char *key)
@@ -40,12 +41,12 @@ json_t * rpi_memory_get(duda_request_t *dr)
         return ret;
     }
     
-    total = parse_meminfo_entry(f, "MemTotal");
-    free = parse_meminfo_entry(f, "MemFree");
-    buffers = parse_meminfo_entry(f, "Buffers");
-    cached = parse_meminfo_entry(f, "Cached");
-    swap_total = parse_meminfo_entry(f, "SwapTotal");
-    swap_free = parse_meminfo_entry(f, "SwapFree");
+    total = parse_meminfo_entry(f, "MemTotal")*KB_MULTIPLIER;
+    free = parse_meminfo_entry(f, "MemFree")*KB_MULTIPLIER;
+    buffers = parse_meminfo_entry(f, "Buffers")*KB_MULTIPLIER;
+    cached = parse_meminfo_entry(f, "Cached")*KB_MULTIPLIER;
+    swap_total = parse_meminfo_entry(f, "SwapTotal")*KB_MULTIPLIER;
+    swap_free = parse_meminfo_entry(f, "SwapFree")*KB_MULTIPLIER;
 
     fclose(f);
 
