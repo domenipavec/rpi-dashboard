@@ -1,0 +1,212 @@
+<html>
+<head>
+<title>Example using jQuery RPiJS plugin</title>
+<style>
+table, th, td
+{
+border-collapse:collapse;
+border:1px solid black;
+}
+th, td
+{
+padding:5px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Example using jQuery RPiJS plugin</h1>
+
+<h2>Cpu</h2>
+<ul>
+    <li><b>Usage:</b> <span id="cpu-usage"></span>%</li>
+    <li><b>Uptime:</b> <span id="cpu-uptime"></span></li>
+    <li><b>Temperature:</b> <span id="cpu-temperature"></span>&deg;C</li>
+</ul>
+
+<h2>Memory</h2>
+<ul>
+    <li><b>Total:</b> <span id="memory-total"></span></li>
+    <li><b>Used:</b> <span id="memory-used"></span></li>
+    <li><b>Swap:</b> <span id="memory-swap"></span></li>
+    <li><b>Swap used:</b> <span id="memory-swap-used"></span></li>
+</ul>
+
+<h2>Network</h2>
+<ul id="network"></ul>
+
+<h2>Storage</h2>
+<table id="storage">
+    <tr>
+        <th>Device</th>
+        <th>Mount</th>
+        <th>Filesystem</th>
+        <th>Size</th>
+        <th>Use</th>
+        <th>Total throughput</th>
+    </tr>
+</table>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="js/jquery.rpijs.js"></script>
+
+<script>
+
+$(function() {
+    /* initialize rpijs */
+    $.rpijs.init("http://localhost:2001/rpi/api/", "admin", "admin");
+
+    /* change formatDefaults */
+    $.rpijs.formatDefaults.valueType = "binary";
+    
+    /* set cpu values */
+    $("#cpu-temperature").rpijs("cpu/temperature", {update: 2000, format: [{valueType: "number", decimals: 1}]});
+    $("#cpu-uptime").rpijs("cpu/uptime", {update: 1000, format: [{valueType: "time", decimals: 0}]});
+    /* calculate cpu usage */
+    $.rpijs.get("cpu/usage", function(msg) {
+        $("#cpu-usage").html((msg.busy/msg.total*100).toFixed(1));
+        return true;
+    }, {
+        update: 1000,
+        rate: true,
+        format: [{
+            key: ["total"],
+            rate: true,
+            valueType: "none"
+        },
+        {
+            key: ["busy"],
+            rate: true,
+            valueType: "none"
+        }]
+    });
+    
+    /* set memory values */
+    $("#memory-total").rpijs("memory/total");
+    $("#memory-swap").rpijs("memory/swap/total");
+    $("#memory-used").rpijs("memory/used", {update: 5000});
+    $("#memory-swap-used").rpijs("memory/swap/used", {update: 5000});
+    
+    /* parse storage list to table */
+    $.rpijs.get("storage/list", function(msg) {
+        $.each(msg, function(index, item) {
+            if (item === undefined) {
+                return;
+            }
+            
+            /* show size only it is actually available */
+            var size = $.rpijs.parseNumber(item.size, {valueType: "binary"});
+            if (typeof size !== "string") {
+                size = "";
+            }
+            
+            /* cell for use, that will be updated */
+            var useId = "use-" + index;
+            var use = "<td id=\"" + useId + "\"></td>";
+            
+            /* if valid /dev/ device, prepare cell for throughput */
+            var throughput = "<td></td>";
+            var throughputId = null;
+            if (item.device.substring(0, 5) === "/dev/") {
+                throughputId = item.device.substring(5,100);
+                throughput = "<td id=\"" + throughputId + "\"></td>";
+            }
+            
+            /* construct row */
+            $("#storage").append("<tr><td>"+item.device + "</td><td>" +
+                item.mount + "</td><td>" +
+                item.filesystem + "</td><td>" +
+                size + "</td>" +
+                use +
+                throughput);
+            
+            /* set throughput updating */
+            if (throughputId !== null) {
+                $("#"+throughputId).rpijs("storage/throughput/"+throughputId+"/total", {
+                    update: 1000,
+                    rate: true,
+                    format: [{ rate: true }]
+                });
+            }
+        });
+    
+        /* update use values every 10s */
+        $.rpijs.get("storage/list", function(msg) {
+            $.each(msg, function(index,item) {
+                if (item === undefined) {
+                    return;
+                }
+                
+                var use = $.rpijs.parseNumber(item.use * 100, {valueType: "number", decimals: 1});
+                if (use !== "NaN") {
+                    use += "%";
+                    $("#use-"+index).html(use);
+                }
+            });
+            return true;
+        }, {update: 10000});
+    
+        return true;
+    });
+    
+    /* parse network interfaces */
+    $.rpijs.get("network/list", function(msg) {
+        formatArray = [];
+    
+        $.each(msg, function(key, data) {
+            if (data === undefined) {
+                return;
+            }
+            
+            /* if using vlan, we need to replace dot */
+            keyid = key.replace(".", "-");
+        
+            /* add entry */
+            $("#network").append("<li><b>" + key + "</b><ul id=\"network-" + keyid + "\">");
+            
+            /* show mac if available */
+            if (data.mac !== undefined) {
+                $("#network-"+keyid).append("<li>MAC address: " + data.mac);
+            }
+            
+            /* show ip if available */
+            if (data.ip !== undefined) {
+                $("#network-"+keyid).append("<li>Ip address: " + data.ip.address + 
+                    ", broadcast: " + data.ip.broadcast + ", netmask: " + data.ip.netmask);
+            }
+            
+            /* prepare field for throughput */
+            $("#network-"+keyid).append("<li>Total throughput: <span id=\"network-throughput-"+keyid+"\">");
+            
+            /* prepare array for throughput format */
+            formatArray.push({
+                key: [key],
+                rate: true,
+                decimals: 1
+            });
+        });
+        
+        /* update throughput regularly */
+        $.rpijs.get("network/bytes/total", function (msg) {
+            $.each(msg, function(key, value) {
+                keyid = key.replace(".", "-");
+                $("#network-throughput-"+keyid).html(value);
+            });
+        
+            return true;
+        }, {
+            update: 1000,
+            rate: true,
+            format: formatArray
+        });
+        
+        return true;
+    });
+});
+
+</script>
+
+</body>
+
+</html>
