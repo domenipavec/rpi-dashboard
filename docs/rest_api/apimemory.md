@@ -1,6 +1,6 @@
 # /api/memory
 
-Provides info about system memory. All values are in kB.
+Provides info about system memory. All values are in bytes.
 
 Example:
 ```
@@ -20,32 +20,32 @@ Example:
 
 ### /api/memory/total
 
-Total amount of physical RAM in kB.
+Total amount of physical RAM.
 
 ### /api/memory/used
 
-Amount of used physical RAM in kB.
+Amount of used physical RAM.
 
 ### /api/memory/free
 
-Amount of free physical RAM in kB.
+Amount of free physical RAM.
 
 ### /api/memory/buffers
 
-Amount of physical RAM in kB used for file buffers.
+Amount of physical RAM used for file buffers.
 
 ### /api/memory/cached
 
-Amount of physical RAM in kB used as cache memory.
+Amount of physical RAM used as cache memory.
 
 ### /api/memory/swap/total
 
-Total amount of swap in kB.
+Total amount of swap.
 
 ### /api/memory/swap/used
 
-Amount of used swap in kB.
+Amount of used swap.
 
 ### /api/memory/swap/free
 
-Amount of free swap in kB.
+Amount of free swap.
