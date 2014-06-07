@@ -134,7 +134,7 @@
             format: [{
                 key: [],
                 rate: false,
-                format: "none"
+                valueType: "none"
             }]
         };
         
@@ -167,7 +167,10 @@
         return this.each(function() {
             var self = this;
             $.rpijs.get(name, function(value) {
-                $(self).html(JSON.stringify(value));
+                if (typeof value === "object") {
+                    value = JSON.stringify(value);
+                }
+                $(self).html(value);
                 return true;
             }, options);
         });
