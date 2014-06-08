@@ -13,4 +13,11 @@
     * [/api/cpu](rest_api/apicpu.md)
     * [/api/network](rest_api/apinetwork.md)
     * [/api/storage](rest_api/apistorage.md)
+* [RPiJS jQuery Plugin](rpijs_jquery_plugin/README.md)
+    * [$.rpijs.init](rpijs_jquery_plugin/rpijsinit.md)
+    * [$.rpijs.get](rpijs_jquery_plugin/rpijsget.md)
+    * [$.fn.rpijs](rpijs_jquery_plugin/fnrpijs.md)
+    * [$.rpijs.parseNumber](rpijs_jquery_plugin/rpijsparsenumber.md)
+    * [options](rpijs_jquery_plugin/options.md)
+    * [formatOptions](rpijs_jquery_plugin/formatoptions.md)
 
