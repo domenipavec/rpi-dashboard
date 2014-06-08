@@ -10,7 +10,11 @@ Path under the REST api, that you want to request.
 
 ### callback
 
-Function that will be called when the request has been returned. The function should take one argument, that is the returned content.
+Function that will be called when the request has been returned.
+
+The function should take one argument, that is the returned content.
+
+Function should return **true**, if updating should continue, and **false** otherwise.
 
 ### [options]
 Optional [Options](options.md) object specifies all other request options.
