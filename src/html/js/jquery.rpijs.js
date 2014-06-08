@@ -29,7 +29,7 @@
         var settings = $.extend({}, $.rpijs.defaults, options);
         
         if (settings.rate) {
-            $.rpijs.getRate(name, callback, options);
+            getRate(name, callback, options);
             return;
         }
         
@@ -39,7 +39,7 @@
                 Authorization: "Basic " + btoa($.rpijs.username + ":" + $.rpijs.password)
             }
         }).done(function(object) {
-            var ret = callback($.rpijs.parse(object, name, options));
+            var ret = callback(parse(object, name, options));
             
             if (ret && settings.update != 0) {
                 setTimeout(function() {
@@ -50,7 +50,7 @@
     };
     
     /* Format all values specified in format option */
-    $.rpijs.parse = function(objectArg, name, options) {
+    var parse = function(objectArg, name, options) {
         var settings = $.extend({}, $.rpijs.defaults, options);
         
         /* if only one value */
@@ -145,7 +145,7 @@
     };
     
     /* get values and store for rate calculation */
-    $.rpijs.getRate = function(name, callback, options) {
+    var getRate = function(name, callback, options) {
         var settings = $.extend({}, $.rpijs.defaults, options);
         var getOptions = {
             update: 0,
@@ -161,15 +161,15 @@
             /* if we do not have previous value we make another request in 500 */
             if ($.rpijs.rates[name] === undefined) {
                 setTimeout(function() {
-                    $.rpijs.getRate(name,callback,options);
+                    getRate(name,callback,options);
                 }, 500);
             } else {
-                var ret = callback($.rpijs.parse(object, name, options));
+                var ret = callback(parse(object, name, options));
             
                 /* only update if callback returns true */
                 if (ret && settings.update != 0) {
                     setTimeout(function() {
-                        $.rpijs.getRate(name,callback,options);
+                        getRate(name,callback,options);
                     }, settings.update);
                 }
             }
