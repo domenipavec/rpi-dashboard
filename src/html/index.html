@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>RPi Dashboard</title>
+
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/signin.css">
+</head>
+
+<body ng-app="rpiDashboard">
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-controller="NavigationController">
+    <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">RPiDashboard</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li ng-repeat="menuEntry in menu" ng-class="menuClass(menuEntry.path)"><a href="#{{menuEntry.path}}">{{menuEntry.name}}</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li ng-hide="loggedIn"><a href="#/login">Login</a></li>
+            <li ng-show="loggedIn"><a class="pointer" ng-click="logout()">Logout</a></li>
+          </ul>
+        </div>
+    </div>
+</div>
+
+<div ng-view></div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="js/jquery.rpijs.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.17/angular.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.17/angular-route.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.17/angular-cookies.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="js/angular/dashboard.js"></script>
+<script src="js/angular/login.js"></script>
+<script src="js/angular/navigation.js"></script>
+<script src="js/angular/memory.js"></script>
+
+</body>
+
+</html>
