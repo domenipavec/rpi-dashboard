@@ -25,10 +25,15 @@ Total amount of physical RAM.
 ### /api/memory/used
 
 Amount of used physical RAM.
+This is a sum of processes, buffers and cached.
 
 ### /api/memory/free
 
 Amount of free physical RAM.
+
+### /api/memory/processes
+
+Amount of physical RAM used by processes.
 
 ### /api/memory/buffers
 
