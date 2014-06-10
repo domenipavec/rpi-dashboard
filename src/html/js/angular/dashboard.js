@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-rpiDashboard = angular.module('rpiDashboard', ['ngRoute', 'ngCookies']);
+rpiDashboard = angular.module('rpiDashboard', ['ngRoute', 'ngCookies', 'googlechart']);
 
 registerPage = function(path, options, accessDependencies, menuName) {
     rpiDashboard.config(function($routeProvider) {
@@ -26,8 +26,39 @@ registerPage = function(path, options, accessDependencies, menuName) {
     });
 };
 
+vObject = function(value, filter) {
+    return {"v":value};
+};
+
+cObject = function(value) {
+    return {"c":value};
+};
+
 rpiDashboard.config(function($routeProvider) {
     $routeProvider.otherwise({
         redirectTo: "/memory"
     });
+});
+
+rpiDashboard.filter('bytes', function() {
+    return function(value, precision) {
+        if (isNaN(parseFloat(value)) || !isFinite(value)) return '-';
+        if (typeof precision === 'undefined') precision = 1;
+        divider = 1024;
+        units = ['B', 'KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+        var i = 0;
+        while (value >= divider) {
+            value /= divider;
+            i++;
+        }
+        return value.toFixed(precision) + " " + units[i];
+    };
+});
+
+rpiDashboard.filter('procents', function() {
+    return function(value, precision) {
+        if (isNaN(parseFloat(value)) || !isFinite(value)) return '-';
+        if (typeof precision === 'undefined') precision = 1;
+        return (100*value).toFixed(precision) + "%";
+    };
 });

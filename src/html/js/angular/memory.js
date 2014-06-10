@@ -16,5 +16,122 @@
  */
 
 registerPage('/memory', {
-    templateUrl: 'partials/memory.html'
+    templateUrl: 'partials/memory.html',
+    controller: 'MemoryController'
 }, ['memory'], "Memory");
+
+rpiDashboard.controller('MemoryController', function($scope, $filter) {
+    $scope.memory = {
+        total: vObject(0),
+        used: vObject(0),
+        free: vObject(0),
+        processes: vObject(0),
+        buffers: vObject(0),
+        cached: vObject(0)
+    };
+    
+    $scope.swap = {
+        total: vObject(0),
+        used: vObject(0),
+        free: vObject(0)
+    };
+    
+    var ramChart = {
+        type: "PieChart",
+        displayed: false,
+        data: {
+            cols: [
+                {
+                    id: "label",
+                    type:"string"
+                },
+                {
+                    id: "size",
+                    type: "number"
+                }
+            ],
+            rows: [
+                cObject([
+                    vObject("Free"),
+                    $scope.memory.free
+                ]),
+                cObject([
+                    vObject("Processes"),
+                    $scope.memory.processes
+                ]),
+                cObject([
+                    vObject("File buffers"),
+                    $scope.memory.buffers
+                ]),
+                cObject([
+                    vObject("I/O Cached"),
+                    $scope.memory.cached
+                ])
+            ]
+        },
+        options: {
+            backgroundColor: {fill: 'transparent'},
+            is3D: true
+        }
+    };
+    var swapChart = {
+        type: "PieChart",
+        displayed: false,
+        data: {
+            cols: [
+                {
+                    id: "label",
+                    type:"string"
+                },
+                {
+                    id: "size",
+                    type: "number"
+                }
+            ],
+            rows: [
+                cObject([
+                    vObject("Free"),
+                    $scope.swap.free
+                ]),
+                cObject([
+                    vObject("Used"),
+                    $scope.swap.used
+                ])
+            ]
+        },
+        options: {
+            backgroundColor: {fill: 'transparent'},
+            is3D: true
+        }
+    };    
+    var active = true;
+    
+    $.rpijs.get("memory", function(data) {
+        $scope.$apply(function() {
+            $scope.memory.total.v = data.total;
+            $scope.memory.used.v = data.used;
+            $scope.memory.free.v = data.free;
+            $scope.memory.free.f = $filter('bytes')(data.free);
+            $scope.memory.processes.v = data.processes;
+            $scope.memory.processes.f = $filter('bytes')(data.processes);
+            $scope.memory.buffers.v = data.buffers;
+            $scope.memory.buffers.f = $filter('bytes')(data.buffers);
+            $scope.memory.cached.v = data.cached;
+            $scope.memory.cached.f = $filter('bytes')(data.cached);
+            $scope.ramChart = ramChart;
+            $scope.swap.total.v = data.swap.total;
+            $scope.swap.free.v = data.swap.free;
+            $scope.swap.free.f = $filter('bytes')(data.swap.free);
+            $scope.swap.used.v = data.swap.used;
+            $scope.swap.used.f = $filter('bytes')(data.swap.used);
+            $scope.swapChart = swapChart;
+        });
+        return active;
+    }, {
+        update: 5000
+    });
+    
+    $scope.$on('$destroy', function() {
+        active = false;
+    });
+});
