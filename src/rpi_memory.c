@@ -49,7 +49,7 @@ json_t * rpi_memory_get(duda_request_t *dr)
     FILE *f;
     json_t *ret;
     json_t *swap;
-    double total, free, buffers, cached, swap_total, swap_free;
+    double total, used, free, processes, buffers, cached, swap_total, swap_free;
 
     ret = json->create_object();
     
@@ -60,16 +60,19 @@ json_t * rpi_memory_get(duda_request_t *dr)
     
     total = parse_meminfo_entry(f, "MemTotal")*KB_MULTIPLIER;
     free = parse_meminfo_entry(f, "MemFree")*KB_MULTIPLIER;
+    used = total - free;
     buffers = parse_meminfo_entry(f, "Buffers")*KB_MULTIPLIER;
     cached = parse_meminfo_entry(f, "Cached")*KB_MULTIPLIER;
+    processes = used-buffers-cached;
     swap_total = parse_meminfo_entry(f, "SwapTotal")*KB_MULTIPLIER;
     swap_free = parse_meminfo_entry(f, "SwapFree")*KB_MULTIPLIER;
 
     fclose(f);
 
     json->add_to_object(ret, "total", json->create_number(total));
-    json->add_to_object(ret, "used", json->create_number(total - free));
+    json->add_to_object(ret, "used", json->create_number(used));
     json->add_to_object(ret, "free", json->create_number(free));
+    json->add_to_object(ret, "processes", json->create_number(processes));
     json->add_to_object(ret, "buffers", json->create_number(buffers));
     json->add_to_object(ret, "cached", json->create_number(cached));
     
