@@ -40,19 +40,20 @@ rpiDashboard.config(function($routeProvider) {
     });
 });
 
+var bytesFilter = function(value, precision) {
+    if (isNaN(parseFloat(value)) || !isFinite(value)) return '-';
+    if (typeof precision === 'undefined') precision = 1;
+    divider = 1024;
+    units = ['B', 'KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+    var i = 0;
+    while (value >= divider) {
+        value /= divider;
+        i++;
+    }
+    return value.toFixed(precision) + " " + units[i];
+};
 rpiDashboard.filter('bytes', function() {
-    return function(value, precision) {
-        if (isNaN(parseFloat(value)) || !isFinite(value)) return '-';
-        if (typeof precision === 'undefined') precision = 1;
-        divider = 1024;
-        units = ['B', 'KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
-        var i = 0;
-        while (value >= divider) {
-            value /= divider;
-            i++;
-        }
-        return value.toFixed(precision) + " " + units[i];
-    };
+    return bytesFilter;
 });
 
 rpiDashboard.filter('procents', function() {

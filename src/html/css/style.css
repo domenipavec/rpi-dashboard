@@ -1,9 +1,21 @@
 .chart-container {
-    padding-bottom: 50%;
+    padding-bottom: 30%;
+    min-height: 150px;
 }
-
 .chart {
     width: 100%;
     height: 100%;
     position: absolute;
+}
+.graph-green {
+    color: #109618;
+}
+.graph-red {
+    color: #dc3912;
+}
+.graph-orange {
+    color: #ff9900;
+}
+.graph-blue {
+    color: #3366cc;
 }

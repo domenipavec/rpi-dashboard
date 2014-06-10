@@ -4,35 +4,41 @@
     
     <h3>Physical RAM:</h3>
     <div class="row">
-        <div class="col-md-8 chart-container">
+        <div class="col-lg-4 col-sm-8 chart-container">
             <div google-chart chart="ramChart" class="chart"></div>
         </div>
-        <div class="col-md-4">
+        <div class="col-lg-3 col-sm-4">
             <ul>
                 <li><b>Total:</b> {{memory.total.v | bytes}}</li>
-                <li><b>Free:</b> {{memory.free.v | bytes}} ({{memory.free.v/memory.total.v | procents}})</li>
+                <li class="graph-green"><b>Free:</b> {{memory.free.v | bytes}} ({{memory.free.v/memory.total.v | procents}})</li>
                 <li><b>Used:</b> {{memory.used.v | bytes}} ({{memory.used.v/memory.total.v | procents}})
                     <ul>
-                        <li><b>Processes:</b> {{memory.processes.v | bytes}} ({{memory.processes.v/memory.total.v | procents}})</li>
-                        <li><b>File buffers:</b> {{memory.buffers.v | bytes}} ({{memory.buffers.v/memory.total.v | procents}})</li>
-                        <li><b>I/O cached:</b> {{memory.cached.v | bytes}} ({{memory.cached.v/memory.total.v | procents}})</li>
+                        <li class="graph-red"><b>Processes:</b> {{memory.processes.v | bytes}} ({{memory.processes.v/memory.total.v | procents}})</li>
+                        <li class="graph-orange"><b>File buffers:</b> {{memory.buffers.v | bytes}} ({{memory.buffers.v/memory.total.v | procents}})</li>
+                        <li class="graph-blue"><b>I/O cached:</b> {{memory.cached.v | bytes}} ({{memory.cached.v/memory.total.v | procents}})</li>
                     </ul>
                 </li>
             </ul>
+        </div>
+        <div class="col-lg-5 col-sm-12 chart-container">
+            <div google-chart chart="ramHistory" class="chart"></div>
         </div>
     </div>
 
     <h3>SWAP:</h3>
     <div class="row">
-        <div class="col-md-8 chart-container">
+        <div class="col-lg-4 col-sm-8 chart-container">
             <div google-chart chart="swapChart" class="chart"></div>
         </div>
-        <div class="col-md-4">
+        <div class="col-lg-3 col-sm-4">
             <ul>
                 <li><b>Total:</b> {{swap.total.v | bytes}}</li>
-                <li><b>Free:</b> {{swap.free.v | bytes}} ({{swap.free.v/swap.total.v | procents}})</li>
-                <li><b>Used:</b> {{swap.used.v | bytes}} ({{swap.used.v/swap.total.v | procents}})</li>
+                <li class="graph-green"><b>Free:</b> {{swap.free.v | bytes}} ({{swap.free.v/swap.total.v | procents}})</li>
+                <li class="graph-red"><b>Used:</b> {{swap.used.v | bytes}} ({{swap.used.v/swap.total.v | procents}})</li>
             </ul>
+        </div>
+        <div class="col-lg-5 col-sm-12 chart-container">
+            <div google-chart chart="swapHistory" class="chart"></div>
         </div>
     </div>
 </div>
