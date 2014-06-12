@@ -209,7 +209,7 @@ backgroundUpdate(['cpu'], 1000, function(done) {
         
         $.rpijs.get("cpu/temperature", function(data) {
             cpuData.temperature.v = data;
-            cpuData.temperature.f = data + "°C";
+            cpuData.temperature.f = data.toFixed(1) + "°C";
             cpuData.temperatureHistory.data.rows.push(cObject([
                 vObject(new Date()),
                 angular.copy(cpuData.temperature)
