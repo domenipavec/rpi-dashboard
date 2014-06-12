@@ -236,15 +236,10 @@ backgroundUpdate(['memory'], 5000, function(done) {
 });
 
 rpiDashboard.controller('MemoryController', function($scope, $filter) {
-    
     $scope.memory = memoryData.memory;
     $scope.swap = memoryData.swap;
     $scope.ramChart = memoryData.ramChart;
     $scope.ramHistory = memoryData.ramHistory;
     $scope.swapChart = memoryData.swapChart;
     $scope.swapHistory = memoryData.swapHistory;
-    
-    $scope.$on('$destroy', function() {
-        active = false;
-    });
 });
