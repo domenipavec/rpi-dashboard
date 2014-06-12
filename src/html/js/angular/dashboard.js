@@ -72,6 +72,13 @@ rpiDashboard.filter('bytes', function() {
     return bytesFilter;
 });
 
+var bpsFilter = function(value, precision) {
+    return $.rpijs.parseNumber(value, {valueType: 'binary', rate: true, decimals: precision});
+};
+rpiDashboard.filter('bps', function() {
+    return bpsFilter;
+});
+
 var procentsFilter = function(value, precision) {
     if (isNaN(parseFloat(value)) || !isFinite(value)) return '-';
     if (typeof precision === 'undefined') precision = 1;

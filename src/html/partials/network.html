@@ -1,0 +1,34 @@
+<div class="container">
+
+    <h1>Network</h1>
+
+    <div class="row" ng-repeat="(name,data) in list">
+        <div class="col-md-12"><h2>{{name}}</h2></div>
+        <div class="col-md-4">
+            <ul>
+                <li><b>MAC address:</b> {{data.mac}}</li>
+                <li><b>MTU:</b> {{data.mtu}}</li>
+                <li ng-show="data.ip"><b>IP:</b><br />
+                        <b>Address:</b> {{data.ip.address}}<br />
+                        <b>Broadcast:</b> {{data.ip.broadcast}}<br />
+                        <b>Netmask:</b> {{data.ip.netmask}}
+                </li>
+                <li ng-show="data.ipv6"><b>IPv6:</b>
+                    <ul>
+                        <li ng-repeat="ipv6 in data.ipv6">
+                            <b>Address:</b><br />
+                            {{ipv6.address}}/{{ipv6.prefix}}<br />
+                            <b>Scope:</b> {{ipv6.scope}}<br />
+                        </li>
+                    </ul>
+                </li>
+                <li class="graph-blue"><b>Transmit:</b> {{data.throughput.tx.v | bps}}</li>
+                <li class="graph-red"><b>Receive:</b> {{data.throughput.rx.v | bps}}</li>
+            </ul>
+        </div>
+        <div class="col-md-8 chart-container">
+            <div google-chart chart="data.history" class="chart"></div>
+        </div>
+    </div>
+    
+</div>
