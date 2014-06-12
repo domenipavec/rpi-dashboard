@@ -186,7 +186,7 @@ memoryData.swapHistory = {
 };
 
 var ready = false;
-rpiDashboard.run(function($rootScope, User) {
+rpiDashboard.run(function($rootScope, User, $timeout) {
     var active = User.checkDependencies(['memory']);
     var startUpdate = function() {
         if (!active) {
@@ -239,9 +239,7 @@ rpiDashboard.run(function($rootScope, User) {
             ]));
             ready = true;
             $rootScope.$broadcast('MEMORY_AJAX_UPDATE');
-            return active;
-        }, {
-            update: 5000
+            $timeout(startUpdate, 5000, false);
         });
     };
     
