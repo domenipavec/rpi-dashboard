@@ -24,7 +24,7 @@
     $.rpijs.defaults = {
         update: 0,
         rate: false,
-        format: [{}]
+        format: []
     };
     
     $.rpijs.formatDefaults = {

@@ -91,9 +91,6 @@ $(function() {
     /* parse storage list to table */
     $.rpijs.get("storage/list", function(msg) {
         $.each(msg, function(index, item) {
-            if (item === undefined) {
-                return;
-            }
             
             /* show size only it is actually available */
             var size = $.rpijs.parseNumber(item.size, {valueType: "binary"});
@@ -134,9 +131,6 @@ $(function() {
         /* update use values every 10s */
         $.rpijs.get("storage/list", function(msg) {
             $.each(msg, function(index,item) {
-                if (item === undefined) {
-                    return;
-                }
                 
                 var use = $.rpijs.parseNumber(item.use * 100, {valueType: "number", decimals: 1});
                 if (use !== "NaN") {
@@ -155,9 +149,6 @@ $(function() {
         formatArray = [];
     
         $.each(msg, function(key, data) {
-            if (data === undefined) {
-                return;
-            }
             
             /* if using vlan, we need to replace dot */
             keyid = key.replace(".", "-");
