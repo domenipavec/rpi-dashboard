@@ -26,6 +26,31 @@ registerPage = function(path, options, accessDependencies, menuName) {
     });
 };
 
+backgroundUpdate = function(dependencies, t, f) {
+    rpiDashboard.run(function($rootScope, User, $timeout, $q) {
+        var active = User.checkDependencies(dependencies);
+        var update = function() {
+            if (!active) {
+                return;
+            }
+            var done = $q.defer();
+            f(done);
+            done.promise.then(function() {
+                if (t != 0) {
+                    $timeout(update, t);
+                }
+            });
+        };
+
+        $rootScope.$on('USER_STATUS_CHANGED', function() {
+            active = User.checkDependencies(dependencies);
+            update();
+        });
+
+        update();
+    });
+};
+
 vObject = function(value, filter) {
     return {"v":value};
 };
@@ -41,16 +66,7 @@ rpiDashboard.config(function($routeProvider) {
 });
 
 var bytesFilter = function(value, precision) {
-    if (isNaN(parseFloat(value)) || !isFinite(value)) return '-';
-    if (typeof precision === 'undefined') precision = 1;
-    divider = 1024;
-    units = ['B', 'KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
-    var i = 0;
-    while (value >= divider) {
-        value /= divider;
-        i++;
-    }
-    return value.toFixed(precision) + " " + units[i];
+    return $.rpijs.parseNumber(value, {valueType: 'binary', decimals: precision});
 };
 rpiDashboard.filter('bytes', function() {
     return bytesFilter;
@@ -62,4 +78,10 @@ rpiDashboard.filter('procents', function() {
         if (typeof precision === 'undefined') precision = 1;
         return (100*value).toFixed(precision) + "%";
     };
+});
+
+rpiDashboard.filter('time', function() {
+    return function(value) {
+        return $.rpijs.parseNumber(value, {valueType: 'time', decimals: 0});
+    }
 });

@@ -185,91 +185,64 @@ memoryData.swapHistory = {
     }
 };
 
-var ready = false;
-rpiDashboard.run(function($rootScope, User, $timeout) {
-    var active = User.checkDependencies(['memory']);
-    var startUpdate = function() {
-        if (!active) {
-            return;
+backgroundUpdate(['memory'], 5000, function(done) {
+    $.rpijs.get("memory", function(data) {
+        if (memoryData.memory.total.v == 0) {
+            memoryData.memory.total.v = data.total;
+            memoryData.memory.total.f = bytesFilter(data.total);
+            memoryData.memory.total14.v = data.total/4;
+            memoryData.memory.total14.f = bytesFilter(data.total/4);
+            memoryData.memory.total24.v = data.total/2;
+            memoryData.memory.total24.f = bytesFilter(data.total/2);
+            memoryData.memory.total34.v = data.total*0.75;
+            memoryData.memory.total34.f = bytesFilter(data.total*0.75);
+            
+            memoryData.swap.total.v = data.swap.total;
+            memoryData.swap.total.f = bytesFilter(data.swap.total);
+            memoryData.swap.total14.v = data.swap.total/4;
+            memoryData.swap.total14.f = bytesFilter(data.swap.total/4);
+            memoryData.swap.total24.v = data.swap.total/2;
+            memoryData.swap.total24.f = bytesFilter(data.swap.total/2);
+            memoryData.swap.total34.v = data.swap.total*0.75;
+            memoryData.swap.total34.f = bytesFilter(data.swap.total*0.75);
         }
-        $.rpijs.get("memory", function(data) {
-            if (memoryData.memory.total.v == 0) {
-                memoryData.memory.total.v = data.total;
-                memoryData.memory.total.f = bytesFilter(data.total);
-                memoryData.memory.total14.v = data.total/4;
-                memoryData.memory.total14.f = bytesFilter(data.total/4);
-                memoryData.memory.total24.v = data.total/2;
-                memoryData.memory.total24.f = bytesFilter(data.total/2);
-                memoryData.memory.total34.v = data.total*0.75;
-                memoryData.memory.total34.f = bytesFilter(data.total*0.75);
-                
-                memoryData.swap.total.v = data.swap.total;
-                memoryData.swap.total.f = bytesFilter(data.swap.total);
-                memoryData.swap.total14.v = data.swap.total/4;
-                memoryData.swap.total14.f = bytesFilter(data.swap.total/4);
-                memoryData.swap.total24.v = data.swap.total/2;
-                memoryData.swap.total24.f = bytesFilter(data.swap.total/2);
-                memoryData.swap.total34.v = data.swap.total*0.75;
-                memoryData.swap.total34.f = bytesFilter(data.swap.total*0.75);
-            }
-            memoryData.memory.used.v = data.used;
-            memoryData.memory.free.v = data.free;
-            memoryData.memory.free.f = bytesFilter(data.free);
-            memoryData.memory.processes.v = data.processes;
-            memoryData.memory.processes.f = bytesFilter(data.processes);
-            memoryData.memory.buffers.v = data.buffers;
-            memoryData.memory.buffers.f = bytesFilter(data.buffers);
-            memoryData.memory.cached.v = data.cached;
-            memoryData.memory.cached.f = bytesFilter(data.cached);
-            memoryData.ramHistory.data.rows.push(cObject([
-                vObject(new Date()),
-                angular.copy(memoryData.memory.processes),
-                angular.copy(memoryData.memory.buffers),
-                angular.copy(memoryData.memory.cached),
-                angular.copy(memoryData.memory.free)
-            ]));
-            memoryData.swap.free.v = data.swap.free;
-            memoryData.swap.free.f = bytesFilter(data.swap.free);
-            memoryData.swap.used.v = data.swap.used;
-            memoryData.swap.used.f = bytesFilter(data.swap.used);
-            memoryData.swapHistory.data.rows.push(cObject([
-                vObject(new Date()),
-                angular.copy(memoryData.swap.used),
-                angular.copy(memoryData.swap.free)
-            ]));
-            ready = true;
-            $rootScope.$broadcast('MEMORY_AJAX_UPDATE');
-            $timeout(startUpdate, 5000, false);
-        });
-    };
-    
-    startUpdate();
-    $rootScope.$on('USER_STATUS_CHANGED', function() {
-        active = User.checkDependencies(['memory']);
-        startUpdate();
+        memoryData.memory.used.v = data.used;
+        memoryData.memory.free.v = data.free;
+        memoryData.memory.free.f = bytesFilter(data.free);
+        memoryData.memory.processes.v = data.processes;
+        memoryData.memory.processes.f = bytesFilter(data.processes);
+        memoryData.memory.buffers.v = data.buffers;
+        memoryData.memory.buffers.f = bytesFilter(data.buffers);
+        memoryData.memory.cached.v = data.cached;
+        memoryData.memory.cached.f = bytesFilter(data.cached);
+        memoryData.ramHistory.data.rows.push(cObject([
+            vObject(new Date()),
+            angular.copy(memoryData.memory.processes),
+            angular.copy(memoryData.memory.buffers),
+            angular.copy(memoryData.memory.cached),
+            angular.copy(memoryData.memory.free)
+        ]));
+        memoryData.swap.free.v = data.swap.free;
+        memoryData.swap.free.f = bytesFilter(data.swap.free);
+        memoryData.swap.used.v = data.swap.used;
+        memoryData.swap.used.f = bytesFilter(data.swap.used);
+        memoryData.swapHistory.data.rows.push(cObject([
+            vObject(new Date()),
+            angular.copy(memoryData.swap.used),
+            angular.copy(memoryData.swap.free)
+        ]));
+        done.resolve();
     });
 });
 
 rpiDashboard.controller('MemoryController', function($scope, $filter) {
     
-    function loadIntoScope() {
-        $scope.memory = memoryData.memory;
-        $scope.swap = memoryData.swap;
-        $scope.ramChart = memoryData.ramChart;
-        $scope.ramHistory = memoryData.ramHistory;
-        $scope.swapChart = memoryData.swapChart;
-        $scope.swapHistory = memoryData.swapHistory;
-    }
-    
-    if (ready) {
-        loadIntoScope();
-    }
-    
-    $scope.$on('MEMORY_AJAX_UPDATE', function() {
-        $scope.$apply(function() {
-            loadIntoScope();
-        });
-    });
+    $scope.memory = memoryData.memory;
+    $scope.swap = memoryData.swap;
+    $scope.ramChart = memoryData.ramChart;
+    $scope.ramHistory = memoryData.ramHistory;
+    $scope.swapChart = memoryData.swapChart;
+    $scope.swapHistory = memoryData.swapHistory;
     
     $scope.$on('$destroy', function() {
         active = false;

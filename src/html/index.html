@@ -23,13 +23,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">RPiDashboard</a>
+          <a class="navbar-brand" href="#/">RPiDashboard</a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li ng-repeat="menuEntry in menu" ng-class="menuClass(menuEntry.path)"><a href="#{{menuEntry.path}}">{{menuEntry.name}}</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
+            <li>Uptime: 2d 3h</li>
             <li ng-hide="loggedIn"><a href="#/login">Login</a></li>
             <li ng-show="loggedIn"><a class="pointer" ng-click="logout()">Logout</a></li>
           </ul>
@@ -49,6 +50,7 @@
 <script src="js/angular/dashboard.js"></script>
 <script src="js/angular/login.js"></script>
 <script src="js/angular/navigation.js"></script>
+<script src="js/angular/cpu.js"></script>
 <script src="js/angular/memory.js"></script>
 
 </body>
