@@ -72,12 +72,13 @@ rpiDashboard.filter('bytes', function() {
     return bytesFilter;
 });
 
+var procentsFilter = function(value, precision) {
+    if (isNaN(parseFloat(value)) || !isFinite(value)) return '-';
+    if (typeof precision === 'undefined') precision = 1;
+    return (100*value).toFixed(precision) + "%";
+};
 rpiDashboard.filter('procents', function() {
-    return function(value, precision) {
-        if (isNaN(parseFloat(value)) || !isFinite(value)) return '-';
-        if (typeof precision === 'undefined') precision = 1;
-        return (100*value).toFixed(precision) + "%";
-    };
+    return procentsFilter;
 });
 
 rpiDashboard.filter('time', function() {
