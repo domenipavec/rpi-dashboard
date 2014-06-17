@@ -23,6 +23,7 @@
 
 #include "rpi_security.h"
 #include "rpi_config.h"
+#include "rpi_string.h"
 
 #include <time.h>
 
@@ -150,18 +151,11 @@ void rpi_security_init(void)
     size_t decoded_len;
 
     mk_list_init(&users);
-    
-    /* concat fiepath and filename */
-    const char * filename = "rpi.users";
-    const char * filepath = fconf->get_path();
-    int lenpath = strlen(filepath);
-    int lenname = strlen(filename);
-    char * path = (char *)mem->alloc(lenpath + lenname + 1);
-    memcpy(path, filepath, lenpath);
-    memcpy(path + lenpath, filename, lenname);
-    path[lenpath + lenname] = '\0';
+
+    char * path = rpi_string_concat(fconf->get_path(), "rpi.users");
 
     buf = (fconf->read_file)(path);
+    mem->free(path);
     if (buf == NULL) {
         return;
     }
