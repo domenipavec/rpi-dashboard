@@ -26,6 +26,7 @@
 #include "rpi_string.h"
 
 #include <time.h>
+#include <assert.h>
 
 static struct mk_list users;
 
@@ -156,9 +157,7 @@ void rpi_security_init(void)
 
     buf = (fconf->read_file)(path);
     mem->free(path);
-    if (buf == NULL) {
-        return;
-    }
+    assert(buf != NULL);
 
     len = strlen(buf);
     for (i = 0; i < len; i++) {
