@@ -68,7 +68,7 @@ static double rpi_network_read_file(const char *if_name,
     return value;
 }
 
-static int check_iface(char *qsiface, char *iface) {
+static int check_iface(const char *qsiface, char *iface) {
     int i, last;
     
     if (qsiface == NULL) {
@@ -95,6 +95,13 @@ static int check_iface(char *qsiface, char *iface) {
     return -1;
 }
 
+static const char * get_qsiface(duda_request_t *dr) {
+    if (dr == NULL) {
+        return "";
+    }
+    return qs->get(dr, "iface");
+}
+
 static json_t *rpi_network_get(duda_request_t *dr, const char *bytes_packets)
 {
     DIR *d;
@@ -104,7 +111,7 @@ static json_t *rpi_network_get(duda_request_t *dr, const char *bytes_packets)
     json_t *tx_object;
     json_t *total_object;
     double rx_value, tx_value;
-    char *qsiface;
+    const char *qsiface;
 
     object = json->create_object();
     
@@ -122,7 +129,7 @@ static json_t *rpi_network_get(duda_request_t *dr, const char *bytes_packets)
     total_object = json->create_object();
     json->add_to_object(object, "total", total_object);
     
-    qsiface = qs->get(dr, "iface");
+    qsiface = get_qsiface(dr);
 
     while (NULL != (de = readdir(d))) {
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) {
@@ -310,7 +317,7 @@ json_t * rpi_network_get_list(duda_request_t *dr)
     struct dirent *de;
     json_t *object;
     json_t *interface_object;
-    char *qsiface;
+    const char *qsiface;
 
     object = json->create_object();
     
@@ -319,7 +326,7 @@ json_t * rpi_network_get_list(duda_request_t *dr)
         return object;
     }
 
-    qsiface = qs->get(dr, "iface");
+    qsiface = get_qsiface(dr);
 
     while (NULL != (de = readdir(d))) {
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) {
