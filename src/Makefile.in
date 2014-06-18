@@ -2,8 +2,8 @@ NAME    = rpi
 CC      = gcc
 CFLAGS  = -g -Wall -DDEBUG
 INCDIR  = -I./include
-LDFLAGS =
+LDFLAGS = -lrrd
 DEFS    =
 OBJECTS = rpi_main.o rpi_modules.o rpi_security.o rpi_config.o \
           rpi_memory.o rpi_cpu.o rpi_network.o rpi_storage.o \
-          rpi_string.o
+          rpi_string.o rpi_logger.o
