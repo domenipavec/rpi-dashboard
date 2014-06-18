@@ -63,7 +63,7 @@ json_t * rpi_modules_user_list(char *user);
 /* takes path, and constructs corresponding json */
 json_t * rpi_modules_json(duda_request_t *dr, 
                           rpi_module_value_t *value, 
-                          char *path, 
+                          const char *path, 
                           json_t **to_delete);
 
 /* parse allow flag from string */

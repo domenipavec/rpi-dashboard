@@ -88,7 +88,7 @@ static json_t * construct_full_json(duda_request_t *dr, rpi_module_value_t *valu
 }
 
 /* search for path in json object */
-static json_t * json_search(char *path, json_t *object)
+static json_t * json_search(const char *path, json_t *object)
 {
     int end;
     json_t *item;
@@ -101,7 +101,7 @@ static json_t * json_search(char *path, json_t *object)
 
     /* end at next slash or end of path */
     end = 0;
-    while (path[end] != '/' && path[end] != ' ' && path[end] != '?') {
+    while (path[end] != '/' && path[end] != ' ' && path[end] != '?' && path[end] != '\0') {
         end++;
     }
     
@@ -129,7 +129,7 @@ static json_t * json_search(char *path, json_t *object)
 /* takes path, and finds corresponding json in value */
 json_t * rpi_modules_json(duda_request_t *dr, 
                           rpi_module_value_t *value, 
-                          char *path, 
+                          const char *path, 
                           json_t **to_delete)
 {
     int end;
@@ -143,7 +143,7 @@ json_t * rpi_modules_json(duda_request_t *dr,
 
     /* end at next slash or end of path */
     end = 0;
-    while (path[end] != '/' && path[end] != ' ' && path[end] != '?') {
+    while (path[end] != '/' && path[end] != ' ' && path[end] != '?' && path[end] != '\0') {
         end++;
     }
 
