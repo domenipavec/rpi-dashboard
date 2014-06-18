@@ -22,4 +22,6 @@
 
 char * rpi_string_concat(const char *s1, const char *s2);
 
+char * rpi_string_concatN(int N, ...);
+
 #endif

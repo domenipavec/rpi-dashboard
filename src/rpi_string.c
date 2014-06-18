@@ -19,6 +19,8 @@
 
 #include "webservice.h"
 
+#include <stdarg.h>
+
 char * rpi_string_concat(const char *s1, const char *s2)
 {
     int l1 = strlen(s1);
@@ -28,4 +30,30 @@ char * rpi_string_concat(const char *s1, const char *s2)
     memcpy(path + l1, s2, l2);
     path[l1 + l2] = '\0';
     return path;
+}
+
+char * rpi_string_concatN(int N, ...)
+{
+    int i;
+    const char *s[N];
+    int len[N];
+    int total_len = 0;
+    va_list ap;
+    
+    va_start(ap, N);
+    for (i = 0; i < N; i++) {
+        s[i] = va_arg(ap, const char *);
+        len[i] = strlen(s[i]);
+        total_len += len[i];
+    }
+    va_end(ap);
+    
+    char *ret = (char *)mem->alloc(total_len + 1);
+    char *copy = ret;
+    for (i = 0; i < N; i++) {
+        memcpy(copy, s[i], len[i]);
+        copy += len[i];
+    }
+    copy = '\0';
+    return ret;
 }
