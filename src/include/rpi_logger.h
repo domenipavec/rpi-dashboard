@@ -23,24 +23,14 @@
 #include "mk_memory.h"
 #include "mk_list.h"
 
-#define DST_GAUGE "GAUGE"
-#define DST_COUNTER "COUNTER"
-
 typedef struct {
     mk_pointer module;
     const char *path;
     const char *dst; /* data source type for rrd */
+    const char *name_part;
     
     struct mk_list _head;
 } rpi_logger_group_t;
-
-typedef struct {
-    const char *name;
-    const char *dst;
-    char *ds_name;
-    
-    struct mk_list _head;
-} rpi_logger_value_t;
 
 typedef struct {
     const char *name;
