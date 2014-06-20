@@ -54,6 +54,6 @@ char * rpi_string_concatN(int N, ...)
         memcpy(copy, s[i], len[i]);
         copy += len[i];
     }
-    copy = '\0';
+    *copy = '\0';
     return ret;
 }
