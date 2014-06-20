@@ -53,7 +53,7 @@ static void add_group(char *module, const char *path, const char *dst)
     g->module.len = strlen(module);
     g->path = path;
     g->dst = dst;
-
+    
     rpi_module = rpi_modules_find(g->module);
     assert(rpi_module != NULL);
 
@@ -88,8 +88,8 @@ static void groups_init()
     add_group("cpu", "temperature", DST_GAUGE);
     add_group("memory", "", DST_GAUGE);
     add_group("storage", "throughput", DST_COUNTER);
-    //add_group("network", "packets", DST_COUNTER);
-    //add_group("network", "bytes", DST_COUNTER);
+    add_group("network", "packets", DST_COUNTER);
+    add_group("network", "bytes", DST_COUNTER);
 }
 
 static void add_rra(const char *name, int steps, int rows)
