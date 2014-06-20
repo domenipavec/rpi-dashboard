@@ -97,7 +97,7 @@ static int check_iface(const char *qsiface, char *iface) {
 
 static const char * get_qsiface(duda_request_t *dr) {
     if (dr == NULL) {
-        return "";
+        return NULL;
     }
     return qs->get(dr, "iface");
 }
