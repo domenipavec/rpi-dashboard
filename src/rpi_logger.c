@@ -27,12 +27,13 @@
 #include <rrd.h>
 #include <time.h>
 #include <assert.h>
-
-static struct mk_list groups_list;
-static struct mk_list rra_list;
-static int rra_list_len;
+#include <float.h>
 
 #define assert_rrd(x) if ((x) != 0) __assert(rrd_get_context()->rrd_error, __FILE__, __LINE__)
+
+static struct mk_list groups_list;
+#define RRA_LIST_LEN 5
+static rpi_logger_rra_t rra_list[RRA_LIST_LEN];
 
 static const char *DST_GAUGE = "GAUGE";
 static const char *DST_COUNTER = "COUNTER";
@@ -80,7 +81,7 @@ static void add_group(char *module, const char *path, const char *dst)
 }
 
 /* initialize groups of values to be logged */
-static void groups_init()
+static void groups_init(void)
 {
     mk_list_init(&groups_list);
 
@@ -92,50 +93,38 @@ static void groups_init()
     add_group("network", "bytes", DST_COUNTER);
 }
 
-static void add_rra(const char *name, int steps, int rows)
+static void add_rra(int i, const char *name, int steps, int rows)
 {
-    rpi_logger_rra_t *r;
-    
-    r = (rpi_logger_rra_t *)mem->alloc(sizeof(rpi_logger_rra_t));
-    r->name = name;
-    r->steps = steps;
-    r->rows = rows;
-    snprintf(r->string, sizeof(r->string), "RRA:AVERAGE:0.5:%d:%d", steps, rows);
-    
-    mk_list_add(&(r->_head), &rra_list);
-    rra_list_len++;
+    rra_list[i].name = name;
+    rra_list[i].steps = steps;
+    rra_list[i].rows = rows;
+    snprintf(rra_list[i].string, sizeof(rra_list[i].string), "RRA:AVERAGE:0.5:%d:%d", steps, rows);
 }
 
 /* initialize a list of RRAs for database */
-static void rra_init()
+static void rra_init(void)
 {
-    mk_list_init(&rra_list);
-    rra_list_len = 0;
-
-    add_rra("hour", 1, 60); // an hour, every min
-    add_rra("day", 30, 48); // a day, every 30min
-    add_rra("week", 180, 56); // 7 days, every 3 hours
-    add_rra("month", 720, 60); // 30 days, 2 times a day
+    add_rra(0, "hour", 1, 61); // an hour, every min
+    add_rra(1, "day", 30, 49); // a day, every 30min
+    add_rra(2, "week", 180, 57); // 7 days, every 3 hours
+    add_rra(3, "month", 720, 61); // 30 days, 2 times a day
+    add_rra(4, "year", 8760, 61); // 365 days, 5 times a month
 }
 
 /* use rrd_create_r to initialize rrd database */
 static void create_rrdfile(const char *fn, const char *dst)
 {
-    int i = 1;
-    struct mk_list *entry;
-    rpi_logger_rra_t *entry_rra;
-    const char *params[rra_list_len + 1];
+    int i;
+    const char *params[RRA_LIST_LEN + 1];
     char *ds;
     
     ds = rpi_string_concatN(3, "DS:value:", dst, ":90:U:U");
     params[0] = ds;
-    mk_list_foreach(entry, &rra_list) {
-        entry_rra = mk_list_entry(entry, rpi_logger_rra_t, _head);
-        params[i] = entry_rra->string;
-        i++;
+    for (i = 0; i < RRA_LIST_LEN; i++) {
+        params[i+1] = rra_list[i].string;
     }
 
-    assert_rrd(rrd_create_r(fn, 60, time(NULL), rra_list_len + 1, params));
+    assert_rrd(rrd_create_r(fn, 60, time(NULL), RRA_LIST_LEN + 1, params));
 
     mem->free(ds);
 }
@@ -186,7 +175,7 @@ static void parse_json(const json_t *json_object, const char *name_part, const c
     }
 }
 
-static void rpi_logger_update()
+static void rpi_logger_update(void)
 {
     rpi_logger_group_t *entry_group;
     struct mk_list *entry;
@@ -218,10 +207,128 @@ static void * rpi_logger_worker(void *arg)
     return NULL;
 }
 
+static json_t *rpi_logger_get_value(int rrai, const char *name) 
+{
+    char *file_name;
+    json_t *object;
+    json_t *array;
+    time_t start, end, ti;
+    unsigned long step, ds_cnt;
+    char **ds_namv;
+    rrd_value_t *values;
+    rrd_value_t *value;
+    double min, max;
+    min = DBL_MAX;
+    max = DBL_MIN;
+
+    file_name = rpi_string_concatN(3, data->get_path(), name, ".rrd");
+    if (access(file_name, F_OK) == -1) {
+        mem->free(file_name);
+        return json->create_null();
+    }
+    
+    object = json->create_object();
+    
+    step = 60*rra_list[rrai].steps;
+    end = time(NULL);
+    end -= end%step;
+    start = end - (step*rra_list[rrai].rows);
+    assert_rrd(rrd_fetch_r(file_name, "AVERAGE", &start, &end, &step, &ds_cnt, &ds_namv, &values));
+    value = values;
+    
+    json->add_to_object(object, "end", json->create_number((double)end));
+    json->add_to_object(object, "start", json->create_number((double)(start+step)));
+    json->add_to_object(object, "step", json->create_number((double)step));
+    
+    array = json->create_array();
+    for (ti = start + step; ti < end; ti += step) {
+        if (*value > max) {
+            max = *value;
+        }
+        if (*value < min) {
+            min = *value;
+        }
+        json->add_to_array(array, json->create_number(*value));
+        value++;
+    }
+    json->add_to_object(object, "data", array);
+    json->add_to_object(object, "min", json->create_number(min));
+    json->add_to_object(object, "max", json->create_number(max));
+    
+    free(ds_namv);
+    free(values);
+
+    mem->free(file_name);
+    return object;
+}
+
+static json_t *rpi_logger_get(int rrai, duda_request_t *dr)
+{
+    char *value;
+    json_t *object;
+    int i, last, len;
+    
+    object = json->create_object();
+    
+    value = qs->get(dr, "value");
+    if (value == NULL) {
+        return object;
+    }
+    
+    len = strlen(value);
+    for (last = (i = 0); i < len; i++) {
+        if (value[i] == '/') {
+            value[i] = '-';
+        }
+        if (value[i] == '|') {
+            value[i] = '\0';
+            json->add_to_object(object, value+last, rpi_logger_get_value(rrai, value + last));
+            last = i+1;
+        }
+    }
+    json->add_to_object(object, value+last, rpi_logger_get_value(rrai, value + last));
+    
+    return object;
+}
+
+json_t *rpi_logger_get_hour(duda_request_t *dr)
+{
+    return rpi_logger_get(0, dr);
+}
+json_t *rpi_logger_get_day(duda_request_t *dr)
+{
+    return rpi_logger_get(1, dr);
+}
+json_t *rpi_logger_get_week(duda_request_t *dr)
+{
+    return rpi_logger_get(2, dr);
+}
+json_t *rpi_logger_get_month(duda_request_t *dr)
+{
+    return rpi_logger_get(3, dr);
+}
+json_t *rpi_logger_get_year(duda_request_t *dr)
+{
+    return rpi_logger_get(4, dr);
+}
+
+static void module_init()
+{
+    rpi_module_t *module = rpi_modules_module_init("logger", NULL);
+    
+    rpi_modules_value_init("hour", rpi_logger_get_hour, &(module->values_head.values));
+    rpi_modules_value_init("day", rpi_logger_get_day, &(module->values_head.values));
+    rpi_modules_value_init("week", rpi_logger_get_week, &(module->values_head.values));
+    rpi_modules_value_init("month", rpi_logger_get_month, &(module->values_head.values));
+    rpi_modules_value_init("year", rpi_logger_get_year, &(module->values_head.values));
+}
+
 void rpi_logger_init(void)
 {
     groups_init();
     rra_init();
+
+    module_init();
     
     worker->spawn(rpi_logger_worker, NULL);
 }

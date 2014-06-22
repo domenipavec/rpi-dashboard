@@ -35,8 +35,8 @@ typedef struct {
 typedef struct {
     const char *name;
     char string[30];
-    int steps;
-    int rows;
+    long steps;
+    long rows;
     
     struct mk_list _head;
 } rpi_logger_rra_t;
