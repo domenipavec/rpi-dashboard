@@ -28,6 +28,7 @@
 #include <time.h>
 #include <assert.h>
 #include <float.h>
+#include <math.h>
 
 #define assert_rrd(x) if ((x) != 0) __assert(rrd_get_context()->rrd_error, __FILE__, __LINE__)
 
@@ -218,8 +219,8 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
     rrd_value_t *values;
     rrd_value_t *value;
     double min, max;
-    min = DBL_MAX;
-    max = DBL_MIN;
+    min = NAN;
+    max = NAN;
 
     file_name = rpi_string_concatN(3, data->get_path(), name, ".rrd");
     if (access(file_name, F_OK) == -1) {
@@ -242,10 +243,10 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
     
     array = json->create_array();
     for (ti = start + step; ti < end; ti += step) {
-        if (*value > max) {
+        if (max != max || *value > max) {
             max = *value;
         }
-        if (*value < min) {
+        if (min != min || *value < min) {
             min = *value;
         }
         json->add_to_array(array, json->create_number(*value));
