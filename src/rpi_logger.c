@@ -325,6 +325,8 @@ static void module_init()
 
 void rpi_logger_init(void)
 {
+    assert(data->get_path() != NULL);
+
     groups_init();
     rra_init();
 

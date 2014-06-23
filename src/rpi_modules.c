@@ -25,6 +25,9 @@
 #include "rpi_cpu.h"
 #include "rpi_network.h"
 #include "rpi_storage.h"
+#include "rpi_logger.h"
+
+#include <assert.h>
 
 static struct mk_list modules_list;
 static struct duda_config *modules_config;
@@ -197,9 +200,7 @@ rpi_module_t * rpi_modules_module_init(const char *name, rpi_module_get_value_t 
     if (gv == NULL) {
         mk_list_init(&(module->values_head.values));
     }
-    else {
-        module->values_head.get_value = gv;
-    }
+    module->values_head.get_value = gv;
     mk_list_add(&(module->_head), &modules_list);
     
     /* set defaults from global config */
@@ -270,12 +271,16 @@ void rpi_modules_init(void)
     
     /* config only available during init */
     modules_config = fconf->read_conf("modules.conf");
+    assert(modules_config != NULL);
 
     /* init modules */
     rpi_memory_init();
     rpi_cpu_init();
     rpi_network_init();
     rpi_storage_init();
+    
+    /* init logger, after all other modules */
+    rpi_logger_init();
     
     fconf->free_conf(modules_config);
     modules_config = NULL;

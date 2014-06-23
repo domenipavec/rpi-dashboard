@@ -24,7 +24,6 @@
 #include "rpi_modules.h"
 #include "rpi_security.h"
 #include "rpi_config.h"
-#include "rpi_logger.h"
 
 DUDA_REGISTER("Duda Raspberry Pi interface", "Raspberry Pi interface");
 
@@ -104,7 +103,6 @@ int duda_main()
     rpi_config_init();
     rpi_modules_init();
     rpi_security_init();
-    rpi_logger_init();
 
     map->static_add("/api/", "rpi_global_callback");
 

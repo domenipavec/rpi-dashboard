@@ -153,6 +153,7 @@ void rpi_security_init(void)
 
     mk_list_init(&users);
 
+    assert(fconf->get_path() != NULL);
     char * path = rpi_string_concat(fconf->get_path(), "rpi.users");
 
     buf = (fconf->read_file)(path);
