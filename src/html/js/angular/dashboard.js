@@ -88,6 +88,12 @@ rpiDashboard.filter('procents', function() {
     return procentsFilter;
 });
 
+var celsiusFilter = function(value, precision) {
+    if (isNaN(parseFloat(value)) || !isFinite(value)) return '-';
+    if (typeof precision === 'undefined') precision = 1;
+    return value.toFixed(precision) + "°C";
+};
+
 rpiDashboard.filter('time', function() {
     return function(value) {
         return $.rpijs.parseNumber(value, {valueType: 'time', decimals: 0});

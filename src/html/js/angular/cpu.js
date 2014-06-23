@@ -36,7 +36,7 @@ cpuData.usageFetchFormat = {
             rate: true
         },
         {
-            key: ['busy'],
+            key: ['system'],
             rate: true
         },
         {
@@ -94,43 +94,32 @@ cpuData.usageGraph = {
         colors: ['#dc3912', '#ff9900', '#3366cc']
     }
 };
-cpuData.usageHistory = {
-    type: "AreaChart",
-    data: {
-        cols: [
-            {
-                id: "time",
-                label: "Time",
-                type: "datetime"
-            },
-            {
-                id: "user",
-                label: "User processes",
-                type: "number"
-            },
-            {
-                id: "system",
-                label: "System",
-                type: "number"
-            },
-            {
-                id: "iowait",
-                label: "I/O wait",
-                type: "number"
-            }
-        ],
-        rows: []
-    },
-    options: {
-        backgroundColor: {fill: 'transparent'},
+cpuData.usageHistory = historyGraph(
+    "AreaChart",
+    [
+        {
+            id: "user",
+            label: "User processes",
+            type: "number"
+        },
+        {
+            id: "system",
+            label: "System",
+            type: "number"
+        },
+        {
+            id: "iowait",
+            label: "I/O wait",
+            type: "number"
+        }
+    ],
+    {
         isStacked: true,
-        legend: 'none',
         colors: ['#dc3912', '#ff9900', '#3366cc'],
-        vAxis: cpuData.usageVAxis,
-        chartArea: {top: 10, width: '75%', height: '85%'},
         lineWidth: 1
-    }
-};
+    },
+    procentsFilter
+);
 cpuData.temperatureGauge = {
     type: "Gauge",
     data: {
@@ -159,61 +148,41 @@ cpuData.temperatureGauge = {
         majorTicks: [0,25,50,75,100]
     }
 };
-cpuData.temperatureHistory = {
-    type: "LineChart",
-    data: {
-        cols: [
-            {
-                id: "time",
-                label: "Time",
-                type: "datetime"
-            },
-            {
-                id: "temperature",
-                label: "Temperature",
-                type: "number"
-            }
-        ],
-        rows: []
-    },
-    options: {
+cpuData.temperatureHistory = historyGraph(
+    "LineChart",
+    [
+        {
+            id: "temperature",
+            label: "Temperature",
+            type: "number"
+        }
+    ],
+    {
         backgroundColor: {fill: 'transparent'},
         legend: 'none',
-        chartArea: {top: 10, width: '75%', height: '85%'},
-        vAxis: {
-            ticks: [
-                {v: 0, f: "0°C"},
-                {v: 25, f: "25°C"},
-                {v: 50, f: "50°C"},
-                {v: 75, f: "75°C"},
-                {v: 100, f: "100°C"}
-            ]
-        }
-    }
-};
+        chartArea: {top: 10, width: '75%', height: '85%'}
+    },
+    celsiusFilter
+);
 
 backgroundUpdate(['cpu'], 1000, function(done) {
     $.rpijs.get("cpu/usage", function(data) {
         cpuData.usage.user.v = data.user/data.total;
         cpuData.usage.user.f = procentsFilter(cpuData.usage.user.v);
-        cpuData.usage.system.v = (data.busy - data.user)/data.total;
+        cpuData.usage.system.v = (data.system)/data.total;
         cpuData.usage.system.f = procentsFilter(cpuData.usage.system.v);
         cpuData.usage.iowait.v = data.iowait/data.total;
         cpuData.usage.iowait.f = procentsFilter(cpuData.usage.iowait.v);
-        cpuData.usageHistory.data.rows.push(cObject([
-            vObject(new Date()),
-            angular.copy(cpuData.usage.user),
-            angular.copy(cpuData.usage.system),
-            angular.copy(cpuData.usage.iowait)
-        ]));
+        cpuData.usageHistory.add([
+            cpuData.usage.user.v,
+            cpuData.usage.system.v,
+            cpuData.usage.iowait.v
+        ]);
         
         $.rpijs.get("cpu/temperature", function(data) {
             cpuData.temperature.v = data;
             cpuData.temperature.f = data.toFixed(1) + "°C";
-            cpuData.temperatureHistory.data.rows.push(cObject([
-                vObject(new Date()),
-                angular.copy(cpuData.temperature)
-            ]));
+            cpuData.temperatureHistory.add([data]);
             done.resolve();
         });
     }, cpuData.usageFetchFormat);

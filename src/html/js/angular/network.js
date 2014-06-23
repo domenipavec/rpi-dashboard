@@ -23,63 +23,6 @@ registerPage('/network', {
 networkData = {};
 networkData.list = {};
 networkData.ready = false;
-networkData.historyPrototype = {
-    type: "AreaChart",
-    data: {
-        cols: [
-            {
-                id: "time",
-                label: "Time",
-                type: "datetime"
-            },
-            {
-                id: "tx",
-                label: "Transmit",
-                type: "number"
-            },
-            {
-                id: "rx",
-                label: "Receive",
-                type: "number"
-            }
-        ],
-        rows: []
-    },
-    options: {
-        backgroundColor: {fill: 'transparent'},
-        legend: 'none',
-        chartArea: {top: 10, width: '75%', height: '85%'},
-        vAxis: {
-            ticks: []
-        },
-        lineWidth: 1
-    }
-};
-networkData.updateVAxis = function(name) {
-    var max = networkData.list[name].historyMax;
-    networkData.list[name].history.options.vAxis.ticks = [
-        {
-            v: 0,
-            f: bpsFilter(0)
-        },
-        {
-            v: max/4,
-            f: bpsFilter(max/4)
-        },
-        {
-            v: max/2,
-            f: bpsFilter(max/2)
-        },
-        {
-            v: max*0.75,
-            f: bpsFilter(max*0.75)
-        },
-        {
-            v: max,
-            f: bpsFilter(max)
-        }
-    ];
-};
 networkData.throughputRequestOptions = {
     rate: true,
     format: []
@@ -101,8 +44,25 @@ backgroundUpdate(['network'], 1000, function(done) {
                     rx: vObject(0),
                     tx: vObject(0)
                 };
-                networkData.list[name].history = angular.copy(networkData.historyPrototype);
-                networkData.list[name].historyMax = 0;
+                networkData.list[name].history = historyGraph(
+                    "AreaChart",
+                    [
+                        {
+                            id: "tx",
+                            label: "Transmit",
+                            type: "number"
+                        },
+                        {
+                            id: "rx",
+                            label: "Receive",
+                            type: "number"
+                        }
+                    ],
+                    {
+                        lineWidth: 1
+                    },
+                    bpsFilter
+                );
             });
             networkData.ready = true;
             done.resolve();
@@ -113,23 +73,14 @@ backgroundUpdate(['network'], 1000, function(done) {
         angular.forEach(data.rx, function(value, name) {
             networkData.list[name].throughput.rx.v = value;
             networkData.list[name].throughput.rx.f = bpsFilter(value);
-            if (value > networkData.list[name].historyMax) {
-                networkData.list[name].historyMax = value;
-                networkData.updateVAxis(name);
-            }
         });
         angular.forEach(data.tx, function(value, name) {
             networkData.list[name].throughput.tx.v = value;
             networkData.list[name].throughput.tx.f = bpsFilter(value);
-            if (value > networkData.list[name].historyMax) {
-                networkData.list[name].historyMax = value;
-                networkData.updateVAxis(name);
-            }
-            networkData.list[name].history.data.rows.push(cObject([
-                vObject(new Date()),
-                angular.copy(networkData.list[name].throughput.tx),
-                angular.copy(networkData.list[name].throughput.rx)
-            ]));
+            networkData.list[name].history.add([
+                networkData.list[name].throughput.tx.v,
+                networkData.list[name].throughput.rx.v
+            ]);
         });
         done.resolve();
     }, networkData.throughputRequestOptions);

@@ -82,49 +82,36 @@ memoryData.ramChart = {
     },
     options: memoryData.pieChartOptions
 };
-memoryData.ramHistory = {
-    type: "AreaChart",
-    data: {
-        cols: [
-            {
-                id: "time",
-                label: "Time",
-                type: "datetime"
-            },
-            {
-                id: "processes",
-                label: "Processes",
-                type: "number"
-            },
-            {
-                id: "buffers",
-                label: "File buffers",
-                type: "number"
-            },
-            {
-                id: "cached",
-                label: "I/O Cached",
-                type: "number"
-            },
-            {
-                id: "free",
-                label: "Free",
-                type: "number"
-            }
-        ],
-        rows: []
-    },
-    options: {
-        backgroundColor: {fill: 'transparent'},
-        isStacked: true,
-        legend: 'none',
-        colors: ['#dc3912', '#ff9900', '#3366cc', '#109618'],
-        chartArea: {top: 10, width: '75%', height: '85%'},
-        vAxis: {
-            ticks: [{v: 0, f: bytesFilter(0)}, memoryData.memory.total14, memoryData.memory.total24, memoryData.memory.total34, memoryData.memory.total]
+memoryData.ramHistory = historyGraph(
+    "AreaChart", 
+    [
+        {
+            id: "processes",
+            label: "Processes",
+            type: "number"
+        },
+        {
+            id: "buffers",
+            label: "File buffers",
+            type: "number"
+        },
+        {
+            id: "cached",
+            label: "I/O Cached",
+            type: "number"
+        },
+        {
+            id: "free",
+            label: "Free",
+            type: "number"
         }
-    }
-};
+    ],
+    {
+        isStacked: true,
+        colors: ['#dc3912', '#ff9900', '#3366cc', '#109618']
+    },
+    bytesFilter
+);
 memoryData.swapChart = {
     type: "PieChart",
     data: {
@@ -151,39 +138,26 @@ memoryData.swapChart = {
     },
     options: memoryData.pieChartOptions
 };
-memoryData.swapHistory = {
-    type: "AreaChart",
-    data: {
-        cols: [
-            {
-                id: "time",
-                label: "Time",
-                type: "datetime"
-            },
-            {
-                id: "used",
-                label: "Used",
-                type: "number"
-            },
-            {
-                id: "free",
-                label: "Free",
-                type: "number"
-            }
-        ],
-        rows: []
-    },
-    options: {
-        backgroundColor: {fill: 'transparent'},
-        isStacked: true,
-        legend: 'none',
-        colors: ['#dc3912', '#109618'],
-        chartArea: {top: 10, width: '75%', height: '85%'},
-        vAxis: {
-            ticks: [{v: 0, f: bytesFilter(0)}, memoryData.swap.total14, memoryData.swap.total24, memoryData.swap.total34, memoryData.swap.total]
+memoryData.swapHistory = historyGraph(
+    "AreaChart",
+    [
+        {
+            id: "used",
+            label: "Used",
+            type: "number"
+        },
+        {
+            id: "free",
+            label: "Free",
+            type: "number"
         }
-    }
-};
+    ],
+    {
+        isStacked: true,
+        colors: ['#dc3912', '#109618'],
+    },
+    bytesFilter
+);
 
 backgroundUpdate(['memory'], 5000, function(done) {
     $.rpijs.get("memory", function(data) {
@@ -215,22 +189,20 @@ backgroundUpdate(['memory'], 5000, function(done) {
         memoryData.memory.buffers.f = bytesFilter(data.buffers);
         memoryData.memory.cached.v = data.cached;
         memoryData.memory.cached.f = bytesFilter(data.cached);
-        memoryData.ramHistory.data.rows.push(cObject([
-            vObject(new Date()),
-            angular.copy(memoryData.memory.processes),
-            angular.copy(memoryData.memory.buffers),
-            angular.copy(memoryData.memory.cached),
-            angular.copy(memoryData.memory.free)
-        ]));
+        memoryData.ramHistory.add([
+            data.processes,
+            data.buffers,
+            data.cached,
+            data.free
+        ]);
         memoryData.swap.free.v = data.swap.free;
         memoryData.swap.free.f = bytesFilter(data.swap.free);
         memoryData.swap.used.v = data.swap.used;
         memoryData.swap.used.f = bytesFilter(data.swap.used);
-        memoryData.swapHistory.data.rows.push(cObject([
-            vObject(new Date()),
-            angular.copy(memoryData.swap.used),
-            angular.copy(memoryData.swap.free)
-        ]));
+        memoryData.swapHistory.add([
+            data.swap.used,
+            data.swap.free
+        ]);
         done.resolve();
     });
 });

@@ -25,32 +25,6 @@ storageData.throughputRequest = {
     rate: true,
     format: []
 };
-storageData.throughputMax = 0;
-storageData.updateVAxis = function() {
-    var max = storageData.throughputMax;
-    storageData.throughputHistory.options.vAxis.ticks = [
-        {
-            v: 0,
-            f: bpsFilter(0)
-        },
-        {
-            v: max/4,
-            f: bpsFilter(max/4)
-        },
-        {
-            v: max/2,
-            f: bpsFilter(max/2)
-        },
-        {
-            v: max*0.75,
-            f: bpsFilter(max*0.75)
-        },
-        {
-            v: max,
-            f: bpsFilter(max)
-        }
-    ];
-};
 storageData.storageTable = {
     type: "Table",
     data: {
@@ -94,43 +68,41 @@ storageData.storageTable = {
         ]
     }
 };
-storageData.throughputHistory = {
-    type: "LineChart",
-    data: {
-        cols: [
-            {
-                id: "time",
-                label: "Time",
-                type: "datetime"
-            },
-        ],
-        rows: []
-    },
-    options: {
-        backgroundColor: {fill: 'transparent'},
-        chartArea: {top: 10, width: '75%', height: '85%'},
-        vAxis: {}
-    }
-};
+
 backgroundUpdate(['storage'], 1000, function(done) {
     if (storageData.throughputRequest.format.length == 0) {
-        done.resolve();
+        $.rpijs.get("storage/throughput", function(data) {
+            var columns = [];
+            angular.forEach(data, function(item, name) {
+                columns.push({
+                    id: name,
+                    label: name,
+                    type: "number"
+                });
+                storageData.throughputRequest.format.push({
+                    key: [name, "total"],
+                    rate: true
+                });
+            });
+            storageData.throughputHistory = historyGraph(
+                "LineChart",
+                columns,
+                {
+                    legend: 'right'
+                },
+                bpsFilter
+            );
+            done.resolve();
+        });
         return;
     }
+
     $.rpijs.get("storage/throughput", function(data) {
-        var row = cObject([
-            vObject(new Date())
-        ]);
+        var values = [];
         angular.forEach(data, function(item, name) {
-            var value = vObject(item.total);
-            value.f = bpsFilter(item.total);
-            if (item.total > storageData.throughputMax) {
-                storageData.throughputMax = item.total;
-                storageData.updateVAxis();
-            }
-            row.c.push(value);
+            values.push(item.total);
         });
-        storageData.throughputHistory.data.rows.push(row);
+        storageData.throughputHistory.add(values);
         done.resolve();
     }, storageData.throughputRequest);
 });
@@ -156,21 +128,5 @@ rpiDashboard.controller('StorageController', function($scope) {
         });
     });
 
-    if (storageData.throughputRequest.format.length == 0) {
-        $.rpijs.get("storage/throughput", function(data) {
-            angular.forEach(data, function(item, name) {
-                storageData.throughputHistory.data.cols.push({
-                    id: name,
-                    label: name,
-                    type: "number"
-                });
-                storageData.throughputRequest.format.push({
-                    key: [name, "total"],
-                    rate: true
-                });
-            });
-        });
-    }
-    
     $scope.throughputHistory = storageData.throughputHistory;
 });

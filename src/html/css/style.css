@@ -1,11 +1,15 @@
 .chart-container {
     padding-bottom: 30%;
     min-height: 150px;
+    position: relative;
 }
 .chart {
     width: 100%;
     height: 100%;
     position: absolute;
+}
+.history-chart {
+    height: 100%;
 }
 .graph-green {
     color: #109618;
