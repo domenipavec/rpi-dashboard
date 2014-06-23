@@ -237,7 +237,7 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
     assert_rrd(rrd_fetch_r(file_name, "AVERAGE", &start, &end, &step, &ds_cnt, &ds_namv, &values));
     value = values;
     
-    json->add_to_object(object, "end", json->create_number((double)end));
+    json->add_to_object(object, "end", json->create_number((double)(end-step)));
     json->add_to_object(object, "start", json->create_number((double)(start+step)));
     json->add_to_object(object, "step", json->create_number((double)step));
     
