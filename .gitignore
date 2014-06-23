@@ -29,3 +29,6 @@ Makefile
 
 # gitbook
 _book
+
+# RRDtool
+*.rrd
