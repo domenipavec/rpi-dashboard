@@ -18,7 +18,7 @@
 registerPage('/memory', {
     templateUrl: 'partials/memory.html',
     controller: 'MemoryController'
-}, ['memory'], "Memory");
+}, ['memory', 'logger'], "Memory");
 
 memoryData = {};
 

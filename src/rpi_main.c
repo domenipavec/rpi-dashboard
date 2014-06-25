@@ -43,7 +43,13 @@ void rpi_global_callback(duda_request_t *dr)
         response->http_status(dr, 200);
         response->http_content_type(dr, "json");
         
-        json_object = rpi_modules_user_list(user);
+        json_object = json->create_object();
+        if (user == NULL) {
+            json->add_to_object(json_object, "user", json->create_null());
+        } else {
+            json->add_to_object(json_object, "user", json->create_string(user));
+        }
+        json->add_to_object(json_object, "modules", rpi_modules_user_list(user));
         json_text = json->print_gc(dr, json_object);
         response->printf(dr, json_text);
         json->delete(json_object);

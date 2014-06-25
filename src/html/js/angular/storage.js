@@ -18,7 +18,7 @@
 registerPage('/storage', {
     templateUrl: 'partials/storage.html',
     controller: 'StorageController'
-}, ['storage'], "Storage");
+}, ['storage', 'logger'], "Storage");
 
 storageData = {};
 storageData.throughputRequest = {

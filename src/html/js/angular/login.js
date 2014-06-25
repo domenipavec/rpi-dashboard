@@ -24,28 +24,43 @@ var hasOwnValue = function(object, val) {
     return false;
 }
 
-rpiDashboard.factory('User', function($q, $cookies, $rootScope) {
+rpiDashboard.factory('User', function($q, $cookies, $rootScope, $location) {
     var modules = null;
 
     var userFactory = {
         loggedIn: false,
-        login: function(username, password) {
+        username: null,
+        login: function(username, password, remember) {
+            $rootScope.msgError = "";
             if (username == undefined) {
                 username = "";
             }
             if (password == undefined) {
                 password = "";
             }
-            userFactory.loggedIn = (username != "");
             $.rpijs.init("./api/", username, password);
             $.rpijs.get("", function(msg) {
-                modules = msg;
+                userFactory.loggedIn = msg.user !== null;
+                userFactory.username = msg.user;
+                modules = msg.modules;
                 $rootScope.$broadcast('USER_STATUS_CHANGED');
+                if (userFactory.loggedIn || username == "") {
+                    if (remember) {
+                        $cookies.RPiUsername = username;
+                        $cookies.RPiPassword = password;
+                    }
+                    $location.path("/");
+                } else {
+                    $rootScope.$apply(function() {
+                        $rootScope.msgError = "Invalid username or password.";
+                    });
+                }
             });
         },
         logout: function() {
             $cookies.RPiUsername = "";
             $cookies.RPiPassword = "";
+            $rootScope.msgError = "";
             return userFactory.login();
         },
         getModules: function() {
@@ -67,20 +82,17 @@ rpiDashboard.factory('User', function($q, $cookies, $rootScope) {
     return userFactory;
 });
 
-rpiDashboard.controller('LoginController', function($scope, User, $location, $cookies) {
-    if (User.loggedIn) {
-        $location.path("/");
-    }
-    
+rpiDashboard.controller('LoginController', function($scope, User, $location, $cookies) {    
     $scope.rememberMe = true;
+    $scope.loggedIn = User.loggedIn;
+    $scope.user = User.username;
     
     $scope.login = function() {
-        User.login($scope.username, $scope.password);
-        
-        if ($scope.rememberMe) {
-            $cookies.RPiUsername = $scope.username;
-            $cookies.RPiPassword = $scope.password;
-        }
+        User.login($scope.username, $scope.password, $scope.rememberMe);
+    };
+    
+    $scope.logout = function() {
+        User.logout();
     };
 });
 
@@ -98,15 +110,15 @@ rpiDashboard.run(function ($rootScope, $location, Navigation, User) {
         }
         
         if (!User.checkDependencies(Navigation.getDependencies())) {
+            if (User.loggedIn) {
+                $rootScope.msgError = "You do not have permission to access '"+$location.path()+"'.";
+            }
             event.preventDefault();
             $location.path('/login');
         }
     });
     
     $rootScope.$on('USER_STATUS_CHANGED', function() {
-        if (User.loggedIn && $location.path() == "/login") {
-            $location.path("/");
-        }
         if (!User.checkDependencies(Navigation.getDependencies())) {
             $location.path('/login');
         }

@@ -18,7 +18,7 @@
 registerPage('/cpu', {
     templateUrl: 'partials/cpu.html',
     controller: 'CpuController'
-}, ['cpu'], "CPU");
+}, ['cpu', 'logger'], "CPU");
 
 cpuData = {};
 
