@@ -8,6 +8,9 @@
     height: 100%;
     position: absolute;
 }
+.panel-body {
+    height: 250px;
+}
 .history-chart {
     height: 100%;
 }
