@@ -108,7 +108,6 @@ rpiDashboard.run(function ($rootScope, $location, Navigation, User) {
         if (User.getModules() === null) {
             return;
         }
-        
         if (!User.checkDependencies(Navigation.getDependencies())) {
             if (User.loggedIn) {
                 $rootScope.msgError = "You do not have permission to access '"+$location.path()+"'.";
@@ -121,7 +120,9 @@ rpiDashboard.run(function ($rootScope, $location, Navigation, User) {
     $rootScope.$on('USER_STATUS_CHANGED', function() {
         if (!User.checkDependencies(Navigation.getDependencies())) {
             $location.path('/login');
+            $rootScope.$apply();
         }
-
     });
+    
+    $location.path('/login');
 });

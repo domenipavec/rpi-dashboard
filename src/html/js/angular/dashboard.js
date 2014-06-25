@@ -61,7 +61,7 @@ cObject = function(value) {
 
 rpiDashboard.config(function($routeProvider) {
     $routeProvider.otherwise({
-        redirectTo: "/memory"
+        redirectTo: "/"
     });
 });
 

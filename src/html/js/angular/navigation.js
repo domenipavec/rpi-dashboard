@@ -27,6 +27,9 @@ rpiDashboard.factory('Navigation', function($location, User) {
                 path: path
             });
         },
+        registerDependencies: function(path, accessDependencies) {
+            ads[path] = accessDependencies;
+        },
         getDependencies: function() {
             return ads[$location.path()];
         },
