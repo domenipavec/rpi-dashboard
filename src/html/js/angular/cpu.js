@@ -158,9 +158,6 @@ cpuData.temperatureHistory = historyGraph(
         }
     ],
     {
-        backgroundColor: {fill: 'transparent'},
-        legend: 'none',
-        chartArea: {top: 10, width: '75%', height: '85%'}
     },
     celsiusFilter
 );
