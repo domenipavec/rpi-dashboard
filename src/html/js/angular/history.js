@@ -117,7 +117,7 @@ historyGraph = function(type, cols, additionalOptions, filter) {
         dataInsert(hg.data.minute, row);
         var d = hg.data.minute.data;
         if (d.rows[d.rows.length-1].c[0].v - d.rows[0].c[0].v > 60000) {
-            var row = hg.data.minute.data.rows.shift();
+            var removed = hg.data.minute.data.rows.shift();
         }
     };
     
