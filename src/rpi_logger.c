@@ -249,12 +249,24 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
         if (min != min || *value < min) {
             min = *value;
         }
-        json->add_to_array(array, json->create_number(*value));
+        if (*value != *value) {
+            json->add_to_array(array, json->create_null());
+        } else {
+            json->add_to_array(array, json->create_number(*value));
+        }
         value++;
     }
     json->add_to_object(object, "data", array);
-    json->add_to_object(object, "min", json->create_number(min));
-    json->add_to_object(object, "max", json->create_number(max));
+    if (min != min) {
+        json->add_to_object(object, "min", json->create_null());
+    } else {
+        json->add_to_object(object, "min", json->create_number(min));
+    }
+    if (max != max) {
+        json->add_to_object(object, "min", json->create_null());
+    } else {
+        json->add_to_object(object, "max", json->create_number(max));
+    }
     
     free(ds_namv);
     free(values);
