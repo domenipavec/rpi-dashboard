@@ -25,49 +25,6 @@ storageData.throughputRequest = {
     rate: true,
     format: []
 };
-storageData.storageTable = {
-    type: "Table",
-    data: {
-        cols: [
-            {
-                id: "device",
-                label: "Device",
-                type: "string"
-            },
-            {
-                id: "mount",
-                label: "Mount point",
-                type: "string"
-            },
-            {
-                id: "filesystem",
-                label: "Filesystem",
-                type: "string"
-            },
-            {
-                id: "size",
-                label: "Size",
-                type: "number"
-            },
-            {
-                id: "use",
-                label: "Used",
-                type: "number"
-            }
-        ],
-        rows: []
-    },
-    options: {
-    },
-    formatters: {
-        bar: [
-            {
-                columnNum: 4,
-                max: 1
-            }
-        ]
-    }
-};
 
 backgroundUpdate(['storage', 'logger'], 1000, function(done) {
     if (storageData.throughputRequest.format.length == 0) {
@@ -114,9 +71,51 @@ backgroundUpdate(['storage', 'logger'], 1000, function(done) {
 });
 
 rpiDashboard.controller('StorageController', function($scope) {
-    storageData.storageTable.data.rows = [];
     $.rpijs.get("storage/list", function(data) {
         $scope.$apply(function() {
+            storageData.storageTable = {
+                type: "Table",
+                data: {
+                    cols: [
+                        {
+                            id: "device",
+                            label: "Device",
+                            type: "string"
+                        },
+                        {
+                            id: "mount",
+                            label: "Mount point",
+                            type: "string"
+                        },
+                        {
+                            id: "filesystem",
+                            label: "Filesystem",
+                            type: "string"
+                        },
+                        {
+                            id: "size",
+                            label: "Size",
+                            type: "number"
+                        },
+                        {
+                            id: "use",
+                            label: "Used",
+                            type: "number"
+                        }
+                    ],
+                    rows: []
+                },
+                options: {
+                },
+                formatters: {
+                    bar: [
+                        {
+                            columnNum: 4,
+                            max: 1
+                        }
+                    ]
+                }
+            };
             angular.forEach(data, function(item) {
                 var size = vObject(item.size);
                 size.f = bytesFilter(item.size);
