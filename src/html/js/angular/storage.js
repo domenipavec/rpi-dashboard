@@ -69,7 +69,7 @@ storageData.storageTable = {
     }
 };
 
-backgroundUpdate(['storage'], 1000, function(done) {
+backgroundUpdate(['storage', 'logger'], 1000, function(done) {
     if (storageData.throughputRequest.format.length == 0) {
         $.rpijs.get("storage/throughput", function(data) {
             var columns = [];
@@ -130,9 +130,8 @@ rpiDashboard.controller('StorageController', function($scope) {
                     use
                 ]));
             });
-            $scope.storageTable = storageData.storageTable;
         });
     });
 
-    $scope.throughputHistory = storageData.throughputHistory;
+    $scope.storageData = storageData;
 });

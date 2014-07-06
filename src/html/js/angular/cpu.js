@@ -50,7 +50,7 @@ cpuData.usageFetchFormat = {
     ]
 };
 cpuData.usageVAxis = {
-    ticks: [{v: 0, f: procentsFilter(0)}, {v: 0.5, f: procentsFilter(0.5)}, {v: 1, f: procentsFilter(1)}]
+    ticks: [vObject(0,procentsFilter), vObject(0.5,procentsFilter), vObject(1,procentsFilter)]
 };
 cpuData.usageGraph = {
     type: "ColumnChart",
@@ -123,7 +123,7 @@ cpuData.temperatureGauge = {
     }
 };
 
-backgroundUpdate(['cpu'], 1000, function(done) {
+backgroundUpdate(['cpu', 'logger'], 1000, function(done) {
     if (cpuData.usageHistory === undefined) {
         cpuData.usageHistory = historyGraph(
             "AreaChart",
@@ -213,12 +213,7 @@ rpiDashboard.controller('CpuController', function($scope, $timeout) {
         updateUptime();
     });
     
-    $scope.usage = cpuData.usage;
-    $scope.usageGraph = cpuData.usageGraph;
-    $scope.usageHistory = cpuData.usageHistory;
-    
-    $scope.temperatureGauge = cpuData.temperatureGauge;
-    $scope.temperatureHistory = cpuData.temperatureHistory;
+    $scope.cpuData = cpuData;
     
     $scope.$on('$destroy', function() {
         $timeout.cancel(updateUptime.timeout);

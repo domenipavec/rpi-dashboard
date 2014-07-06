@@ -27,7 +27,7 @@ networkData.throughputRequestOptions = {
     rate: true,
     format: []
 };
-backgroundUpdate(['network'], 1000, function(done) {
+backgroundUpdate(['network', 'logger'], 1000, function(done) {
     if (!networkData.ready) {
         $.rpijs.get("network/list", function(data) {
             angular.forEach(data, function(value, name) {

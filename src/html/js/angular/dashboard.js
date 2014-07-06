@@ -28,9 +28,8 @@ registerPage = function(path, options, accessDependencies, menuName) {
 
 backgroundUpdate = function(dependencies, t, f) {
     rpiDashboard.run(function($rootScope, User, $timeout, $q) {
-        var active = User.checkDependencies(dependencies);
         var update = function() {
-            if (!active) {
+            if (!User.checkDependencies(dependencies)) {
                 return;
             }
             var done = $q.defer();
@@ -43,7 +42,6 @@ backgroundUpdate = function(dependencies, t, f) {
         };
 
         $rootScope.$on('USER_STATUS_CHANGED', function() {
-            active = User.checkDependencies(dependencies);
             update();
         });
 

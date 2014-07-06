@@ -109,7 +109,63 @@ memoryData.swapChart = {
     options: memoryData.pieChartOptions
 };
 
-backgroundUpdate(['memory'], 5000, function(done) {
+backgroundUpdate(['memory', 'logger'], 5000, function(done) {
+    if (memoryData.ramHistory === undefined) {
+        memoryData.ramHistory = historyGraph(
+            "AreaChart", 
+            [
+                {
+                    id: "processes",
+                    label: "Processes",
+                    type: "number"
+                },
+                {
+                    id: "buffers",
+                    label: "File buffers",
+                    type: "number"
+                },
+                {
+                    id: "cached",
+                    label: "I/O Cached",
+                    type: "number"
+                },
+                {
+                    id: "free",
+                    label: "Free",
+                    type: "number"
+                }
+            ],
+            {
+                isStacked: true,
+                colors: ['#dc3912', '#ff9900', '#3366cc', '#109618']
+            },
+            bytesFilter,
+            "memory/processes|memory/buffers|memory/cached|memory/free"
+        );
+        
+        memoryData.swapHistory = historyGraph(
+            "AreaChart",
+            [
+                {
+                    id: "used",
+                    label: "Used",
+                    type: "number"
+                },
+                {
+                    id: "free",
+                    label: "Free",
+                    type: "number"
+                }
+            ],
+            {
+                isStacked: true,
+                colors: ['#dc3912', '#109618'],
+            },
+            bytesFilter,
+            "memory/swap/used|memory/swap/free"
+        );
+    }
+
     $.rpijs.get("memory", function(data) {
         if (memoryData.memory.total.v == 0) {
             memoryData.memory.total.v = data.total;
@@ -129,61 +185,6 @@ backgroundUpdate(['memory'], 5000, function(done) {
             memoryData.swap.total24.f = bytesFilter(data.swap.total/2);
             memoryData.swap.total34.v = data.swap.total*0.75;
             memoryData.swap.total34.f = bytesFilter(data.swap.total*0.75);
-            
-            memoryData.ramHistory = historyGraph(
-                "AreaChart", 
-                [
-                    {
-                        id: "processes",
-                        label: "Processes",
-                        type: "number"
-                    },
-                    {
-                        id: "buffers",
-                        label: "File buffers",
-                        type: "number"
-                    },
-                    {
-                        id: "cached",
-                        label: "I/O Cached",
-                        type: "number"
-                    },
-                    {
-                        id: "free",
-                        label: "Free",
-                        type: "number"
-                    }
-                ],
-                {
-                    isStacked: true,
-                    colors: ['#dc3912', '#ff9900', '#3366cc', '#109618']
-                },
-                bytesFilter,
-                "memory/processes|memory/buffers|memory/cached|memory/free"
-            );
-            
-            memoryData.swapHistory = historyGraph(
-                "AreaChart",
-                [
-                    {
-                        id: "used",
-                        label: "Used",
-                        type: "number"
-                    },
-                    {
-                        id: "free",
-                        label: "Free",
-                        type: "number"
-                    }
-                ],
-                {
-                    isStacked: true,
-                    colors: ['#dc3912', '#109618'],
-                },
-                bytesFilter,
-                "memory/swap/used|memory/swap/free"
-            );
-
         }
         memoryData.memory.used.v = data.used;
         memoryData.memory.free.v = data.free;
@@ -213,10 +214,5 @@ backgroundUpdate(['memory'], 5000, function(done) {
 });
 
 rpiDashboard.controller('MemoryController', function($scope, $filter) {
-    $scope.memory = memoryData.memory;
-    $scope.swap = memoryData.swap;
-    $scope.ramChart = memoryData.ramChart;
-    $scope.ramHistory = memoryData.ramHistory;
-    $scope.swapChart = memoryData.swapChart;
-    $scope.swapHistory = memoryData.swapHistory;
+    $scope.memoryData = memoryData;
 });
