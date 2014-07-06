@@ -94,32 +94,6 @@ cpuData.usageGraph = {
         colors: ['#dc3912', '#ff9900', '#3366cc']
     }
 };
-cpuData.usageHistory = historyGraph(
-    "AreaChart",
-    [
-        {
-            id: "user",
-            label: "User processes",
-            type: "number"
-        },
-        {
-            id: "system",
-            label: "System",
-            type: "number"
-        },
-        {
-            id: "iowait",
-            label: "I/O wait",
-            type: "number"
-        }
-    ],
-    {
-        isStacked: true,
-        colors: ['#dc3912', '#ff9900', '#3366cc'],
-        lineWidth: 1
-    },
-    procentsFilter
-);
 cpuData.temperatureGauge = {
     type: "Gauge",
     data: {
@@ -148,21 +122,63 @@ cpuData.temperatureGauge = {
         majorTicks: [0,25,50,75,100]
     }
 };
-cpuData.temperatureHistory = historyGraph(
-    "LineChart",
-    [
-        {
-            id: "temperature",
-            label: "Temperature",
-            type: "number"
-        }
-    ],
-    {
-    },
-    celsiusFilter
-);
 
 backgroundUpdate(['cpu'], 1000, function(done) {
+    if (cpuData.usageHistory === undefined) {
+        cpuData.usageHistory = historyGraph(
+            "AreaChart",
+            [
+                {
+                    id: "user",
+                    label: "User processes",
+                    type: "number"
+                },
+                {
+                    id: "system",
+                    label: "System",
+                    type: "number"
+                },
+                {
+                    id: "iowait",
+                    label: "I/O wait",
+                    type: "number"
+                }
+            ],
+            {
+                isStacked: true,
+                colors: ['#dc3912', '#ff9900', '#3366cc'],
+                lineWidth: 1
+            },
+            procentsFilter,
+            "cpu/usage/user|cpu/usage/system|cpu/usage/iowait|cpu/usage/total",
+            function(data) {
+                var total = data["cpu-usage-total"];
+                delete data["cpu-usage-total"];
+                for (i = 0; i < total.data.length; i++) {
+                    angular.forEach(data, function(values) {
+                        if (values.data[i] != null) {
+                            values.data[i] /= total.data[i];
+                        }
+                    });
+                }
+            }
+        );
+        cpuData.temperatureHistory = historyGraph(
+            "LineChart",
+            [
+                {
+                    id: "temperature",
+                    label: "Temperature",
+                    type: "number"
+                }
+            ],
+            {
+            },
+            celsiusFilter,
+            "cpu/temperature"
+        );
+    }
+    
     $.rpijs.get("cpu/usage", function(data) {
         cpuData.usage.user.v = data.user/data.total;
         cpuData.usage.user.f = procentsFilter(cpuData.usage.user.v);
@@ -178,7 +194,7 @@ backgroundUpdate(['cpu'], 1000, function(done) {
         
         $.rpijs.get("cpu/temperature", function(data) {
             cpuData.temperature.v = data;
-            cpuData.temperature.f = data.toFixed(1) + "°C";
+            cpuData.temperature.f = celsiusFilter(data);
             cpuData.temperatureHistory.add([data]);
             done.resolve();
         });

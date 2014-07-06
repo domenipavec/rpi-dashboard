@@ -52,7 +52,11 @@ backgroundUpdate = function(dependencies, t, f) {
 };
 
 vObject = function(value, filter) {
-    return {"v":value};
+    var obj = {v: value};
+    if (filter !== undefined) {
+        obj.f = filter(value);
+    }
+    return obj;
 };
 
 cObject = function(value) {

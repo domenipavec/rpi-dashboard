@@ -29,4 +29,5 @@ rpiDashboard.controller('MainController', function($scope) {
     $scope.cpuUsage = cpuData.usageGraph;
     $scope.temperatureGauge = cpuData.temperatureGauge;
     $scope.ramChart = memoryData.ramChart;
+    $scope.ramTotal = memoryData.memory.total.v;
 });

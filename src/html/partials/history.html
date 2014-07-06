@@ -1,1 +1,7 @@
-<div google-chart chart="hg.graph" class="history-chart"></div>
+<p class="history-text">
+    Show history for: 
+    <select ng-model="hg.graph" ng-options="graph.name for graph in hg.graphs"></select>
+</p>
+<div class="history-container">
+    <div google-chart chart="hg.graph" class="history-chart"></div>
+</div>

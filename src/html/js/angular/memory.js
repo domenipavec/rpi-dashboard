@@ -82,36 +82,6 @@ memoryData.ramChart = {
     },
     options: memoryData.pieChartOptions
 };
-memoryData.ramHistory = historyGraph(
-    "AreaChart", 
-    [
-        {
-            id: "processes",
-            label: "Processes",
-            type: "number"
-        },
-        {
-            id: "buffers",
-            label: "File buffers",
-            type: "number"
-        },
-        {
-            id: "cached",
-            label: "I/O Cached",
-            type: "number"
-        },
-        {
-            id: "free",
-            label: "Free",
-            type: "number"
-        }
-    ],
-    {
-        isStacked: true,
-        colors: ['#dc3912', '#ff9900', '#3366cc', '#109618']
-    },
-    bytesFilter
-);
 memoryData.swapChart = {
     type: "PieChart",
     data: {
@@ -138,26 +108,6 @@ memoryData.swapChart = {
     },
     options: memoryData.pieChartOptions
 };
-memoryData.swapHistory = historyGraph(
-    "AreaChart",
-    [
-        {
-            id: "used",
-            label: "Used",
-            type: "number"
-        },
-        {
-            id: "free",
-            label: "Free",
-            type: "number"
-        }
-    ],
-    {
-        isStacked: true,
-        colors: ['#dc3912', '#109618'],
-    },
-    bytesFilter
-);
 
 backgroundUpdate(['memory'], 5000, function(done) {
     $.rpijs.get("memory", function(data) {
@@ -179,6 +129,61 @@ backgroundUpdate(['memory'], 5000, function(done) {
             memoryData.swap.total24.f = bytesFilter(data.swap.total/2);
             memoryData.swap.total34.v = data.swap.total*0.75;
             memoryData.swap.total34.f = bytesFilter(data.swap.total*0.75);
+            
+            memoryData.ramHistory = historyGraph(
+                "AreaChart", 
+                [
+                    {
+                        id: "processes",
+                        label: "Processes",
+                        type: "number"
+                    },
+                    {
+                        id: "buffers",
+                        label: "File buffers",
+                        type: "number"
+                    },
+                    {
+                        id: "cached",
+                        label: "I/O Cached",
+                        type: "number"
+                    },
+                    {
+                        id: "free",
+                        label: "Free",
+                        type: "number"
+                    }
+                ],
+                {
+                    isStacked: true,
+                    colors: ['#dc3912', '#ff9900', '#3366cc', '#109618']
+                },
+                bytesFilter,
+                "memory/processes|memory/buffers|memory/cached|memory/free"
+            );
+            
+            memoryData.swapHistory = historyGraph(
+                "AreaChart",
+                [
+                    {
+                        id: "used",
+                        label: "Used",
+                        type: "number"
+                    },
+                    {
+                        id: "free",
+                        label: "Free",
+                        type: "number"
+                    }
+                ],
+                {
+                    isStacked: true,
+                    colors: ['#dc3912', '#109618'],
+                },
+                bytesFilter,
+                "memory/swap/used|memory/swap/free"
+            );
+
         }
         memoryData.memory.used.v = data.used;
         memoryData.memory.free.v = data.free;

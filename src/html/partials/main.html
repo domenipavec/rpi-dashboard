@@ -5,19 +5,19 @@
     <div class="row">
         <div class="col-sm-3">
             <div class="panel panel-default">
-                <div class="panel-heading">CPU usage</div>
+                <div class="panel-heading"><b>CPU usage</b></div>
                 <div google-chart chart="cpuUsage" class="panel-body"></div>
             </div>
         </div>
         <div class="col-sm-5">
             <div class="panel panel-default">
-                <div class="panel-heading">RAM usage</div>
+                <div class="panel-heading"><b>RAM usage</b> (total: {{ramTotal | bytes}})</div>
                 <div google-chart chart="ramChart" class="panel-body"></div>
             </div>
         </div>
         <div class="col-sm-4">
             <div class="panel panel-default">
-                <div class="panel-heading">CPU temperature</div>
+                <div class="panel-heading"><b>CPU temperature</b></div>
                 <div google-chart chart="temperatureGauge" class="panel-body"></div>
             </div>
         </div>

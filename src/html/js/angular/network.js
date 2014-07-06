@@ -61,7 +61,8 @@ backgroundUpdate(['network'], 1000, function(done) {
                     {
                         lineWidth: 1
                     },
-                    bpsFilter
+                    bpsFilter,
+                    "network/bytes/tx/"+name+"|network/bytes/rx/"+name
                 );
             });
             networkData.ready = true;

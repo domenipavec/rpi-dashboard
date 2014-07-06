@@ -14,6 +14,13 @@
 .history-chart {
     height: 100%;
 }
+.history-container {
+    height: 100%;
+    padding-top: 1.5em;
+}
+.history-text {
+    position: absolute;
+}
 .graph-green {
     color: #109618;
 }

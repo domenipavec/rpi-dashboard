@@ -73,12 +73,17 @@ backgroundUpdate(['storage'], 1000, function(done) {
     if (storageData.throughputRequest.format.length == 0) {
         $.rpijs.get("storage/throughput", function(data) {
             var columns = [];
+            var values = "";
             angular.forEach(data, function(item, name) {
                 columns.push({
                     id: name,
                     label: name,
                     type: "number"
                 });
+                if (values.length != 0) {
+                    values += "|";
+                }
+                values += "storage/throughput/"+name+"/total";
                 storageData.throughputRequest.format.push({
                     key: [name, "total"],
                     rate: true
@@ -90,7 +95,8 @@ backgroundUpdate(['storage'], 1000, function(done) {
                 {
                     legend: 'right'
                 },
-                bpsFilter
+                bpsFilter,
+                values
             );
             done.resolve();
         });
