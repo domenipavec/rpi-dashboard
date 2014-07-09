@@ -75,7 +75,7 @@ Used size on the device in bytes.
 Available size on the device in bytes.
 
 ### use
-Fraction of the device that is used. This is (size-available)/size.
+Fraction of the device that is used. This is (size - available)/size.
 
 ## /api/storage/throughput
 
@@ -89,6 +89,6 @@ Total bytes written or read for the device.
 
 Bytes read from the device.
 
-### /api/storage/throughput/$device/read
+### /api/storage/throughput/$device/written
 
 Bytes written to the device.

@@ -18,7 +18,7 @@ conf/
 This is the main configuration file, it describes global configuration as well as default configuration for modules.
 
 ### [rpi.users](rpiusers.md)
-This file is used to store username and passwords. Use the tool from Monkey's auth plugin to create it.
+This file is used to store username and passwords.
 
 ### [modules.conf](modulesconf.md)
 This file is used for configuring each module separately. Here you can set user access permission and disable modules.

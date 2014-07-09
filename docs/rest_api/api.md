@@ -1,8 +1,19 @@
 # /api/
 
-Returns a json list of all available modules that the user can access.
+Returns a JSON object with two properties:
+
+### user
+
+The name of successfully logged in user. If no user is logged in, or username and password are incorrect, this is *null*.
+
+### modules
+
+A list of modules that the user has permission to access.
 
 Example:
 ```
-["memory", "cpu", "network", "storage"]
+{
+	"user":	"admin",
+	"modules":	["memory", "cpu", "network", "storage", "logger"]
+}
 ```
