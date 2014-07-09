@@ -2,6 +2,10 @@
 
 * [About](about/README.md)
     * [License](about/license.md)
+* [Build from source](build_from_source/README.md)
+    * [Build on Raspbian](build_from_source/build_on_raspbian.md)
+    * [Build on Pidora](build_from_source/build_on_pidora.md)
+    * [Build on Arch Linux](build_from_source/build_on_arch_linux.md)
 * [Configuration](configuration/README.md)
     * [Files Schema](configuration/files_schema.md)
     * [rpi.conf](configuration/rpiconf.md)
