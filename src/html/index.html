@@ -27,11 +27,11 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li ng-repeat="menuEntry in menu" ng-class="menuClass(menuEntry.path)"><a href="#{{menuEntry.path}}" data-toggle="collapse" data-target=".navbar-collapse">{{menuEntry.name}}</a></li>
+            <li ng-repeat="menuEntry in menu" ng-class="menuClass(menuEntry.path)"><a href="#{{menuEntry.path}}">{{menuEntry.name}}</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li ng-hide="loggedIn"><a href="#/login" data-toggle="collapse" data-target=".navbar-collapse">Login</a></li>
-            <li ng-show="loggedIn"><a class="pointer" ng-click="logout()" data-toggle="collapse" data-target=".navbar-collapse">Logout</a></li>
+            <li ng-hide="loggedIn"><a href="#/login">Login</a></li>
+            <li ng-show="loggedIn"><a class="pointer" ng-click="logout()">Logout</a></li>
           </ul>
         </div>
     </div>
