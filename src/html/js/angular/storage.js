@@ -107,7 +107,13 @@ backgroundUpdate(['storage', 'logger'], 1000, function(done) {
                 "LineChart",
                 columns,
                 {
-                    legend: 'right'
+                    legend: 'right',
+                    chartArea: {
+                        top: 10,
+                        left: 80,
+                        width: '75%',
+                        height: '85%'
+                    }
                 },
                 bpsFilter,
                 values

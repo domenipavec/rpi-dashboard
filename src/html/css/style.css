@@ -18,6 +18,9 @@
     height: 100%;
     padding-top: 1.5em;
 }
+#storage-history-chart-container {
+    min-width: 630px;
+}
 .history-text {
     position: absolute;
 }
