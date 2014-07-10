@@ -98,8 +98,13 @@ rpiDashboard.controller('StorageController', function($scope) {
                             type: "number"
                         },
                         {
-                            id: "use",
+                            id: "used",
                             label: "Used",
+                            type: "number"
+                        },
+                        {
+                            id: "use",
+                            label: "Use",
                             type: "number"
                         }
                     ],
@@ -110,23 +115,20 @@ rpiDashboard.controller('StorageController', function($scope) {
                 formatters: {
                     bar: [
                         {
-                            columnNum: 4,
+                            columnNum: 5,
                             max: 1
                         }
                     ]
                 }
             };
             angular.forEach(data, function(item) {
-                var size = vObject(item.size);
-                size.f = bytesFilter(item.size);
-                var use = vObject(item.use);
-                use.f = procentsFilter(item.use);
                 storageData.storageTable.data.rows.push(cObject([
                     vObject(item.device),
                     vObject(item.mount),
                     vObject(item.filesystem),
-                    size,
-                    use
+                    vObject(item.size, bytesFilter),
+                    vObject(item.used, bytesFilter),
+                    vObject(item.use, procentsFilter)
                 ]));
             });
         });
