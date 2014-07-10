@@ -1,6 +1,8 @@
 <div class="container">
 
-    <h1>RPi Dashboard</h1> 
+    <h1>RPi Dashboard</h1>
+    
+    <p>Welcome to RPi Dashboard! To access detailed information, choose a category in the menu above.</p>
     
     <div class="row">
         <div class="col-sm-3">
@@ -11,7 +13,7 @@
         </div>
         <div class="col-sm-5">
             <div class="panel panel-default">
-                <div class="panel-heading"><b>RAM usage</b> (total: {{ramTotal | bytes}})</div>
+                <div class="panel-heading"><b>RAM usage</b> (total: {{ramTotal.v | bytes}})</div>
                 <div google-chart chart="ramChart" class="panel-body"></div>
             </div>
         </div>
@@ -19,6 +21,15 @@
             <div class="panel panel-default">
                 <div class="panel-heading"><b>CPU temperature</b></div>
                 <div google-chart chart="temperatureGauge" class="panel-body"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>Storage /</b> (total: {{storageRootTotalSize.v | bytes}})</div>
+                <div google-chart chart="storageRoot" class="panel-body"></div>
             </div>
         </div>
     </div>

@@ -22,12 +22,15 @@ rpiDashboard.config(function($routeProvider) {
     });
 });
 rpiDashboard.run(function(Navigation) {
-    Navigation.registerDependencies('/', ['cpu', 'memory']);
+    Navigation.registerDependencies('/', ['cpu', 'memory', 'storage', 'logger']);
 });
 
 rpiDashboard.controller('MainController', function($scope) {
     $scope.cpuUsage = cpuData.usageGraph;
     $scope.temperatureGauge = cpuData.temperatureGauge;
     $scope.ramChart = memoryData.ramChart;
-    $scope.ramTotal = memoryData.memory.total.v;
+    $scope.ramTotal = memoryData.memory.total;
+    $scope.storageRoot = angular.copy(memoryData.swapChart);
+    $scope.storageRoot.data.rows = storageData.rootFS;
+    $scope.storageRootTotalSize = storageData.rootTotalSize;
 });

@@ -21,10 +21,67 @@ registerPage('/storage', {
 }, ['storage', 'logger'], "Storage");
 
 storageData = {};
+storageData.storageTable = {
+    type: "Table",
+    data: {
+        cols: [
+            {
+                id: "device",
+                label: "Device",
+                type: "string"
+            },
+            {
+                id: "mount",
+                label: "Mount point",
+                type: "string"
+            },
+            {
+                id: "filesystem",
+                label: "Filesystem",
+                type: "string"
+            },
+            {
+                id: "size",
+                label: "Size",
+                type: "number"
+            },
+            {
+                id: "used",
+                label: "Used",
+                type: "number"
+            },
+            {
+                id: "use",
+                label: "Use",
+                type: "number"
+            }
+        ],
+        rows: []
+    },
+    options: {
+    },
+    formatters: {
+        bar: [
+            {
+                columnNum: 5,
+                max: 1
+            }
+        ]
+    }
+};
 storageData.throughputRequest = {
     rate: true,
     format: []
 };
+storageData.rootFS = [
+    cObject([
+        vObject("Free")
+    ]),
+    cObject([
+        vObject("Used")
+    ])
+];
+storageData.rootTotalSize = vObject();
 
 backgroundUpdate(['storage', 'logger'], 1000, function(done) {
     if (storageData.throughputRequest.format.length == 0) {
@@ -70,69 +127,28 @@ backgroundUpdate(['storage', 'logger'], 1000, function(done) {
     }, storageData.throughputRequest);
 });
 
-rpiDashboard.controller('StorageController', function($scope) {
+backgroundUpdate(['storage', 'logger'], 60000, function(done) {
     $.rpijs.get("storage/list", function(data) {
-        $scope.$apply(function() {
-            storageData.storageTable = {
-                type: "Table",
-                data: {
-                    cols: [
-                        {
-                            id: "device",
-                            label: "Device",
-                            type: "string"
-                        },
-                        {
-                            id: "mount",
-                            label: "Mount point",
-                            type: "string"
-                        },
-                        {
-                            id: "filesystem",
-                            label: "Filesystem",
-                            type: "string"
-                        },
-                        {
-                            id: "size",
-                            label: "Size",
-                            type: "number"
-                        },
-                        {
-                            id: "used",
-                            label: "Used",
-                            type: "number"
-                        },
-                        {
-                            id: "use",
-                            label: "Use",
-                            type: "number"
-                        }
-                    ],
-                    rows: []
-                },
-                options: {
-                },
-                formatters: {
-                    bar: [
-                        {
-                            columnNum: 5,
-                            max: 1
-                        }
-                    ]
-                }
-            };
-            angular.forEach(data, function(item) {
-                storageData.storageTable.data.rows.push(cObject([
-                    vObject(item.device),
-                    vObject(item.mount),
-                    vObject(item.filesystem),
-                    vObject(item.size, bytesFilter),
-                    vObject(item.used, bytesFilter),
-                    vObject(item.use, procentsFilter)
-                ]));
-            });
+        storageData.storageTable.data.rows = [];
+        angular.forEach(data, function(item) {
+            if (item.mount == '/') {
+                storageData.rootFS[0].c[1] = vObject(item.size-item.used, bytesFilter);
+                storageData.rootFS[1].c[1] = vObject(item.used, bytesFilter);
+                storageData.rootTotalSize.v = item.size;
+            }
+            storageData.storageTable.data.rows.push(cObject([
+                vObject(item.device),
+                vObject(item.mount),
+                vObject(item.filesystem),
+                vObject(item.size, bytesFilter),
+                vObject(item.used, bytesFilter),
+                vObject(item.use, procentsFilter)
+            ]));
         });
+        done.resolve();
     });
+});
 
+rpiDashboard.controller('StorageController', function($scope) {
     $scope.storageData = storageData;
 });
