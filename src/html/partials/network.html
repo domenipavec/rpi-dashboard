@@ -26,8 +26,10 @@
                 <li class="graph-red"><b>Receive:</b> {{data.throughput.rx.v | bps}}</li>
             </ul>
         </div>
-        <div class="col-md-8 chart-container">
-            <div history-chart chart="data.history" class="chart"></div>
+        <div class="col-md-8">
+            <div class="chart-container">
+                <div history-chart chart="data.history" class="chart"></div>
+            </div>
         </div>
     </div>
     

@@ -4,8 +4,10 @@
     
     <h3>Physical RAM:</h3>
     <div class="row">
-        <div class="col-lg-4 col-sm-8 chart-container">
-            <div google-chart chart="memoryData.ramChart" class="chart"></div>
+        <div class="col-lg-4 col-sm-8">
+            <div class="chart-container">
+                <div google-chart chart="memoryData.ramChart" class="chart"></div>
+            </div>
         </div>
         <div class="col-lg-3 col-sm-4">
             <ul>
@@ -20,15 +22,19 @@
                 </li>
             </ul>
         </div>
-        <div class="col-lg-5 col-sm-12 chart-container">
-            <div history-chart chart="memoryData.ramHistory" class="chart"></div>
+        <div class="col-lg-5 col-sm-12">
+            <div class="chart-container">
+                <div history-chart chart="memoryData.ramHistory" class="chart"></div>
+            </div>
         </div>
     </div>
 
     <h3>SWAP:</h3>
     <div class="row">
-        <div class="col-lg-4 col-sm-8 chart-container">
-            <div google-chart chart="memoryData.swapChart" class="chart"></div>
+        <div class="col-lg-4 col-sm-8">
+            <div class="chart-container">
+                <div google-chart chart="memoryData.swapChart" class="chart"></div>
+            </div>
         </div>
         <div class="col-lg-3 col-sm-4">
             <ul>
@@ -37,8 +43,10 @@
                 <li class="graph-red"><b>Used:</b> {{memoryData.swap.used.v | bytes}} ({{memoryData.swap.used.v/memoryData.swap.total.v | procents}})</li>
             </ul>
         </div>
-        <div class="col-lg-5 col-sm-12 chart-container">
-            <div history-chart chart="memoryData.swapHistory" class="chart"></div>
+        <div class="col-lg-5 col-sm-12">
+            <div class="chart-container">
+                <div history-chart chart="memoryData.swapHistory" class="chart"></div>
+            </div>
         </div>
     </div>
 </div>

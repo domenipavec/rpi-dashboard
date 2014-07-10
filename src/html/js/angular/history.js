@@ -37,7 +37,7 @@ historyGraph = function(type, cols, additionalOptions, filter, loggerValues, pre
             options: {
                 backgroundColor: {fill: 'transparent'},
                 legend: 'none',
-                chartArea: {top: 10, width: '75%', height: '85%'},
+                chartArea: {top: 10, left: 70, width: '85%', height: '85%'},
                 vAxis: {
                     ticks: []
                 }
