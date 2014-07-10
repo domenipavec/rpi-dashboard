@@ -11,3 +11,5 @@ Monkey and duda are installed in ~/.dudac/stage/monkey. To start the Monkey serv
 ```
 ~/.dudac/stage/monkey/bin/monkey -D
 ```
+
+To start the Monkey server on boot on Raspbian or Pidora, use [init.d script](initd_script.md).
