@@ -214,7 +214,7 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
     json_t *object;
     json_t *array;
     time_t start, end, ti;
-    unsigned long step, ds_cnt;
+    unsigned long step, ds_cnt, i;
     char **ds_namv;
     rrd_value_t *values;
     rrd_value_t *value;
@@ -268,6 +268,9 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
         json->add_to_object(object, "max", json->create_number(max));
     }
     
+    for (i = 0; i < ds_cnt; ++i) {
+        free(ds_namv[i]);
+    }
     free(ds_namv);
     free(values);
 
