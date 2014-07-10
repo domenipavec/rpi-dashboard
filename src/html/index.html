@@ -14,7 +14,7 @@
 
 <body ng-app="rpiDashboard">
 
-<div class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-controller="NavigationController">
+<div class="navbar navbar-inverse navbar-static-top" role="navigation" ng-controller="NavigationController">
     <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -30,7 +30,6 @@
             <li ng-repeat="menuEntry in menu" ng-class="menuClass(menuEntry.path)"><a href="#{{menuEntry.path}}" data-toggle="collapse" data-target=".navbar-collapse">{{menuEntry.name}}</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li>Uptime: 2d 3h</li>
             <li ng-hide="loggedIn"><a href="#/login" data-toggle="collapse" data-target=".navbar-collapse">Login</a></li>
             <li ng-show="loggedIn"><a class="pointer" ng-click="logout()" data-toggle="collapse" data-target=".navbar-collapse">Logout</a></li>
           </ul>
