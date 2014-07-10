@@ -111,7 +111,7 @@ backgroundUpdate(['storage', 'logger'], 1000, function(done) {
                     chartArea: {
                         top: 10,
                         left: 80,
-                        width: '75%',
+                        width: '65%',
                         height: '85%'
                     }
                 },
