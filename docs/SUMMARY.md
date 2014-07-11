@@ -12,6 +12,7 @@
     * [rpi.conf](configuration/rpiconf.md)
     * [rpi.users](configuration/rpiusers.md)
     * [modules.conf](configuration/modulesconf.md)
+* [Dashboard](dashboard/README.md)
 * [REST api](rest_api/README.md)
     * [/api/](rest_api/api.md)
     * [/api/memory](rest_api/apimemory.md)
