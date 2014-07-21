@@ -20,6 +20,24 @@
 #ifndef RPI_GPIO_H
 #define RPI_GPIO_H
 
+#define NPINS 40
+
+typedef enum {
+    GPIO_UNDEFINED = 0,
+    GPIO_INPUT = 1, 
+    GPIO_OUTPUT = 2, 
+    GPIO_PWM = 3,
+    GPIO_TONE = 4
+} gpio_mode_t;
+
+typedef struct {
+    gpio_mode_t mode;
+    int pull;
+    int value;
+    long frequency;
+    int range;
+} gpio_pin_t;
+
 void rpi_gpio_init(void);
 
 #endif
