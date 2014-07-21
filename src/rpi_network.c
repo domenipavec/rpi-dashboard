@@ -311,7 +311,7 @@ static void rpi_network_parse_inet6(json_t *object) {
     fclose(f);
 }
 
-json_t * rpi_network_get_list(duda_request_t *dr)
+json_t * rpi_network_get_list(duda_request_t *dr, int parameter)
 {
     DIR *d;
     struct dirent *de;
@@ -349,12 +349,12 @@ json_t * rpi_network_get_list(duda_request_t *dr)
     return object;
 }
 
-json_t *rpi_network_get_bytes(duda_request_t *dr)
+json_t *rpi_network_get_bytes(duda_request_t *dr, int parameter)
 {
     return rpi_network_get(dr, "bytes");
 }
 
-json_t *rpi_network_get_packets(duda_request_t *dr)
+json_t *rpi_network_get_packets(duda_request_t *dr, int parameter)
 {
     return rpi_network_get(dr, "packets");
 }

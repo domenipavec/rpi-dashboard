@@ -26,7 +26,7 @@
 #include <mntent.h>
 #include <sys/statvfs.h>
 
-json_t * rpi_storage_get_list(duda_request_t *dr)
+json_t * rpi_storage_get_list(duda_request_t *dr, int parameter)
 {
     struct mntent *ent;
     FILE *f;
@@ -82,7 +82,7 @@ json_t * rpi_storage_get_list(duda_request_t *dr)
     return array;
 }
 
-json_t * rpi_storage_get_throughput(duda_request_t *dr)
+json_t * rpi_storage_get_throughput(duda_request_t *dr, int parameter)
 {
     FILE *f;
     json_t *object;

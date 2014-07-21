@@ -26,6 +26,7 @@
 #include "rpi_network.h"
 #include "rpi_storage.h"
 #include "rpi_logger.h"
+#include "rpi_gpio.h"
 
 #include <assert.h>
 
@@ -70,21 +71,34 @@ json_t * rpi_modules_user_list(char *user)
 }
 
 /* takes rpi_module_value_t and constructs its json object */
-static json_t * construct_full_json(duda_request_t *dr, rpi_module_value_t *value)
+static json_t * construct_full_json(duda_request_t *dr, rpi_module_value_t *value, int parameter)
 {
     json_t *object;
     struct mk_list *entry;
     rpi_module_value_t *entry_value;
+    int min, max, i;
+    char name_buffer[4];
     
     if (value->get_value != NULL) {
-        return value->get_value(dr);
+        return value->get_value(dr, parameter);
     }
     
     object = json->create_object();
     
     mk_list_foreach(entry, &(value->values)) {
         entry_value = mk_list_entry(entry, rpi_module_value_t, _head);
-        json->add_to_object(object, entry_value->name, construct_full_json(dr, entry_value));
+        
+        // process parameter values
+        if (strncmp(entry_value->name, "%d", 2) == 0) {
+            if (sscanf(entry_value->name + 2, "%d:%d", &min, &max) == 2) {
+                for (i = min; i <= max; i++) {
+                    snprintf(name_buffer, 4, "%d", i);
+                    json->add_to_object(object, name_buffer, construct_full_json(dr, entry_value, i));
+                }
+            }
+        } else {
+            json->add_to_object(object, entry_value->name, construct_full_json(dr, entry_value, parameter));
+        }
     }
     
     return object;
@@ -135,7 +149,7 @@ json_t * rpi_modules_json(duda_request_t *dr,
                           const char *path, 
                           json_t **to_delete)
 {
-    int end;
+    int end, min, max, parameter;
     struct mk_list *entry;
     rpi_module_value_t *entry_value;
 
@@ -152,19 +166,31 @@ json_t * rpi_modules_json(duda_request_t *dr,
 
     /* no new segment */
     if (end == 0) {
-        *to_delete = construct_full_json(dr, value);
+        *to_delete = construct_full_json(dr, value, 0);
         return *to_delete;
     }
 
     /* search within current value json if necessary */
     if (value->get_value != NULL) {
-        *to_delete = value->get_value(dr);
+        *to_delete = value->get_value(dr, 0);
         return json_search(path, *to_delete);
     }
 
     /* find value with name of this path segment */
     mk_list_foreach(entry, &(value->values)) {
         entry_value = mk_list_entry(entry, rpi_module_value_t, _head);
+
+        // parse parameter
+        if (strncmp(entry_value->name, "%d", 2) == 0) {
+            if (sscanf(entry_value->name + 2, "%d:%d", &min, &max) == 2) {
+                parameter = atoi(path);
+                if (parameter >= min && parameter <= max) {
+                    *to_delete = entry_value->get_value(dr, parameter);
+                    return json_search(&path[end], *to_delete);
+                }
+            }
+        }
+        
         if (strlen(entry_value->name) == end) {
             if (memcmp(path, entry_value->name, end) == 0) {
                 return rpi_modules_json(dr, entry_value, &path[end], to_delete);
@@ -278,6 +304,7 @@ void rpi_modules_init(void)
     rpi_cpu_init();
     rpi_network_init();
     rpi_storage_init();
+    rpi_gpio_init();
     
     /* init logger, after all other modules */
     rpi_logger_init();

@@ -28,7 +28,7 @@
 #define RPI_ALLOW_ALLUSERS  2
 
 /* function called to get value */
-typedef json_t* (*rpi_module_get_value_t)(duda_request_t *);
+typedef json_t* (*rpi_module_get_value_t)(duda_request_t *, int parameter);
 
 /* values tree structure */
 typedef struct {

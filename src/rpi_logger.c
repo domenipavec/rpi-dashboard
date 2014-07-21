@@ -304,23 +304,23 @@ static json_t *rpi_logger_get(int rrai, duda_request_t *dr)
     return object;
 }
 
-json_t *rpi_logger_get_hour(duda_request_t *dr)
+json_t *rpi_logger_get_hour(duda_request_t *dr, int parameter)
 {
     return rpi_logger_get(0, dr);
 }
-json_t *rpi_logger_get_day(duda_request_t *dr)
+json_t *rpi_logger_get_day(duda_request_t *dr, int parameter)
 {
     return rpi_logger_get(1, dr);
 }
-json_t *rpi_logger_get_week(duda_request_t *dr)
+json_t *rpi_logger_get_week(duda_request_t *dr, int parameter)
 {
     return rpi_logger_get(2, dr);
 }
-json_t *rpi_logger_get_month(duda_request_t *dr)
+json_t *rpi_logger_get_month(duda_request_t *dr, int parameter)
 {
     return rpi_logger_get(3, dr);
 }
-json_t *rpi_logger_get_year(duda_request_t *dr)
+json_t *rpi_logger_get_year(duda_request_t *dr, int parameter)
 {
     return rpi_logger_get(4, dr);
 }
