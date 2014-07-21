@@ -24,6 +24,10 @@
 #include "packages/json/json.h"
 
 #include <wiringPi.h>
+#include <softPwm.h>
+#include <softTone.h>
+
+#include <assert.h>
 
 static gpio_pin_t pins[NPINS];
 static const char *gpio_mode_str[] = {
@@ -39,12 +43,25 @@ static const char *gpio_pull_str[] = {
     "up"
 };
 
-static void init_pin(int i) {
+static void init_pin(int i)
+{
     pins[i].mode = GPIO_UNDEFINED;
     pins[i].pull = PUD_OFF;
     pins[i].value = 0;
     pins[i].frequency = 1000;
-    pins[i].range = 1024;
+    pins[i].range = 100;
+}
+
+static void recalculate_hw_pwm_clock()
+{
+    double calc = 19200000.0;
+    calc /= pins[HWPWM].frequency;
+    calc /= pins[HWPWM].range;
+    int div = (int)(calc+0.5);
+    if (div < 2) {
+        div = 2;
+    }
+    pwmSetClock(div);
 }
 
 json_t * rpi_gpio_mode_get(duda_request_t *dr, int parameter)
@@ -52,17 +69,148 @@ json_t * rpi_gpio_mode_get(duda_request_t *dr, int parameter)
     return json->create_string(gpio_mode_str[pins[parameter].mode]);
 }
 
+int rpi_gpio_mode_post(json_t *data, int parameter)
+{
+    int i, mode;
+    if (data->type != cJSON_String) {
+        return -1;
+    }
+    for (mode = -1, i = 1; i < sizeof(gpio_mode_str)/sizeof(const char *); i++) {
+        if (strcmp(data->valuestring, gpio_mode_str[i]) == 0) {
+            mode = i;
+            break;
+        }
+    }
+    if (mode == -1) {
+        return -1;
+    }
+    
+    if (mode == pins[parameter].mode) {
+        return 0;
+    }
+    if (pins[parameter].mode == GPIO_PWM && parameter != HWPWM) {
+        softPwmStop(parameter);
+    }
+    if (pins[parameter].mode == GPIO_TONE) {
+        softToneStop(parameter);
+    }
+    pins[parameter].mode = mode;
+    
+    switch (mode) {
+        case GPIO_INPUT:
+            pinMode(parameter, INPUT);
+            pullUpDnControl(parameter, pins[parameter].pull);
+            break;
+        case GPIO_OUTPUT:
+            pinMode(parameter, OUTPUT);
+            digitalWrite(parameter, pins[parameter].value);
+            break;
+        case GPIO_PWM:
+            if (parameter == HWPWM) {
+                pinMode(parameter, PWM_OUTPUT);
+                pwmSetMode(PWM_MODE_MS);
+                pwmWrite(parameter, pins[parameter].value);
+                pwmSetRange(pins[parameter].range);
+                recalculate_hw_pwm_clock();
+            } else {
+                pinMode(parameter, OUTPUT);
+                softPwmCreate(parameter, pins[parameter].value, pins[parameter].range);
+            }
+            break;
+        case GPIO_TONE:
+            pinMode(parameter, OUTPUT);
+            softToneCreate(parameter);
+            if (pins[parameter].value == 0) {
+                softToneWrite(parameter, 0);
+            } else {
+                softToneWrite(parameter, pins[parameter].frequency);
+            }
+            break;
+    }
+    
+    return 0;
+}
+
 json_t * rpi_gpio_pull_get(duda_request_t *dr, int parameter)
 {
     return json->create_string(gpio_pull_str[pins[parameter].pull]);
 }
 
+int rpi_gpio_pull_post(json_t *data, int parameter)
+{
+    int i, pull;
+    if (data->type != cJSON_String) {
+        return -1;
+    }
+    for (pull = -1, i = 0; i < sizeof(gpio_pull_str)/sizeof(const char *); i++) {
+        if (strcmp(data->valuestring, gpio_pull_str[i]) == 0) {
+            pull = i;
+            break;
+        }
+    }
+    if (pull == -1) {
+        return -1;
+    }
+    
+    if (pull == pins[parameter].pull) {
+        return 0;
+    }
+    pins[parameter].pull = pull;
+    
+    if (pins[parameter].mode == GPIO_INPUT) {
+        pullUpDnControl(parameter, pull);
+    }
+    
+    return 0;
+}
+
 json_t * rpi_gpio_value_get(duda_request_t *dr, int parameter)
 {
-    if (pins[parameter].mode < GPIO_INPUT) {
+    if (pins[parameter].mode <= GPIO_INPUT) {
         return json->create_number((double)digitalRead(parameter));
     }
     return json->create_number((double)pins[parameter].value);
+}
+
+int rpi_gpio_value_post(json_t *data, int parameter)
+{
+    if (data->type != cJSON_Number) {
+        return -1;
+    }
+    int value = data->valueint;
+    if (value < 0 || value > pins[parameter].range) {
+        return -1;
+    }
+    
+    if (value == pins[parameter].value) {
+        return 0;
+    }
+    pins[parameter].value = value;
+    
+    switch (pins[parameter].mode) {
+        case GPIO_UNDEFINED:
+        case GPIO_INPUT:
+            break;
+        case GPIO_OUTPUT:
+            digitalWrite(parameter, value);
+            break;
+        case GPIO_PWM:
+            if (parameter == HWPWM) {
+                pwmWrite(parameter, value);
+            } else {
+                softPwmWrite(parameter, value);
+            }
+            break;
+        case GPIO_TONE:
+            if (value == 0) {
+                softToneWrite(parameter, 0);
+            } else {
+                softToneWrite(parameter, pins[parameter].frequency);
+            }
+            break;
+    }
+    
+    return 0;
 }
 
 json_t * rpi_gpio_frequency_get(duda_request_t *dr, int parameter)
@@ -70,9 +218,127 @@ json_t * rpi_gpio_frequency_get(duda_request_t *dr, int parameter)
     return json->create_number((double)pins[parameter].frequency);
 }
 
+int rpi_gpio_frequency_post(json_t *data, int parameter)
+{
+    if (data->type != cJSON_Number) {
+        return -1;
+    }
+    int frequency = data->valueint;
+    if (frequency < 1) {
+        return -1;
+    }
+    
+    if (frequency == pins[parameter].frequency) {
+        return 0;
+    }
+    pins[parameter].frequency = frequency;
+    
+    if (pins[parameter].mode == GPIO_TONE && pins[parameter].value != 0) {
+        softToneWrite(parameter, frequency);
+    }
+    
+    if (pins[parameter].mode == GPIO_PWM && parameter == HWPWM) {
+        recalculate_hw_pwm_clock();
+    }
+    
+    return 0;
+}
+
 json_t * rpi_gpio_range_get(duda_request_t *dr, int parameter)
 {
     return json->create_number((double)pins[parameter].range);
+}
+
+int rpi_gpio_range_post(json_t *data, int parameter)
+{
+    if (data->type != cJSON_Number) {
+        return -1;
+    }
+    int range = data->valueint;
+    if (range < 1) {
+        return -1;
+    }
+    
+    if (range == pins[parameter].range) {
+        return 0;
+    }
+    pins[parameter].range = range;
+    
+    if (pins[parameter].value > range) {
+        pins[parameter].value = range;
+    }
+
+    if (pins[parameter].mode == GPIO_PWM) {
+        if (parameter == HWPWM) {
+            pwmSetRange(range);
+            recalculate_hw_pwm_clock();
+        } else {
+            softPwmStop(parameter);
+            softPwmCreate(parameter, pins[parameter].value, range);
+        }
+    }
+
+    return 0;
+}
+
+int rpi_gpio_pin_post(json_t *data, int parameter)
+{
+    json_t *item;
+    int ret = 0;
+
+    item = json->get_object_item(data, "mode");
+    if (item != NULL) {
+        if (rpi_gpio_mode_post(item, parameter) != 0) {
+            ret = -1;
+        }
+    }
+
+    item = json->get_object_item(data, "pull");
+    if (item != NULL) {
+        if (rpi_gpio_pull_post(item, parameter) != 0) {
+            ret = -1;
+        }
+    }
+
+    item = json->get_object_item(data, "range");
+    if (item != NULL) {
+        if (rpi_gpio_range_post(item, parameter) != 0) {
+            ret = -1;
+        }
+    }
+
+    item = json->get_object_item(data, "value");
+    if (item != NULL) {
+        if (rpi_gpio_value_post(item, parameter) != 0) {
+            ret = -1;
+        }
+    }
+
+    item = json->get_object_item(data, "frequency");
+    if (item != NULL) {
+        if (rpi_gpio_frequency_post(item, parameter) != 0) {
+            ret = -1;
+        }
+    }
+
+    return ret;
+}
+
+int rpi_gpio_post(json_t *data, int parameter)
+{
+    json_t *child;
+    int ret = 0;
+    for (child = data->child; child; child = child->next) {
+        parameter = atoi(child->string);
+        if (parameter >= 0 && parameter < NPINS) {
+            if (rpi_gpio_pin_post(child, parameter) != 0) {
+                ret = -1;
+            }
+        } else {
+            ret = -1;
+        }
+    }
+    return ret;
 }
 
 /* register and initialize module */
@@ -86,7 +352,7 @@ void rpi_gpio_init(void)
         init_pin(i);
     }
     
-    rpi_module_t *module = rpi_modules_module_init("gpio", NULL);
+    rpi_module_t *module = rpi_modules_module_init("gpio", NULL, rpi_gpio_post);
 
     const char *valueHandle;
     if (piBoardRev() == 1) {
@@ -94,11 +360,11 @@ void rpi_gpio_init(void)
     } else {
         valueHandle = "%d0:20";
     }
-    rpi_module_value_t *branch = rpi_modules_branch_init(valueHandle, &(module->values_head.values));
+    rpi_module_value_t *branch = rpi_modules_branch_init(valueHandle, rpi_gpio_pin_post, &(module->values_head.values));
 
-    rpi_modules_value_init("mode", rpi_gpio_mode_get, &(branch->values));
-    rpi_modules_value_init("pull", rpi_gpio_pull_get, &(branch->values));
-    rpi_modules_value_init("value", rpi_gpio_value_get, &(branch->values));
-    rpi_modules_value_init("frequency", rpi_gpio_frequency_get, &(branch->values));
-    rpi_modules_value_init("range", rpi_gpio_range_get, &(branch->values));
+    rpi_modules_value_init("mode", rpi_gpio_mode_get, rpi_gpio_mode_post, &(branch->values));
+    rpi_modules_value_init("pull", rpi_gpio_pull_get, rpi_gpio_pull_post, &(branch->values));
+    rpi_modules_value_init("value", rpi_gpio_value_get, rpi_gpio_value_post, &(branch->values));
+    rpi_modules_value_init("frequency", rpi_gpio_frequency_get, rpi_gpio_frequency_post, &(branch->values));
+    rpi_modules_value_init("range", rpi_gpio_range_get, rpi_gpio_range_post, &(branch->values));
 }

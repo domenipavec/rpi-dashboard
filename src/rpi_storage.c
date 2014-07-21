@@ -121,8 +121,8 @@ json_t * rpi_storage_get_throughput(duda_request_t *dr, int parameter)
 /* register and initialize module */
 void rpi_storage_init(void)
 {
-    rpi_module_t *module = rpi_modules_module_init("storage", NULL);
+    rpi_module_t *module = rpi_modules_module_init("storage", NULL, NULL);
     
-    rpi_modules_value_init("list", rpi_storage_get_list, &(module->values_head.values));
-    rpi_modules_value_init("throughput", rpi_storage_get_throughput, &(module->values_head.values));
+    rpi_modules_value_init("list", rpi_storage_get_list, NULL, &(module->values_head.values));
+    rpi_modules_value_init("throughput", rpi_storage_get_throughput, NULL, &(module->values_head.values));
 }

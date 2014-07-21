@@ -134,10 +134,10 @@ json_t *rpi_cpu_get_temperature(duda_request_t *dr, int parameter)
 /* register and initialize module */
 void rpi_cpu_init(void)
 {
-    rpi_module_t *module = rpi_modules_module_init("cpu", NULL);
+    rpi_module_t *module = rpi_modules_module_init("cpu", NULL, NULL);
     
-    rpi_modules_value_init("usage", rpi_cpu_get_usage, &(module->values_head.values));
-    rpi_modules_value_init("loadavg", rpi_cpu_get_loadavg, &(module->values_head.values));
-    rpi_modules_value_init("uptime", rpi_cpu_get_uptime, &(module->values_head.values));
-    rpi_modules_value_init("temperature", rpi_cpu_get_temperature, &(module->values_head.values));
+    rpi_modules_value_init("usage", rpi_cpu_get_usage, NULL, &(module->values_head.values));
+    rpi_modules_value_init("loadavg", rpi_cpu_get_loadavg, NULL, &(module->values_head.values));
+    rpi_modules_value_init("uptime", rpi_cpu_get_uptime, NULL, &(module->values_head.values));
+    rpi_modules_value_init("temperature", rpi_cpu_get_temperature, NULL, &(module->values_head.values));
 }

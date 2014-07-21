@@ -29,6 +29,7 @@
 
 /* function called to get value */
 typedef json_t* (*rpi_module_get_value_t)(duda_request_t *, int parameter);
+typedef int (*rpi_module_post_value_t)(json_t *, int parameter);
 
 /* values tree structure */
 typedef struct {
@@ -37,6 +38,7 @@ typedef struct {
     /* leaf nodes have non NULL get_value */
     /* other nodes have a list of subnodes */
     rpi_module_get_value_t get_value;
+    rpi_module_post_value_t post_value;
     struct mk_list values;
     
     struct mk_list _head;
@@ -74,15 +76,19 @@ int rpi_modules_parse_allow_flag(char *str);
 void rpi_modules_init(void);
 
 /* initialize one module */
-rpi_module_t * rpi_modules_module_init(const char *name, rpi_module_get_value_t gv);
+rpi_module_t * rpi_modules_module_init(const char *name,
+                                       rpi_module_get_value_t gv,
+                                       rpi_module_post_value_t pv);
 
 /* initialize module value */
 rpi_module_value_t * rpi_modules_value_init(const char *name, 
-                                            rpi_module_get_value_t gv, 
+                                            rpi_module_get_value_t gv,
+                                            rpi_module_post_value_t pv,
                                             struct mk_list *parent);
 
 /* initialize module branch */
 rpi_module_value_t * rpi_modules_branch_init(const char *name,
+                                             rpi_module_post_value_t pv,
                                              struct mk_list *parent);
 
 #endif

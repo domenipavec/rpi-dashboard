@@ -327,13 +327,13 @@ json_t *rpi_logger_get_year(duda_request_t *dr, int parameter)
 
 static void module_init()
 {
-    rpi_module_t *module = rpi_modules_module_init("logger", NULL);
+    rpi_module_t *module = rpi_modules_module_init("logger", NULL, NULL);
     
-    rpi_modules_value_init("hour", rpi_logger_get_hour, &(module->values_head.values));
-    rpi_modules_value_init("day", rpi_logger_get_day, &(module->values_head.values));
-    rpi_modules_value_init("week", rpi_logger_get_week, &(module->values_head.values));
-    rpi_modules_value_init("month", rpi_logger_get_month, &(module->values_head.values));
-    rpi_modules_value_init("year", rpi_logger_get_year, &(module->values_head.values));
+    rpi_modules_value_init("hour", rpi_logger_get_hour, NULL, &(module->values_head.values));
+    rpi_modules_value_init("day", rpi_logger_get_day, NULL, &(module->values_head.values));
+    rpi_modules_value_init("week", rpi_logger_get_week, NULL, &(module->values_head.values));
+    rpi_modules_value_init("month", rpi_logger_get_month, NULL, &(module->values_head.values));
+    rpi_modules_value_init("year", rpi_logger_get_year, NULL, &(module->values_head.values));
 }
 
 void rpi_logger_init(void)

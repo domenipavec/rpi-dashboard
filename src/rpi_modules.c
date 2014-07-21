@@ -153,6 +153,7 @@ json_t * rpi_modules_json(duda_request_t *dr,
     int end, min, max, newpar;
     struct mk_list *entry;
     rpi_module_value_t *entry_value;
+    json_t *data;
 
     /* beginning after initial slashes */
     while (path[0] == '/') {
@@ -167,13 +168,29 @@ json_t * rpi_modules_json(duda_request_t *dr,
 
     /* no new segment */
     if (end == 0) {
-        *to_delete = construct_full_json(dr, value, 0);
+        if (dr == NULL || !request->is_data(dr)) {
+            *to_delete = construct_full_json(dr, value, parameter);
+        } else {
+            if (value->post_value == NULL) {
+                return NULL;
+            }
+            data = json->parse_data(dr);
+            if (data == NULL) {
+                return NULL;
+            }
+            if (value->post_value(data, parameter) != 0) {
+                json->delete(data);
+                return NULL;
+            }
+            json->delete(data);
+            *to_delete = json->create_string("Successful!");
+        }
         return *to_delete;
     }
 
     /* search within current value json if necessary */
     if (value->get_value != NULL) {
-        *to_delete = value->get_value(dr, 0);
+        *to_delete = value->get_value(dr, parameter);
         return json_search(path, *to_delete);
     }
 
@@ -214,7 +231,9 @@ int rpi_modules_parse_allow_flag(char *str)
 }
 
 /* initialize one module */
-rpi_module_t * rpi_modules_module_init(const char *name, rpi_module_get_value_t gv)
+rpi_module_t * rpi_modules_module_init(const char *name,
+                                       rpi_module_get_value_t gv,
+                                       rpi_module_post_value_t pv)
 {
     struct duda_config_section *config_sect;
     void *config_value;
@@ -227,6 +246,7 @@ rpi_module_t * rpi_modules_module_init(const char *name, rpi_module_get_value_t 
         mk_list_init(&(module->values_head.values));
     }
     module->values_head.get_value = gv;
+    module->values_head.post_value = pv;
     mk_list_add(&(module->_head), &modules_list);
     
     /* set defaults from global config */
@@ -262,7 +282,8 @@ rpi_module_t * rpi_modules_module_init(const char *name, rpi_module_get_value_t 
 
 /* initialize module value */
 rpi_module_value_t * rpi_modules_value_init(const char *name, 
-                                            rpi_module_get_value_t gv, 
+                                            rpi_module_get_value_t gv,
+                                            rpi_module_post_value_t pv,
                                             struct mk_list *parent)
 {
     rpi_module_value_t *value;
@@ -270,6 +291,7 @@ rpi_module_value_t * rpi_modules_value_init(const char *name,
     value = (rpi_module_value_t *)mem->alloc(sizeof(rpi_module_value_t));
     value->name = name;
     value->get_value = gv;
+    value->post_value = pv;
     mk_list_add(&(value->_head), parent);
     
     return value;
@@ -277,6 +299,7 @@ rpi_module_value_t * rpi_modules_value_init(const char *name,
 
 /* initialize module branch */
 rpi_module_value_t * rpi_modules_branch_init(const char *name,
+                                             rpi_module_post_value_t pv,
                                              struct mk_list *parent)
 {
     rpi_module_value_t *branch;
@@ -284,6 +307,7 @@ rpi_module_value_t * rpi_modules_branch_init(const char *name,
     branch = (rpi_module_value_t *)mem->alloc(sizeof(rpi_module_value_t));
     branch->name = name;
     branch->get_value = NULL;
+    branch->post_value = pv;
     mk_list_init(&(branch->values));
     mk_list_add(&(branch->_head), parent);
     

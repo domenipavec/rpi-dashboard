@@ -88,5 +88,5 @@ json_t * rpi_memory_get(duda_request_t *dr, int parameter)
 /* register and initialize module */
 void rpi_memory_init(void)
 {
-    rpi_modules_module_init("memory", rpi_memory_get);
+    rpi_modules_module_init("memory", rpi_memory_get, NULL);
 }
