@@ -47,22 +47,32 @@ static void init_pin(int i) {
     pins[i].range = 1024;
 }
 
-json_t * rpi_gpio(duda_request_t *dr, int parameter)
+json_t * rpi_gpio_mode_get(duda_request_t *dr, int parameter)
 {
-    json_t *object;
+    return json->create_string(gpio_mode_str[pins[parameter].mode]);
+}
 
-    object = json->create_object();
-    json->add_to_object(object, "mode", json->create_string(gpio_mode_str[pins[parameter].mode]));
-    json->add_to_object(object, "pull", json->create_string(gpio_pull_str[pins[parameter].pull]));
+json_t * rpi_gpio_pull_get(duda_request_t *dr, int parameter)
+{
+    return json->create_string(gpio_pull_str[pins[parameter].pull]);
+}
+
+json_t * rpi_gpio_value_get(duda_request_t *dr, int parameter)
+{
     if (pins[parameter].mode < GPIO_INPUT) {
-        json->add_to_object(object, "value", json->create_number((double)digitalRead(parameter)));
-    } else {
-        json->add_to_object(object, "value", json->create_number((double)pins[parameter].value));
+        return json->create_number((double)digitalRead(parameter));
     }
-    json->add_to_object(object, "frequency", json->create_number((double)pins[parameter].frequency));
-    json->add_to_object(object, "range", json->create_number((double)pins[parameter].range));
+    return json->create_number((double)pins[parameter].value);
+}
 
-    return object;
+json_t * rpi_gpio_frequency_get(duda_request_t *dr, int parameter)
+{
+    return json->create_number((double)pins[parameter].frequency);
+}
+
+json_t * rpi_gpio_range_get(duda_request_t *dr, int parameter)
+{
+    return json->create_number((double)pins[parameter].range);
 }
 
 /* register and initialize module */
@@ -84,5 +94,11 @@ void rpi_gpio_init(void)
     } else {
         valueHandle = "%d0:20";
     }
-    rpi_modules_value_init(valueHandle, rpi_gpio, &(module->values_head.values));
+    rpi_module_value_t *branch = rpi_modules_branch_init(valueHandle, &(module->values_head.values));
+
+    rpi_modules_value_init("mode", rpi_gpio_mode_get, &(branch->values));
+    rpi_modules_value_init("pull", rpi_gpio_pull_get, &(branch->values));
+    rpi_modules_value_init("value", rpi_gpio_value_get, &(branch->values));
+    rpi_modules_value_init("frequency", rpi_gpio_frequency_get, &(branch->values));
+    rpi_modules_value_init("range", rpi_gpio_range_get, &(branch->values));
 }

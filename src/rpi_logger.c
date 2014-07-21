@@ -59,7 +59,7 @@ static void add_group(char *module, const char *path, const char *dst)
     rpi_module = rpi_modules_find(g->module);
     assert(rpi_module != NULL);
 
-    json_object = rpi_modules_json(NULL, &(rpi_module->values_head), g->path, &json_delete);
+    json_object = rpi_modules_json(NULL, &(rpi_module->values_head), g->path, &json_delete, 0);
     assert(json_object != NULL);
 
     /* combine module and path to name_part */
@@ -188,7 +188,7 @@ static void rpi_logger_update(void)
         json_object = rpi_modules_json(NULL, 
                                        &(rpi_modules_find(entry_group->module)->values_head), 
                                        entry_group->path, 
-                                       &json_delete);
+                                       &json_delete, 0);
 
         parse_json(json_object, entry_group->name_part, entry_group->dst);
 

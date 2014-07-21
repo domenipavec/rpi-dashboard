@@ -147,9 +147,10 @@ static json_t * json_search(const char *path, json_t *object)
 json_t * rpi_modules_json(duda_request_t *dr, 
                           rpi_module_value_t *value, 
                           const char *path, 
-                          json_t **to_delete)
+                          json_t **to_delete,
+                          int parameter)
 {
-    int end, min, max, parameter;
+    int end, min, max, newpar;
     struct mk_list *entry;
     rpi_module_value_t *entry_value;
 
@@ -183,17 +184,16 @@ json_t * rpi_modules_json(duda_request_t *dr,
         // parse parameter
         if (strncmp(entry_value->name, "%d", 2) == 0) {
             if (sscanf(entry_value->name + 2, "%d:%d", &min, &max) == 2) {
-                parameter = atoi(path);
-                if (parameter >= min && parameter <= max) {
-                    *to_delete = entry_value->get_value(dr, parameter);
-                    return json_search(&path[end], *to_delete);
+                newpar = atoi(path);
+                if (newpar >= min && newpar <= max) {
+                    return rpi_modules_json(dr, entry_value, &path[end], to_delete, newpar);
                 }
             }
         }
         
         if (strlen(entry_value->name) == end) {
             if (memcmp(path, entry_value->name, end) == 0) {
-                return rpi_modules_json(dr, entry_value, &path[end], to_delete);
+                return rpi_modules_json(dr, entry_value, &path[end], to_delete, parameter);
             }
         }
     }

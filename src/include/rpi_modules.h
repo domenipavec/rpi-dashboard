@@ -64,7 +64,8 @@ json_t * rpi_modules_user_list(char *user);
 json_t * rpi_modules_json(duda_request_t *dr, 
                           rpi_module_value_t *value, 
                           const char *path, 
-                          json_t **to_delete);
+                          json_t **to_delete,
+                          int parameter);
 
 /* parse allow flag from string */
 int rpi_modules_parse_allow_flag(char *str);
