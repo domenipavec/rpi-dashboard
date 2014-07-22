@@ -20,7 +20,11 @@ dudac/dudac -s
 ```
 git clone https://github.com/matematik7/duda-raspberry.git
 ```
-6. Build duda-raspberry
+6. Checkout release version
+```
+(cd duda-raspberry && git checkout tags/v0.1.1)
+```
+7. Build duda-raspberry
 ```
 dudac/dudac -w duda-raspberry/src
 ```
