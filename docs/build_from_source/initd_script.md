@@ -17,12 +17,34 @@ DUDACPATH=/home/pi/.dudac
 ```
 To the correct file path to your ~/.dudac folder.
 
+## Raspbian
 Set monkey for start on boot on Raspbian:
 ```
 sudo update-rc.d monkey defaults
 ```
 
+Start monkey server manually:
+```
+sudo /etc/init.d/monkey start
+```
+
+Stop monkey server manually:
+```
+sudo /etc/init.d/monkey stop
+```
+
+## Pidora
 Set monkey to start on boot on Pidora:
 ```
 sudo systemctl enable monkey
+```
+
+Start monkey server manually:
+```
+sudo systemctl start monkey
+```
+
+Stop monkey server manually:
+```
+sudo systemctl stop monkey
 ```
