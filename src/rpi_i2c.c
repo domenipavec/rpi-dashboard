@@ -34,7 +34,7 @@ static int get_fd(duda_request_t *dr)
 {
     int devid;
     char *devid_str;
-    devid_str = qs->get(dr, "device");
+    devid_str = qs->get(dr, "address");
     if (devid_str == NULL) {
         return -1;
     }
@@ -69,28 +69,28 @@ json_t *rpi_i2c_byte_get(duda_request_t *dr, int parameter)
     return json->create_number((double)wiringPiI2CRead(fd));
 }
 
-int rpi_i2c_byte_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_i2c_byte_post(duda_request_t *dr, json_t *data, int parameter)
 {
     int fd = get_fd(dr);
     if (fd == -1) {
-        return -1;
+        return json->create_string("Invalid address.");
     }
     if (data->type != cJSON_Number) {
-        return -1;
+        return NULL;
     }
     int value = data->valueint;
     if (value < 0 || value > 255) {
-        return -1;
+        return NULL;
     }
     
     if (wiringPiI2CWrite(fd, value) != 0) {
-        return -1;
+        return json->create_string("Write failed.");
     }
     
-    return 0;
+    return json->create_string("Successful!");
 }
 
-json_t *rpi_i2c_register8_n_get(duda_request_t *dr, int parameter)
+json_t * rpi_i2c_register8_n_get(duda_request_t *dr, int parameter)
 {
     int fd = get_fd(dr);
     if (fd == -1) {
@@ -100,28 +100,28 @@ json_t *rpi_i2c_register8_n_get(duda_request_t *dr, int parameter)
     return json->create_number((double)wiringPiI2CReadReg8(fd, parameter));
 }
 
-int rpi_i2c_register8_n_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_i2c_register8_n_post(duda_request_t *dr, json_t *data, int parameter)
 {
     int fd = get_fd(dr);
     if (fd == -1) {
-        return -1;
+        return json->create_string("Invalid address.");
     }
     if (data->type != cJSON_Number) {
-        return -1;
+        return NULL;
     }
     int value = data->valueint;
     if (value < 0 || value > 255) {
-        return -1;
+        return NULL;
     }
     
     if (wiringPiI2CWriteReg8(fd, parameter, value) != 0) {
-        return -1;
+        return json->create_string("Write failed.");
     }
     
-    return 0;
+    return json->create_string("Successful!");
 }
 
-json_t *rpi_i2c_register16_n_get(duda_request_t *dr, int parameter)
+json_t * rpi_i2c_register16_n_get(duda_request_t *dr, int parameter)
 {
     int fd = get_fd(dr);
     if (fd == -1) {
@@ -131,56 +131,66 @@ json_t *rpi_i2c_register16_n_get(duda_request_t *dr, int parameter)
     return json->create_number((double)wiringPiI2CReadReg16(fd, parameter));
 }
 
-int rpi_i2c_register16_n_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_i2c_register16_n_post(duda_request_t *dr, json_t *data, int parameter)
 {
     int fd = get_fd(dr);
     if (fd == -1) {
-        return -1;
+        return json->create_string("Invalid address.");
     }
     if (data->type != cJSON_Number) {
-        return -1;
+        return NULL;
     }
     int value = data->valueint;
     if (value < 0 || value > 65535) {
-        return -1;
+        return NULL;
     }
     
     if (wiringPiI2CWriteReg16(fd, parameter, value) != 0) {
-        return -1;
+        return json->create_string("Write failed.");
     }
     
-    return 0;
+    return json->create_string("Successful!");
 }
 
-int rpi_i2c_register8_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_i2c_register8_post(duda_request_t *dr, json_t *data, int parameter)
 {
     json_t *child;
-    int ret = 0;
+    json_t *ret = json->create_object();
+    json_t *child_ret;
+
     for (child = data->child; child; child = child->next) {
         parameter = atoi(child->string);
         if (parameter >= 0 && parameter <= 255) {
-            if (rpi_i2c_register8_n_post(dr, child, parameter) != 0) {
-                ret = -1;
+            child_ret = rpi_i2c_register8_n_post(dr, child, parameter);
+            if (child_ret == NULL) {
+                json->add_to_object(ret, child->string, json->create_string("Unsupported action or invalid parameters!"));
+            } else {
+                json->add_to_object(ret, child->string, child_ret);
             }
         } else {
-            ret = -1;
+            json->add_to_object(ret, child->string, json->create_string("Unsupported action or invalid parameters!"));
         }
     }
     return ret;
 }
 
-int rpi_i2c_register16_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_i2c_register16_post(duda_request_t *dr, json_t *data, int parameter)
 {
     json_t *child;
-    int ret = 0;
+    json_t *ret = json->create_object();
+    json_t *child_ret;
+
     for (child = data->child; child; child = child->next) {
         parameter = atoi(child->string);
         if (parameter >= 0 && parameter <= 255) {
-            if (rpi_i2c_register16_n_post(dr, child, parameter) != 0) {
-                ret = -1;
+            child_ret = rpi_i2c_register16_n_post(dr, child, parameter);
+            if (child_ret == NULL) {
+                json->add_to_object(ret, child->string, json->create_string("Unsupported action or invalid parameters!"));
+            } else {
+                json->add_to_object(ret, child->string, child_ret);
             }
         } else {
-            ret = -1;
+            json->add_to_object(ret, child->string, json->create_string("Unsupported action or invalid parameters!"));
         }
     }
     return ret;

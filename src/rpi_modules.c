@@ -91,7 +91,7 @@ static json_t * construct_full_json(duda_request_t *dr, rpi_module_value_t *valu
         
         // process parameter values
         if (strncmp(entry_value->name, "%d", 2) == 0) {
-            if (sscanf(entry_value->name + 2, "%d:%d", &min, &max) == 2) {
+            if (sscanf(entry_value->name + 2, "%d:%d", &min, &max) == 2 && (max-min) < 100) {
                 for (i = min; i <= max; i++) {
                     snprintf(name_buffer, 4, "%d", i);
                     json->add_to_object(object, name_buffer, construct_full_json(dr, entry_value, i));
@@ -179,12 +179,8 @@ json_t * rpi_modules_json(duda_request_t *dr,
             if (data == NULL) {
                 return NULL;
             }
-            if (value->post_value(dr, data, parameter) != 0) {
-                json->delete(data);
-                return NULL;
-            }
+            *to_delete = value->post_value(dr, data, parameter);
             json->delete(data);
-            *to_delete = json->create_string("Successful!");
         }
         return *to_delete;
     }

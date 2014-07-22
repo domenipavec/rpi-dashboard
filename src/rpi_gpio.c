@@ -69,11 +69,11 @@ json_t * rpi_gpio_mode_get(duda_request_t *dr, int parameter)
     return json->create_string(gpio_mode_str[pins[parameter].mode]);
 }
 
-int rpi_gpio_mode_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_gpio_mode_post(duda_request_t *dr, json_t *data, int parameter)
 {
     int i, mode;
     if (data->type != cJSON_String) {
-        return -1;
+        return NULL;
     }
     for (mode = -1, i = 1; i < sizeof(gpio_mode_str)/sizeof(const char *); i++) {
         if (strcmp(data->valuestring, gpio_mode_str[i]) == 0) {
@@ -82,11 +82,11 @@ int rpi_gpio_mode_post(duda_request_t *dr, json_t *data, int parameter)
         }
     }
     if (mode == -1) {
-        return -1;
+        return NULL;
     }
     
     if (mode == pins[parameter].mode) {
-        return 0;
+        return json->create_string("Successful!");
     }
     if (pins[parameter].mode == GPIO_PWM && parameter != HWPWM) {
         softPwmStop(parameter);
@@ -128,7 +128,7 @@ int rpi_gpio_mode_post(duda_request_t *dr, json_t *data, int parameter)
             break;
     }
     
-    return 0;
+    return json->create_string("Successful!");
 }
 
 json_t * rpi_gpio_pull_get(duda_request_t *dr, int parameter)
@@ -136,11 +136,11 @@ json_t * rpi_gpio_pull_get(duda_request_t *dr, int parameter)
     return json->create_string(gpio_pull_str[pins[parameter].pull]);
 }
 
-int rpi_gpio_pull_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_gpio_pull_post(duda_request_t *dr, json_t *data, int parameter)
 {
     int i, pull;
     if (data->type != cJSON_String) {
-        return -1;
+        return NULL;
     }
     for (pull = -1, i = 0; i < sizeof(gpio_pull_str)/sizeof(const char *); i++) {
         if (strcmp(data->valuestring, gpio_pull_str[i]) == 0) {
@@ -149,11 +149,11 @@ int rpi_gpio_pull_post(duda_request_t *dr, json_t *data, int parameter)
         }
     }
     if (pull == -1) {
-        return -1;
+        return NULL;
     }
     
     if (pull == pins[parameter].pull) {
-        return 0;
+        return json->create_string("Successful!");
     }
     pins[parameter].pull = pull;
     
@@ -161,7 +161,7 @@ int rpi_gpio_pull_post(duda_request_t *dr, json_t *data, int parameter)
         pullUpDnControl(parameter, pull);
     }
     
-    return 0;
+    return json->create_string("Successful!");
 }
 
 json_t * rpi_gpio_value_get(duda_request_t *dr, int parameter)
@@ -172,18 +172,18 @@ json_t * rpi_gpio_value_get(duda_request_t *dr, int parameter)
     return json->create_number((double)pins[parameter].value);
 }
 
-int rpi_gpio_value_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_gpio_value_post(duda_request_t *dr, json_t *data, int parameter)
 {
     if (data->type != cJSON_Number) {
-        return -1;
+        return NULL;
     }
     int value = data->valueint;
     if (value < 0 || value > pins[parameter].range) {
-        return -1;
+        return NULL;
     }
     
     if (value == pins[parameter].value) {
-        return 0;
+        return json->create_string("Successful!");
     }
     pins[parameter].value = value;
     
@@ -210,7 +210,7 @@ int rpi_gpio_value_post(duda_request_t *dr, json_t *data, int parameter)
             break;
     }
     
-    return 0;
+    return json->create_string("Successful!");
 }
 
 json_t * rpi_gpio_frequency_get(duda_request_t *dr, int parameter)
@@ -218,18 +218,18 @@ json_t * rpi_gpio_frequency_get(duda_request_t *dr, int parameter)
     return json->create_number((double)pins[parameter].frequency);
 }
 
-int rpi_gpio_frequency_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_gpio_frequency_post(duda_request_t *dr, json_t *data, int parameter)
 {
     if (data->type != cJSON_Number) {
-        return -1;
+        return NULL;
     }
     int frequency = data->valueint;
     if (frequency < 1) {
-        return -1;
+        return NULL;
     }
     
     if (frequency == pins[parameter].frequency) {
-        return 0;
+        return json->create_string("Successful!");
     }
     pins[parameter].frequency = frequency;
     
@@ -241,7 +241,7 @@ int rpi_gpio_frequency_post(duda_request_t *dr, json_t *data, int parameter)
         recalculate_hw_pwm_clock();
     }
     
-    return 0;
+    return json->create_string("Successful!");
 }
 
 json_t * rpi_gpio_range_get(duda_request_t *dr, int parameter)
@@ -249,18 +249,18 @@ json_t * rpi_gpio_range_get(duda_request_t *dr, int parameter)
     return json->create_number((double)pins[parameter].range);
 }
 
-int rpi_gpio_range_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_gpio_range_post(duda_request_t *dr, json_t *data, int parameter)
 {
     if (data->type != cJSON_Number) {
-        return -1;
+        return NULL;
     }
     int range = data->valueint;
     if (range < 1) {
-        return -1;
+        return NULL;
     }
     
     if (range == pins[parameter].range) {
-        return 0;
+        return json->create_string("Successful!");
     }
     pins[parameter].range = range;
     
@@ -278,66 +278,92 @@ int rpi_gpio_range_post(duda_request_t *dr, json_t *data, int parameter)
         }
     }
 
-    return 0;
+    return json->create_string("Successful!");
 }
 
-int rpi_gpio_pin_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_gpio_pin_post(duda_request_t *dr, json_t *data, int parameter)
 {
     json_t *item;
-    int ret = 0;
+    json_t *ret;
+    int success = 1;
+    
+    if (data->type != cJSON_Object) {
+        return NULL;
+    }
 
     item = json->get_object_item(data, "mode");
     if (item != NULL) {
-        if (rpi_gpio_mode_post(dr, item, parameter) != 0) {
-            ret = -1;
+        if ((ret = rpi_gpio_mode_post(dr, item, parameter)) != NULL) {
+            json->delete(ret);
+        } else {
+            success = 0;
         }
     }
 
     item = json->get_object_item(data, "pull");
     if (item != NULL) {
-        if (rpi_gpio_pull_post(dr, item, parameter) != 0) {
-            ret = -1;
+        if ((ret = rpi_gpio_pull_post(dr, item, parameter)) != NULL) {
+            json->delete(ret);
+        } else {
+            success = 0;
         }
     }
 
     item = json->get_object_item(data, "range");
     if (item != NULL) {
-        if (rpi_gpio_range_post(dr, item, parameter) != 0) {
-            ret = -1;
+        if ((ret = rpi_gpio_range_post(dr, item, parameter)) != NULL) {
+            json->delete(ret);
+        } else {
+            success = 0;
         }
+
     }
 
     item = json->get_object_item(data, "value");
     if (item != NULL) {
-        if (rpi_gpio_value_post(dr, item, parameter) != 0) {
-            ret = -1;
+        if ((ret = rpi_gpio_value_post(dr, item, parameter)) != NULL) {
+            json->delete(ret);
+        } else {
+            success = 0;
         }
     }
 
     item = json->get_object_item(data, "frequency");
     if (item != NULL) {
-        if (rpi_gpio_frequency_post(dr, item, parameter) != 0) {
-            ret = -1;
+        if ((ret = rpi_gpio_frequency_post(dr, item, parameter)) != NULL) {
+            json->delete(ret);
+        } else {
+            success = 0;
         }
     }
 
-    return ret;
+    if (success == 0) {
+        return NULL;
+    }
+
+    return json->create_string("Successful!");
 }
 
-int rpi_gpio_post(duda_request_t *dr, json_t *data, int parameter)
+json_t * rpi_gpio_post(duda_request_t *dr, json_t *data, int parameter)
 {
     json_t *child;
-    int ret = 0;
+    json_t *ret = json->create_object();
+    json_t *child_ret;
+
     for (child = data->child; child; child = child->next) {
         parameter = atoi(child->string);
         if (parameter >= 0 && parameter < NPINS) {
-            if (rpi_gpio_pin_post(dr, child, parameter) != 0) {
-                ret = -1;
+            child_ret = rpi_gpio_pin_post(dr, child, parameter);
+            if (child_ret == NULL) {
+                json->add_to_object(ret, child->string, json->create_string("Unsupported action or invalid parameters!"));
+            } else {
+                json->add_to_object(ret, child->string, child_ret);
             }
         } else {
-            ret = -1;
+            json->add_to_object(ret, child->string, json->create_string("Unsupported action or invalid parameters!"));
         }
     }
+    
     return ret;
 }
 
