@@ -12,11 +12,27 @@ git clone https://github.com/monkey/dudac.git
 ```
 dudac/dudac -s
 ```
+If you want HTTPS instead of HTTP access, use:
+```
+dudac/dudac -sS
+```
 4. Clone duda-raspberry repository
 ```
 git clone https://github.com/matematik7/duda-raspberry.git
 ```
-5. Build duda-raspberry
+5. Checkout release version
+```
+(cd duda-raspberry && git checkout tags/v0.1.1)
+```
+6. Build duda-raspberry
 ```
 dudac/dudac -w duda-raspberry/src
+```
+If you want HTTPS instead of HTTP access, use:
+```
+dudac/dudac -Sw duda-raspberry/src
+```
+If you want HTTPS instead of HTTP access, use:
+```
+dudac/dudac -Sw duda-raspberry/src
 ```

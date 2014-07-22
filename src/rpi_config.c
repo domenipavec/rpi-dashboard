@@ -46,6 +46,7 @@ void rpi_config_init(void)
     
     dconf_sect = fconf->section_get(dconf, "GLOBAL");
     if (dconf_sect == NULL) {
+        fconf->free_conf(dconf);
         return;
     }
     
@@ -60,4 +61,6 @@ void rpi_config_init(void)
         mem->free(rpi_config.default_allowed_users);
         rpi_config.default_allowed_users = (struct mk_list *)dconf_value;
     }
+    
+    fconf->free_conf(dconf);
 }
