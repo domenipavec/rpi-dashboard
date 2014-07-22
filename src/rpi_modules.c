@@ -27,6 +27,7 @@
 #include "rpi_storage.h"
 #include "rpi_logger.h"
 #include "rpi_gpio.h"
+#include "rpi_i2c.h"
 
 #include <assert.h>
 
@@ -178,7 +179,7 @@ json_t * rpi_modules_json(duda_request_t *dr,
             if (data == NULL) {
                 return NULL;
             }
-            if (value->post_value(data, parameter) != 0) {
+            if (value->post_value(dr, data, parameter) != 0) {
                 json->delete(data);
                 return NULL;
             }
@@ -329,6 +330,7 @@ void rpi_modules_init(void)
     rpi_network_init();
     rpi_storage_init();
     rpi_gpio_init();
+    rpi_i2c_init();
     
     /* init logger, after all other modules */
     rpi_logger_init();

@@ -69,7 +69,7 @@ json_t * rpi_gpio_mode_get(duda_request_t *dr, int parameter)
     return json->create_string(gpio_mode_str[pins[parameter].mode]);
 }
 
-int rpi_gpio_mode_post(json_t *data, int parameter)
+int rpi_gpio_mode_post(duda_request_t *dr, json_t *data, int parameter)
 {
     int i, mode;
     if (data->type != cJSON_String) {
@@ -136,7 +136,7 @@ json_t * rpi_gpio_pull_get(duda_request_t *dr, int parameter)
     return json->create_string(gpio_pull_str[pins[parameter].pull]);
 }
 
-int rpi_gpio_pull_post(json_t *data, int parameter)
+int rpi_gpio_pull_post(duda_request_t *dr, json_t *data, int parameter)
 {
     int i, pull;
     if (data->type != cJSON_String) {
@@ -172,7 +172,7 @@ json_t * rpi_gpio_value_get(duda_request_t *dr, int parameter)
     return json->create_number((double)pins[parameter].value);
 }
 
-int rpi_gpio_value_post(json_t *data, int parameter)
+int rpi_gpio_value_post(duda_request_t *dr, json_t *data, int parameter)
 {
     if (data->type != cJSON_Number) {
         return -1;
@@ -218,7 +218,7 @@ json_t * rpi_gpio_frequency_get(duda_request_t *dr, int parameter)
     return json->create_number((double)pins[parameter].frequency);
 }
 
-int rpi_gpio_frequency_post(json_t *data, int parameter)
+int rpi_gpio_frequency_post(duda_request_t *dr, json_t *data, int parameter)
 {
     if (data->type != cJSON_Number) {
         return -1;
@@ -249,7 +249,7 @@ json_t * rpi_gpio_range_get(duda_request_t *dr, int parameter)
     return json->create_number((double)pins[parameter].range);
 }
 
-int rpi_gpio_range_post(json_t *data, int parameter)
+int rpi_gpio_range_post(duda_request_t *dr, json_t *data, int parameter)
 {
     if (data->type != cJSON_Number) {
         return -1;
@@ -281,42 +281,42 @@ int rpi_gpio_range_post(json_t *data, int parameter)
     return 0;
 }
 
-int rpi_gpio_pin_post(json_t *data, int parameter)
+int rpi_gpio_pin_post(duda_request_t *dr, json_t *data, int parameter)
 {
     json_t *item;
     int ret = 0;
 
     item = json->get_object_item(data, "mode");
     if (item != NULL) {
-        if (rpi_gpio_mode_post(item, parameter) != 0) {
+        if (rpi_gpio_mode_post(dr, item, parameter) != 0) {
             ret = -1;
         }
     }
 
     item = json->get_object_item(data, "pull");
     if (item != NULL) {
-        if (rpi_gpio_pull_post(item, parameter) != 0) {
+        if (rpi_gpio_pull_post(dr, item, parameter) != 0) {
             ret = -1;
         }
     }
 
     item = json->get_object_item(data, "range");
     if (item != NULL) {
-        if (rpi_gpio_range_post(item, parameter) != 0) {
+        if (rpi_gpio_range_post(dr, item, parameter) != 0) {
             ret = -1;
         }
     }
 
     item = json->get_object_item(data, "value");
     if (item != NULL) {
-        if (rpi_gpio_value_post(item, parameter) != 0) {
+        if (rpi_gpio_value_post(dr, item, parameter) != 0) {
             ret = -1;
         }
     }
 
     item = json->get_object_item(data, "frequency");
     if (item != NULL) {
-        if (rpi_gpio_frequency_post(item, parameter) != 0) {
+        if (rpi_gpio_frequency_post(dr, item, parameter) != 0) {
             ret = -1;
         }
     }
@@ -324,14 +324,14 @@ int rpi_gpio_pin_post(json_t *data, int parameter)
     return ret;
 }
 
-int rpi_gpio_post(json_t *data, int parameter)
+int rpi_gpio_post(duda_request_t *dr, json_t *data, int parameter)
 {
     json_t *child;
     int ret = 0;
     for (child = data->child; child; child = child->next) {
         parameter = atoi(child->string);
         if (parameter >= 0 && parameter < NPINS) {
-            if (rpi_gpio_pin_post(child, parameter) != 0) {
+            if (rpi_gpio_pin_post(dr, child, parameter) != 0) {
                 ret = -1;
             }
         } else {

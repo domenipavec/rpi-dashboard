@@ -6,4 +6,4 @@ LDFLAGS = -lrrd -lwiringPi
 DEFS    =
 OBJECTS = rpi_main.o rpi_modules.o rpi_security.o rpi_config.o \
           rpi_memory.o rpi_cpu.o rpi_network.o rpi_storage.o \
-          rpi_string.o rpi_logger.o rpi_gpio.o
+          rpi_string.o rpi_logger.o rpi_gpio.o rpi_i2c.o

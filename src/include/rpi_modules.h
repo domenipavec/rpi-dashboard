@@ -29,7 +29,7 @@
 
 /* function called to get value */
 typedef json_t* (*rpi_module_get_value_t)(duda_request_t *, int parameter);
-typedef int (*rpi_module_post_value_t)(json_t *, int parameter);
+typedef int (*rpi_module_post_value_t)(duda_request_t *, json_t *, int parameter);
 
 /* values tree structure */
 typedef struct {
