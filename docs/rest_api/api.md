@@ -14,6 +14,6 @@ Example:
 ```
 {
 	"user":	"admin",
-	"modules":	["memory", "cpu", "network", "storage", "logger"]
+	"modules":	["memory", "cpu", "network", "storage", "gpio", "i2c", "spi", "serial", "logger"]
 }
 ```

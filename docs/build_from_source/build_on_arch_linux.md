@@ -8,11 +8,16 @@ sudo pacman -S git rrdtool python2 base-devel
 ```
 sudo ln /usr/bin/python2 /usr/bin/python
 ```
-3. Clone dudac repository
+3. Install wiringPi
+```
+git clone git://git.drogon.net/wiringPi
+wiringPi/build
+```
+4. Clone dudac repository
 ```
 git clone https://github.com/monkey/dudac.git
 ```
-4. Set up monkey and duda development environment in ~/.dudac:
+5. Set up monkey and duda development environment in ~/.dudac:
 ```
 dudac/dudac -s
 ```
@@ -20,15 +25,15 @@ If you want HTTPS instead of HTTP access, use:
 ```
 dudac/dudac -sS
 ```
-5. Clone duda-raspberry repository
+6. Clone duda-raspberry repository
 ```
 git clone https://github.com/matematik7/duda-raspberry.git
 ```
-6. Checkout release version
+7. Checkout release version
 ```
 (cd duda-raspberry && git checkout tags/v0.1.1)
 ```
-7. Build duda-raspberry
+8. Build duda-raspberry
 ```
 dudac/dudac -w duda-raspberry/src
 ```

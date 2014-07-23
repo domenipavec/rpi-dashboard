@@ -19,6 +19,7 @@
     * [/api/cpu](rest_api/apicpu.md)
     * [/api/network](rest_api/apinetwork.md)
     * [/api/storage](rest_api/apistorage.md)
+    * [/api/gpio](rest_api/apigpio.md)
 * [RPiJS jQuery Plugin](rpijs_jquery_plugin/README.md)
     * [$.rpijs.init](rpijs_jquery_plugin/rpijsinit.md)
     * [$.rpijs.get](rpijs_jquery_plugin/rpijsget.md)

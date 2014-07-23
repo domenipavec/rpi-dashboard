@@ -4,11 +4,16 @@
 ```
 sudo apt-get install git librrd-dev
 ```
-2. Clone dudac repository
+2. Install wiringPi
+```
+git clone git://git.drogon.net/wiringPi
+wiringPi/build
+```
+3. Clone dudac repository
 ```
 git clone https://github.com/monkey/dudac.git
 ```
-3. Set up monkey and duda development environment in ~/.dudac:
+4. Set up monkey and duda development environment in ~/.dudac:
 ```
 dudac/dudac -s
 ```
@@ -16,21 +21,17 @@ If you want HTTPS instead of HTTP access, use:
 ```
 dudac/dudac -sS
 ```
-4. Clone duda-raspberry repository
+5. Clone duda-raspberry repository
 ```
 git clone https://github.com/matematik7/duda-raspberry.git
 ```
-5. Checkout release version
+6. Checkout release version
 ```
 (cd duda-raspberry && git checkout tags/v0.1.1)
 ```
-6. Build duda-raspberry
+7. Build duda-raspberry
 ```
 dudac/dudac -w duda-raspberry/src
-```
-If you want HTTPS instead of HTTP access, use:
-```
-dudac/dudac -Sw duda-raspberry/src
 ```
 If you want HTTPS instead of HTTP access, use:
 ```
