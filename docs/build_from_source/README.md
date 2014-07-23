@@ -15,3 +15,4 @@ Monkey and duda are installed in ~/.dudac/stage/monkey. To start the Monkey serv
 To start the Monkey server on boot on Raspbian or Pidora, use [init.d script](initd_script.md).
 
 If you want to use i2c, you have to [enable](../system_configuration/enable_i2c.md) it.
+If you want to use SPI, you have to [enable](../system_configuration/enable_spi.md) it.

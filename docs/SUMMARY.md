@@ -9,6 +9,7 @@
 * [System configuration](system_configuration/README.md)
     * [Init.d script](build_from_source/initd_script.md)
     * [Enable i2c](system_configuration/enable_i2c.md)
+    * [Enable SPI](system_configuration/enable_spi.md)
 * [Configuration](configuration/README.md)
     * [Files Schema](configuration/files_schema.md)
     * [rpi.conf](configuration/rpiconf.md)
