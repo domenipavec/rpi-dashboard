@@ -78,11 +78,6 @@ json_t * rpi_spi_post(duda_request_t *dr, json_t *data, int parameter)
 
 json_t * rpi_spi_frequency_get(duda_request_t *dr, int parameter)
 {
-    int fd = get_fd(parameter);
-    if (fd == -1) {
-        return json->create_string("SPI setup problem.");
-    }
-
     return json->create_number((double)spispeed[parameter]);
 }
 
