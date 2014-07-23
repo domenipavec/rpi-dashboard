@@ -10,7 +10,7 @@ You MUST specify i2c address in the query string like this:
 ```
 Address can be in hex or decimal format.
 
-Use GET method for reading data and POST method for writing data. Put data in POST body in JSON format.
+Use GET method for reading data and POST method for writing data. Put data in POST body in JSON format. Data is in JSON number format.
 
 ### i2c/byte?address=
 
