@@ -28,6 +28,7 @@
 #include "rpi_logger.h"
 #include "rpi_gpio.h"
 #include "rpi_i2c.h"
+#include "rpi_spi.h"
 
 #include <assert.h>
 
@@ -327,6 +328,7 @@ void rpi_modules_init(void)
     rpi_storage_init();
     rpi_gpio_init();
     rpi_i2c_init();
+    rpi_spi_init();
     
     /* init logger, after all other modules */
     rpi_logger_init();
