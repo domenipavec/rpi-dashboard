@@ -15,6 +15,44 @@
  *  limitations under the License.
  */
 
+/* start fragment */
+/* Source: https://gist.github.com/chicagoworks/754454 */
+jQuery.extend({
+    stringify  : function stringify(obj) {         
+        if ("JSON" in window) {
+            return JSON.stringify(obj);
+        }
+
+        var t = typeof (obj);
+        if (t != "object" || obj === null) {
+            // simple data type
+            if (t == "string") obj = '"' + obj + '"';
+
+            return String(obj);
+        } else {
+            // recurse array or object
+            var n, v, json = [], arr = (obj && obj.constructor == Array);
+
+            for (n in obj) {
+                v = obj[n];
+                t = typeof(v);
+                if (obj.hasOwnProperty(n)) {
+                    if (t == "string") {
+                        v = '"' + v + '"';
+                    } else if (t == "object" && v !== null){
+                        v = jQuery.stringify(v);
+                    }
+
+                    json.push((arr ? "" : '"' + n + '":') + String(v));
+                }
+            }
+
+            return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
+        }
+    }
+});
+/* end fragment */
+
 (function ($, undefined) {
     
     $.rpijs = {};
@@ -64,6 +102,19 @@
                 }, settings.update);
             }
         });
+    };
+    
+    /* POST request to the REST api */
+    $.rpijs.post = function(name, data, callback) {
+        return $.ajax({
+            url: $.rpijs.apiUrl + name,
+            headers: {
+                Authorization: "Basic " + btoa($.rpijs.username + ":" + $.rpijs.password)
+            },
+            type: "POST",
+            data: $.stringify(data),
+            contentType: "application/json"
+        }).done(callback);
     };
     
     /* Format all values specified in format option */
