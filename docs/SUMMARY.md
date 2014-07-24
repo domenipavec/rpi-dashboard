@@ -32,6 +32,7 @@
     * [$.rpijs.init](rpijs_jquery_plugin/rpijsinit.md)
     * [$.rpijs.get](rpijs_jquery_plugin/rpijsget.md)
     * [$.fn.rpijs](rpijs_jquery_plugin/fnrpijs.md)
+    * [$.rpijs.post](rpijs_jquery_plugin/rpijspost.md)
     * [$.rpijs.parseNumber](rpijs_jquery_plugin/rpijsparsenumber.md)
     * [options](rpijs_jquery_plugin/options.md)
     * [formatOptions](rpijs_jquery_plugin/formatoptions.md)
