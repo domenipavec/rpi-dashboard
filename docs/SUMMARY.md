@@ -27,6 +27,7 @@
     * [/api/i2c](rest_api/apii2c.md)
     * [/api/spi](rest_api/apispi.md)
     * [/api/serial](rest_api/apiserial.md)
+    * [/api/shift](rest_api/apishift.md)
 * [RPiJS jQuery Plugin](rpijs_jquery_plugin/README.md)
     * [$.rpijs.init](rpijs_jquery_plugin/rpijsinit.md)
     * [$.rpijs.get](rpijs_jquery_plugin/rpijsget.md)
