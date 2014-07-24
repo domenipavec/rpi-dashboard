@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-#include "rpi_i2c.h"
+#include "rpi_spi.h"
 
 #include "rpi_modules.h"
 
