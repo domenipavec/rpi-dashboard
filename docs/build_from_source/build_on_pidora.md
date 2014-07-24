@@ -7,7 +7,7 @@ sudo yum install git rrdtool-devel
 2. Install wiringPi
 ```
 git clone git://git.drogon.net/wiringPi
-wiringPi/build
+(cd wiringPi && ./build)
 ```
 3. Clone dudac repository
 ```

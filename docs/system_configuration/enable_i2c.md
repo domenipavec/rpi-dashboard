@@ -2,9 +2,14 @@
 
 If you want to use i2c bus, you have to enable it first:
 
-Open /etc/modules
+Open /etc/modules on Rasbian:
 ```
 sudo nano /etc/modules
+```
+
+or /etc/modules-load.d/raspberrypi.conf on Arch Linux:
+```
+sudo nano /etc/modules-load.d/raspberrypi.conf
 ```
 
 and add these two lines to the end

@@ -11,7 +11,7 @@ sudo ln /usr/bin/python2 /usr/bin/python
 3. Install wiringPi
 ```
 git clone git://git.drogon.net/wiringPi
-wiringPi/build
+(cd wiringPi && ./build)
 ```
 4. Clone dudac repository
 ```
