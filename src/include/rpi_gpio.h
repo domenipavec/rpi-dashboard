@@ -20,7 +20,7 @@
 #ifndef RPI_GPIO_H
 #define RPI_GPIO_H
 
-#define NPINS 40
+#define MAX_PINS 40
 #define HWPWM 1
 
 typedef enum {

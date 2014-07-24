@@ -29,7 +29,8 @@
 
 #include <assert.h>
 
-static gpio_pin_t pins[NPINS];
+static gpio_pin_t pins[MAX_PINS];
+static int npins;
 static const char *gpio_mode_str[] = {
     "undefined",
     "input",
@@ -352,7 +353,7 @@ json_t * rpi_gpio_post(duda_request_t *dr, json_t *data, int parameter)
 
     for (child = data->child; child; child = child->next) {
         parameter = atoi(child->string);
-        if (parameter >= 0 && parameter < NPINS) {
+        if (parameter >= 0 && parameter < npins) {
             child_ret = rpi_gpio_pin_post(dr, child, parameter);
             if (child_ret == NULL) {
                 json->add_to_object(ret, child->string, json->create_string("Unsupported action or invalid parameters!"));
@@ -371,21 +372,23 @@ json_t * rpi_gpio_post(duda_request_t *dr, json_t *data, int parameter)
 void rpi_gpio_init(void)
 {
     int i;
+    const char *valueHandle;
+    if (piBoardRev() == 1) {
+        valueHandle = "%d0:16";
+        npins = 17;
+    } else {
+        valueHandle = "%d0:20";
+        npins = 21;
+    }
 
     wiringPiSetup();
 
-    for (i = 0; i < NPINS; i++) {
+    for (i = 0; i < npins; i++) {
         init_pin(i);
     }
     
     rpi_module_t *module = rpi_modules_module_init("gpio", NULL, rpi_gpio_post);
 
-    const char *valueHandle;
-    if (piBoardRev() == 1) {
-        valueHandle = "%d0:16";
-    } else {
-        valueHandle = "%d0:20";
-    }
     rpi_module_value_t *branch = rpi_modules_branch_init(valueHandle, rpi_gpio_pin_post, &(module->values_head.values));
 
     rpi_modules_value_init("mode", rpi_gpio_mode_get, rpi_gpio_mode_post, &(branch->values));
