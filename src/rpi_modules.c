@@ -30,6 +30,7 @@
 #include "rpi_i2c.h"
 #include "rpi_spi.h"
 #include "rpi_serial.h"
+#include "rpi_shift.h"
 
 #include <assert.h>
 
@@ -331,6 +332,7 @@ void rpi_modules_init(void)
     rpi_i2c_init();
     rpi_spi_init();
     rpi_serial_init();
+    rpi_shift_init();
     
     /* init logger, after all other modules */
     rpi_logger_init();
