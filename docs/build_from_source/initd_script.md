@@ -4,7 +4,7 @@ To start monkey server automatically at boot, we set up init.d script (does not 
 
 Copy monkey.init to /etc/init.d:
 ```
-sudo cp duda-raspberry/tools/monkey.init /etc/init.d/monkey
+sudo cp rpi-dashboard/tools/monkey.init /etc/init.d/monkey
 ```
 
 Modify /etc/init.d/monkey:

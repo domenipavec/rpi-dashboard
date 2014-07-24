@@ -23,17 +23,17 @@ dudac/dudac -sS
 ```
 5. Clone duda-raspberry repository
 ```
-git clone https://github.com/matematik7/duda-raspberry.git
+git clone https://github.com/matematik7/rpi-dashboard.git
 ```
 6. Checkout release version
 ```
-(cd duda-raspberry && git checkout tags/v0.1.1)
+(cd rpi-dashboard && git checkout tags/v0.1.1)
 ```
-7. Build duda-raspberry
+7. Build rpi-dashboard
 ```
-dudac/dudac -w duda-raspberry/src
+dudac/dudac -w rpi-dashboard/src
 ```
 If you want HTTPS instead of HTTP access, use:
 ```
-dudac/dudac -Sw duda-raspberry/src
+dudac/dudac -Sw rpi-dashboard/src
 ```
