@@ -82,10 +82,11 @@ void rpi_global_callback(duda_request_t *dr)
 
     json_object = rpi_modules_json(dr, &(module->values_head), dr->method.data + dr->method.len, &json_delete, 0);
     if (json_object == NULL) {
-        response->http_status(dr, 404);
         if (request->is_data(dr)) {
+            response->http_status(dr, 400);
             response->printf(dr, "Unsupported action or invalid parameters!");
         } else {
+            response->http_status(dr, 404);
             response->printf(dr, "Module does not contain this value!");
         }
         response->end(dr, NULL);
