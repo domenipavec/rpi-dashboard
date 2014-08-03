@@ -1,42 +1,39 @@
-<div class="container">
+<h1>CPU</h1>
+<p><b>Uptime:</b> {{uptime | time}}</p>
 
-    <h1>CPU</h1>
-    <p><b>Uptime:</b> {{uptime | time}}</p>
+<div class="row">
+    <div class="col-md-3 col-sm-5">
+        <h3>Usage</h3>
+        <ul>
+            <li class="graph-red"><b>User processes:</b> {{cpuData.usage.user.v | procents}}</li>
+            <li class="graph-orange"><b>System:</b> {{cpuData.usage.system.v | procents}}</li>
+            <li class="graph-blue"><b>I/O wait:</b> {{cpuData.usage.iowait.v | procents}}</li>
+        </ul>
+    </div>
     
-    <div class="row">
-        <div class="col-md-3 col-sm-5">
-            <h3>Usage</h3>
-            <ul>
-                <li class="graph-red"><b>User processes:</b> {{cpuData.usage.user.v | procents}}</li>
-                <li class="graph-orange"><b>System:</b> {{cpuData.usage.system.v | procents}}</li>
-                <li class="graph-blue"><b>I/O wait:</b> {{cpuData.usage.iowait.v | procents}}</li>
-            </ul>
-        </div>
-        
-        <div class="col-md-2 col-sm-3">
-            <div class="chart-container">
-                <div google-chart chart="cpuData.usageGraph" class="chart"></div>
-            </div>
-        </div>
-        
-        <div class="col-md-7 col-sm-12">
-            <div class="chart-container">
-                <div history-chart chart="cpuData.usageHistory" class="chart"></div>
-            </div>
+    <div class="col-md-2 col-sm-3">
+        <div class="chart-container">
+            <div google-chart chart="cpuData.usageGraph" class="chart"></div>
         </div>
     </div>
     
-    <h3>Temperature</h3>
-    <div class="row">
-        <div class="col-md-5 col-sm-12">
-            <div class="chart-container">
-                <div google-chart chart="cpuData.temperatureGauge" class="chart"></div>
-            </div>
+    <div class="col-md-7 col-sm-12">
+        <div class="chart-container">
+            <div history-chart chart="cpuData.usageHistory" class="chart"></div>
         </div>
-        <div class="col-md-7 col-sm-12">
-            <div class="chart-container">
-                <div history-chart chart="cpuData.temperatureHistory" class="chart"></div>
-            </div>
+    </div>
+</div>
+
+<h3>Temperature</h3>
+<div class="row">
+    <div class="col-md-5 col-sm-12">
+        <div class="chart-container">
+            <div google-chart chart="cpuData.temperatureGauge" class="chart"></div>
+        </div>
+    </div>
+    <div class="col-md-7 col-sm-12">
+        <div class="chart-container">
+            <div history-chart chart="cpuData.temperatureHistory" class="chart"></div>
         </div>
     </div>
 </div>

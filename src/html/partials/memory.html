@@ -1,52 +1,49 @@
-<div class="container">
+<h1>Memory</h1>
 
-    <h1>Memory</h1>
-    
-    <h3>Physical RAM:</h3>
-    <div class="row">
-        <div class="col-lg-4 col-sm-8">
-            <div class="chart-container">
-                <div google-chart chart="memoryData.ramChart" class="chart"></div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-sm-4">
-            <ul>
-                <li><b>Total:</b> {{memoryData.memory.total.v | bytes}}</li>
-                <li class="graph-green"><b>Free:</b> {{memoryData.memory.free.v | bytes}} ({{memoryData.memory.free.v/memoryData.memory.total.v | procents}})</li>
-                <li><b>Used:</b> {{memoryData.memory.used.v | bytes}} ({{memoryData.memory.used.v/memoryData.memory.total.v | procents}})
-                    <ul>
-                        <li class="graph-red"><b>Processes:</b> {{memoryData.memory.processes.v | bytes}} ({{memoryData.memory.processes.v/memoryData.memory.total.v | procents}})</li>
-                        <li class="graph-orange"><b>File buffers:</b> {{memoryData.memory.buffers.v | bytes}} ({{memoryData.memory.buffers.v/memoryData.memory.total.v | procents}})</li>
-                        <li class="graph-blue"><b>I/O cached:</b> {{memoryData.memory.cached.v | bytes}} ({{memoryData.memory.cached.v/memoryData.memory.total.v | procents}})</li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-        <div class="col-lg-5 col-sm-12">
-            <div class="chart-container">
-                <div history-chart chart="memoryData.ramHistory" class="chart"></div>
-            </div>
+<h3>Physical RAM:</h3>
+<div class="row">
+    <div class="col-lg-4 col-sm-8">
+        <div class="chart-container">
+            <div google-chart chart="memoryData.ramChart" class="chart"></div>
         </div>
     </div>
+    <div class="col-lg-3 col-sm-4">
+        <ul>
+            <li><b>Total:</b> {{memoryData.memory.total.v | bytes}}</li>
+            <li class="graph-green"><b>Free:</b> {{memoryData.memory.free.v | bytes}} ({{memoryData.memory.free.v/memoryData.memory.total.v | procents}})</li>
+            <li><b>Used:</b> {{memoryData.memory.used.v | bytes}} ({{memoryData.memory.used.v/memoryData.memory.total.v | procents}})
+                <ul>
+                    <li class="graph-red"><b>Processes:</b> {{memoryData.memory.processes.v | bytes}} ({{memoryData.memory.processes.v/memoryData.memory.total.v | procents}})</li>
+                    <li class="graph-orange"><b>File buffers:</b> {{memoryData.memory.buffers.v | bytes}} ({{memoryData.memory.buffers.v/memoryData.memory.total.v | procents}})</li>
+                    <li class="graph-blue"><b>I/O cached:</b> {{memoryData.memory.cached.v | bytes}} ({{memoryData.memory.cached.v/memoryData.memory.total.v | procents}})</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="col-lg-5 col-sm-12">
+        <div class="chart-container">
+            <div history-chart chart="memoryData.ramHistory" class="chart"></div>
+        </div>
+    </div>
+</div>
 
-    <h3>SWAP:</h3>
-    <div class="row">
-        <div class="col-lg-4 col-sm-8">
-            <div class="chart-container">
-                <div google-chart chart="memoryData.swapChart" class="chart"></div>
-            </div>
+<h3>SWAP:</h3>
+<div class="row">
+    <div class="col-lg-4 col-sm-8">
+        <div class="chart-container">
+            <div google-chart chart="memoryData.swapChart" class="chart"></div>
         </div>
-        <div class="col-lg-3 col-sm-4">
-            <ul>
-                <li><b>Total:</b> {{memoryData.swap.total.v | bytes}}</li>
-                <li class="graph-green"><b>Free:</b> {{memoryData.swap.free.v | bytes}} ({{memoryData.swap.free.v/memoryData.swap.total.v | procents}})</li>
-                <li class="graph-red"><b>Used:</b> {{memoryData.swap.used.v | bytes}} ({{memoryData.swap.used.v/memoryData.swap.total.v | procents}})</li>
-            </ul>
-        </div>
-        <div class="col-lg-5 col-sm-12">
-            <div class="chart-container">
-                <div history-chart chart="memoryData.swapHistory" class="chart"></div>
-            </div>
+    </div>
+    <div class="col-lg-3 col-sm-4">
+        <ul>
+            <li><b>Total:</b> {{memoryData.swap.total.v | bytes}}</li>
+            <li class="graph-green"><b>Free:</b> {{memoryData.swap.free.v | bytes}} ({{memoryData.swap.free.v/memoryData.swap.total.v | procents}})</li>
+            <li class="graph-red"><b>Used:</b> {{memoryData.swap.used.v | bytes}} ({{memoryData.swap.used.v/memoryData.swap.total.v | procents}})</li>
+        </ul>
+    </div>
+    <div class="col-lg-5 col-sm-12">
+        <div class="chart-container">
+            <div history-chart chart="memoryData.swapHistory" class="chart"></div>
         </div>
     </div>
 </div>

@@ -1,15 +1,14 @@
-<div class="container">
-    <form class="form-signin" role="form">
-        <h2 class="form-signin-heading" ng-hide="loggedIn">Login</h2>
-        <h2 class="form-signin-heading" ng-show="loggedIn">User {{user}}</h2>
-        <div class="alert alert-danger" ng-show="msgError">{{msgError}}</div>
-        
-        <input type="text" class="form-control" placeholder="Username" required autofocus ng-model="username" ng-hide="loggedIn">
-        <input type="password" class="form-control" placeholder="Password" required ng-model="password" ng-hide="loggedIn">
-        <label class="checkbox" ng-hide="loggedIn">
-            <input type="checkbox" value="remember-me" ng-model="rememberMe"> Remember me
-        </label>
-        <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="login()" ng-hide="loggedIn">Sign in</button>
-        
-        <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="logout()" ng-show="loggedIn">Logout</button>    </form>
-</div>
+<form class="form-signin" role="form">
+    <h2 class="form-signin-heading" ng-hide="loggedIn">Login</h2>
+    <h2 class="form-signin-heading" ng-show="loggedIn">User {{user}}</h2>
+    <div class="alert alert-danger" ng-show="msgError">{{msgError}}</div>
+    
+    <input type="text" class="form-control" placeholder="Username" required autofocus ng-model="username" ng-hide="loggedIn">
+    <input type="password" class="form-control" placeholder="Password" required ng-model="password" ng-hide="loggedIn">
+    <label class="checkbox" ng-hide="loggedIn">
+        <input type="checkbox" value="remember-me" ng-model="rememberMe"> Remember me
+    </label>
+    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="login()" ng-hide="loggedIn">Sign in</button>
+    
+    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="logout()" ng-show="loggedIn">Logout</button>
+</form>
