@@ -1,0 +1,47 @@
+<h1>Shift</h1>
+
+<form class="form-horizontal" ng-submit="execute()">
+    <div class="form-group">
+        <label for="shift-action" class="col-sm-2 control-label">Action</label>
+        <div class="col-sm-10">
+            <select id="shift-action" ng-model="action" ng-options="a as a.text for a in actions" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="shift-order" class="col-sm-2 control-label">Order</label>
+        <div class="col-sm-10">
+            <select id="shift-order" ng-model="order" ng-options="o for o in orders" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="shift-data" class="col-sm-2 control-label">Data pin</label>
+        <div class="col-sm-10">
+            <input type="number" id="shift-data" min="0" max="30" ng-model="data" required />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="shift-clock" class="col-sm-2 control-label">Clock pin</label>
+        <div class="col-sm-10">
+            <input type="number" id="shift-clock" min="0" max="30" ng-model="clock" required />
+        </div>
+    </div>
+
+    <div class="form-group" ng-show="valueShow()">
+        <label for="i2c-value" class="col-sm-2 control-label">Value</label>
+        <div class="col-sm-10">
+            <input type="number" id="i2c-value" min="0" max="255" ng-model="value" required />
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-default" ng-click="buttonClick()">Shift</button>
+        </div>
+    </div>
+    
+    <div class="alert alert-{{status}}" ng-show="finished">{{statusText}}</div>
+    
+</form>
