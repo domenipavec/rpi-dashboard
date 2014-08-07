@@ -41,6 +41,7 @@ void rpi_config_init(void)
     
     dconf = fconf->read_conf("rpi.conf");
     if (dconf == NULL) {
+        msg->warn("Could not read 'rpi.conf' configuration files, using defaults.");
         return;
     }
     

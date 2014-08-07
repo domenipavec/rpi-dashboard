@@ -26,8 +26,6 @@
 #include <wiringPi.h>
 #include <wiringSerial.h>
 
-#include <assert.h>
-
 #define SERIAL_DEVICE "/dev/ttyAMA0"
 
 static int fd;
@@ -39,9 +37,6 @@ json_t * rpi_serial_baud_post(duda_request_t *dr, json_t *data, int parameter)
         return NULL;
     }
     int value = data->valueint;
-//     if (value < 0 || value > 255) {
-//         return NULL;
-//     }
     
     if (baud == value) {
         return json->create_string("Successful!");

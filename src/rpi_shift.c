@@ -26,8 +26,6 @@
 #include <wiringPi.h>
 #include <wiringShift.h>
 
-#include <assert.h>
-
 typedef struct {
     uint8_t order;
     uint8_t data;

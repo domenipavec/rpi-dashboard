@@ -26,11 +26,10 @@
 
 #include <rrd.h>
 #include <time.h>
-#include <assert.h>
 #include <float.h>
 #include <math.h>
 
-#define assert_rrd(x) if ((x) != 0) __assert(rrd_get_context()->rrd_error, __FILE__, __LINE__)
+#define assert_rrd(x) if ((x) != 0) msg->err("RRD ERROR: %s", rrd_get_context()->rrd_error)
 
 static struct mk_list groups_list;
 #define RRA_LIST_LEN 5
@@ -57,10 +56,16 @@ static void add_group(char *module, const char *path, const char *dst)
     g->dst = dst;
     
     rpi_module = rpi_modules_find(g->module);
-    assert(rpi_module != NULL);
+    if (rpi_module == NULL) {
+        msg->err("LOGGER: Module '%s' does not exist!", module);
+        exit(-1);
+    }
 
     json_object = rpi_modules_json(NULL, &(rpi_module->values_head), g->path, &json_delete, 0);
-    assert(json_object != NULL);
+    if (json_object == NULL) {
+        msg->err("LOGGER: Path '%s' does not exist in module '%s'!", path, module);
+        exit(-1);
+    }
 
     /* combine module and path to name_part */
     if (strlen(path) > 0) {
@@ -139,6 +144,7 @@ static void parse_value(const json_t *json_value, const char *name, const char *
 
     file_name = rpi_string_concatN(3, data->get_path(), name, ".rrd");
     if (access(file_name, F_OK) == -1) {
+        msg->info("LOGGER: Creating '%s.rrd' file.", name);
         create_rrdfile(file_name, dst);
     }
 
@@ -341,7 +347,10 @@ static void module_init()
 
 void rpi_logger_init(void)
 {
-    assert(data->get_path() != NULL);
+    if (data->get_path() == NULL) {
+        msg->err("LOGGER: Path for data folder is not specified.");
+        exit(-1);
+    }
 
     groups_init();
     rra_init();

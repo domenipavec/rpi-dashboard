@@ -33,8 +33,6 @@
 #include "rpi_serial.h"
 #include "rpi_shift.h"
 
-#include <assert.h>
-
 static struct mk_list modules_list;
 static struct duda_config *modules_config;
 
@@ -319,10 +317,18 @@ rpi_module_value_t * rpi_modules_branch_init(const char *name,
 void rpi_modules_init(void)
 {
     mk_list_init(&modules_list);
-    
+
+    if (fconf->get_path() == NULL) {
+        msg->err("Path for configuration folder not specified");
+        exit(-1);
+    }
+
     /* config only available during init */
     modules_config = fconf->read_conf("modules.conf");
-    assert(modules_config != NULL);
+    if (modules_config == NULL) {
+        msg->err("Could not read 'modules.conf' configuration file.");
+        exit(-1);
+    }
 
     /* init modules */
     rpi_general_init();

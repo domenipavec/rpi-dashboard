@@ -26,8 +26,6 @@
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 
-#include <assert.h>
-
 static int i2cfd[NI2C+1];
 
 static int get_fd(duda_request_t *dr)

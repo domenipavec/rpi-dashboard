@@ -27,8 +27,6 @@
 #include <softPwm.h>
 #include <softTone.h>
 
-#include <assert.h>
-
 static gpio_pin_t pins[MAX_PINS];
 static int npins;
 static const char *gpio_mode_str[] = {

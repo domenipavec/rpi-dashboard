@@ -26,7 +26,6 @@
 #include "rpi_string.h"
 
 #include <time.h>
-#include <assert.h>
 
 static struct mk_list users;
 
@@ -153,12 +152,18 @@ void rpi_security_init(void)
 
     mk_list_init(&users);
 
-    assert(fconf->get_path() != NULL);
+    if (fconf->get_path() == NULL) {
+        msg->err("Path for configuration folder not specified");
+        exit(-1);
+    }
     char * path = rpi_string_concat(fconf->get_path(), "rpi.users");
 
     buf = (fconf->read_file)(path);
     mem->free(path);
-    assert(buf != NULL);
+    if (buf == NULL) {
+        msg->err("Could not read user configuration file 'rpi.users'.");
+        exit(-1);
+    }
 
     len = strlen(buf);
     for (i = 0; i < len; i++) {
