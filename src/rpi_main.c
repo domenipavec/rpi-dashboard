@@ -33,7 +33,7 @@ void rpi_global_callback(duda_request_t *dr)
     rpi_module_t *module;
     int ret;
     json_t *json_object;
-    json_t *json_delete;
+    json_t *json_delete = NULL;
     char *json_text;
     char *user;
     
@@ -82,6 +82,9 @@ void rpi_global_callback(duda_request_t *dr)
 
     json_object = rpi_modules_json(dr, &(module->values_head), dr->method.data + dr->method.len, &json_delete, 0);
     if (json_object == NULL) {
+        if (json_delete != NULL) {
+            json->delete(json_delete);
+        }
         if (request->is_data(dr)) {
             response->http_status(dr, 400);
             response->printf(dr, "Unsupported action or invalid parameters!");
