@@ -20,8 +20,10 @@
 #include "rpi_gpio.h"
 
 #include "rpi_modules.h"
+#include "rpi_websocket.h"
 
 #include "packages/json/json.h"
+#include "packages/websocket/websocket.h"
 
 #include <wiringPi.h>
 #include <softPwm.h>
@@ -44,6 +46,8 @@ static const char *gpio_pull_str[] = {
     "up"
 };
 
+static int gpio_channel;
+
 static void init_pin(int i)
 {
     pins[i].mode = GPIO_UNDEFINED;
@@ -64,6 +68,46 @@ static void recalculate_hw_pwm_clock()
     }
     pwmSetClock(div);
 }
+
+static void pin_changed(int i)
+{
+    json_t *object;
+    char key[3];
+    char *response;
+
+    sprintf(key, "%d", i);
+
+    object = json->create_object();
+    json->add_to_object(object, key, json->create_number((double)digitalRead(i)));
+    response = json->print(object);
+
+    websocket->broadcast_all((unsigned char *)response, strlen(response), WS_OPCODE_TEXT, gpio_channel);
+
+    json->delete(object);
+    mem->free(response);
+}
+
+static void isr0(void) { pin_changed(0); }
+static void isr1(void) { pin_changed(1); }
+static void isr2(void) { pin_changed(2); }
+static void isr3(void) { pin_changed(3); }
+static void isr4(void) { pin_changed(4); }
+static void isr5(void) { pin_changed(5); }
+static void isr6(void) { pin_changed(6); }
+static void isr7(void) { pin_changed(7); }
+static void isr8(void) { pin_changed(8); }
+static void isr9(void) { pin_changed(9); }
+static void isr10(void) { pin_changed(10); }
+static void isr11(void) { pin_changed(11); }
+static void isr12(void) { pin_changed(12); }
+static void isr13(void) { pin_changed(13); }
+static void isr14(void) { pin_changed(14); }
+static void isr15(void) { pin_changed(15); }
+static void isr16(void) { pin_changed(16); }
+static void isr17(void) { pin_changed(17); }
+static void isr18(void) { pin_changed(18); }
+static void isr19(void) { pin_changed(19); }
+static void isr20(void) { pin_changed(20); }
 
 json_t * rpi_gpio_mode_get(duda_request_t *dr, int parameter)
 {
@@ -368,28 +412,62 @@ json_t * rpi_gpio_post(duda_request_t *dr, json_t *data, int parameter)
     return ret;
 }
 
+json_t * rpi_gpio_ws(duda_request_t *dr, int parameter)
+{
+    return rpi_websocket_handshake(dr, gpio_channel);
+}
+
 /* register and initialize module */
 void rpi_gpio_init(void)
 {
     int i;
     const char *valueHandle;
+    
+    gpio_channel = rpi_websocket_get_channel();
+
+    wiringPiSetup();
+
+    wiringPiISR(0, INT_EDGE_BOTH, &isr0);
+    wiringPiISR(1, INT_EDGE_BOTH, &isr1);
+    wiringPiISR(2, INT_EDGE_BOTH, &isr2);
+    wiringPiISR(3, INT_EDGE_BOTH, &isr3);
+    wiringPiISR(4, INT_EDGE_BOTH, &isr4);
+    wiringPiISR(5, INT_EDGE_BOTH, &isr5);
+    wiringPiISR(6, INT_EDGE_BOTH, &isr6);
+    wiringPiISR(7, INT_EDGE_BOTH, &isr7);
+    wiringPiISR(8, INT_EDGE_BOTH, &isr8);
+    wiringPiISR(9, INT_EDGE_BOTH, &isr9);
+    wiringPiISR(10, INT_EDGE_BOTH, &isr10);
+    wiringPiISR(11, INT_EDGE_BOTH, &isr11);
+    wiringPiISR(12, INT_EDGE_BOTH, &isr12);
+    wiringPiISR(13, INT_EDGE_BOTH, &isr13);
+    wiringPiISR(14, INT_EDGE_BOTH, &isr14);
+    wiringPiISR(15, INT_EDGE_BOTH, &isr15);
+    wiringPiISR(16, INT_EDGE_BOTH, &isr16);
+
     if (piBoardRev() == 1) {
         valueHandle = "%d0:16";
         npins = 17;
     } else {
         valueHandle = "%d0:20";
         npins = 21;
-    }
 
-    wiringPiSetup();
+        wiringPiISR(17, INT_EDGE_BOTH, &isr17);
+        wiringPiISR(18, INT_EDGE_BOTH, &isr18);
+        wiringPiISR(19, INT_EDGE_BOTH, &isr19);
+        wiringPiISR(20, INT_EDGE_BOTH, &isr20);
+    }
 
     for (i = 0; i < npins; i++) {
         init_pin(i);
     }
-    
+
     rpi_module_t *module = rpi_modules_module_init("gpio", NULL, rpi_gpio_post);
 
-    rpi_module_value_t *branch = rpi_modules_branch_init(valueHandle, rpi_gpio_pin_post, &(module->values_head.values));
+    rpi_modules_value_init("ws", rpi_gpio_ws, NULL, &(module->values_head.values));
+    
+    rpi_module_value_t *pins = rpi_modules_branch_init("pins", NULL, &(module->values_head.values));
+    rpi_module_value_t *branch = rpi_modules_branch_init(valueHandle, rpi_gpio_pin_post, &(pins->values));
 
     rpi_modules_value_init("mode", rpi_gpio_mode_get, rpi_gpio_mode_post, &(branch->values));
     rpi_modules_value_init("pull", rpi_gpio_pull_get, rpi_gpio_pull_post, &(branch->values));

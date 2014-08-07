@@ -39,11 +39,11 @@ GpioPinClass.prototype.getModes = function() {
 };
 
 GpioPinClass.prototype.modeChange = function() {
-    $.rpijs.post("gpio/"+this.id+"/mode", this.mode);
+    $.rpijs.post("gpio/pins/"+this.id+"/mode", this.mode);
 };
 
 GpioPinClass.prototype.pullChange = function() {
-    $.rpijs.post("gpio/"+this.id+"/pull", this.pull);
+    $.rpijs.post("gpio/pins/"+this.id+"/pull", this.pull);
 };
 
 GpioPinClass.prototype.pullShow = function() {
@@ -51,7 +51,6 @@ GpioPinClass.prototype.pullShow = function() {
 };
 
 GpioPinClass.prototype.valueChange = function() {
-    console.log(this.value);
     if (this.value === null) {
         return;
     }
@@ -59,7 +58,7 @@ GpioPinClass.prototype.valueChange = function() {
         this.value = 0;
     }
     if (this.mode != "input") {
-        $.rpijs.post("gpio/"+this.id+"/value", this.value);
+        $.rpijs.post("gpio/pins/"+this.id+"/value", this.value);
     }
 };
 
@@ -74,7 +73,7 @@ GpioPinClass.prototype.rangeChange = function() {
     if (typeof this.range != "number") {
         this.range = 100;
     }
-    $.rpijs.post("gpio/"+this.id+"/range", this.range);
+    $.rpijs.post("gpio/pins/"+this.id+"/range", this.range);
     if (this.value > this.range) {
         this.value = this.range;
     }
@@ -91,7 +90,7 @@ GpioPinClass.prototype.frequencyChange = function() {
     if (typeof this.frequency != "number") {
         this.frequency = 1000;
     }
-    $.rpijs.post("gpio/"+this.id+"/frequency", this.frequency);
+    $.rpijs.post("gpio/pins/"+this.id+"/frequency", this.frequency);
 };
 
 GpioPinClass.prototype.frequencyShow = function() {
@@ -110,7 +109,7 @@ GpioPinClass.prototype.frequencyMax = function() {
 };
 
 rpiDashboard.controller("GpioController", function($scope) {
-    $.rpijs.get("gpio", function(data) {
+    $.rpijs.get("gpio/pins", function(data) {
         $scope.$apply(function() {
             $scope.pins = [];
             angular.forEach(data, function (value, key) {
