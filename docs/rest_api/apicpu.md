@@ -70,10 +70,6 @@ Time that cpu spent servicing softirqs.
 
 Provides values measuring CPU and IO utilization of the last one, five or ten minute periods.
 
-### /api/cpu/uptime
-
-The total number of seconds the system has been up.
-
 ### /api/cpu/temperature
 
 Temperature of the cpu in degrees Celsius.

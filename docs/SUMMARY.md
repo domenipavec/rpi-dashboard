@@ -19,6 +19,7 @@
 * [Dashboard](dashboard/README.md)
 * [REST api](rest_api/README.md)
     * [/api/](rest_api/api.md)
+    * [/api/general](rest_api/apigeneral.md)
     * [/api/memory](rest_api/apimemory.md)
     * [/api/cpu](rest_api/apicpu.md)
     * [/api/network](rest_api/apinetwork.md)
