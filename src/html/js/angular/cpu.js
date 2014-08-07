@@ -206,7 +206,7 @@ rpiDashboard.controller('CpuController', function($scope, $timeout) {
         $scope.uptime++;
         updateUptime.timeout = $timeout(updateUptime, 1000);
     };
-    $.rpijs.get("cpu/uptime", function(msg) {
+    $.rpijs.get("general/uptime", function(msg) {
         $scope.$apply(function() {
             $scope.uptime = msg - 1;
         });

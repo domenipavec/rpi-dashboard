@@ -89,27 +89,6 @@ json_t * rpi_cpu_get_loadavg(duda_request_t *dr, int parameter)
     return object;
 }
 
-json_t *rpi_cpu_get_uptime(duda_request_t *dr, int parameter)
-{
-    FILE *f;
-    int ret;
-    double uptime;
-    
-    f = fopen("/proc/uptime", "r");
-    if (f == NULL) {
-        return json->create_number(0.0);
-    }
-
-    ret = fscanf(f, " %lf", &uptime);
-    if (ret != 1) {
-        return json->create_number(0.0);
-    }
-    
-    fclose(f);
-    
-    return json->create_number(uptime);
-}
-
 json_t *rpi_cpu_get_temperature(duda_request_t *dr, int parameter)
 {
     FILE *f;
@@ -138,6 +117,5 @@ void rpi_cpu_init(void)
     
     rpi_modules_value_init("usage", rpi_cpu_get_usage, NULL, &(module->values_head.values));
     rpi_modules_value_init("loadavg", rpi_cpu_get_loadavg, NULL, &(module->values_head.values));
-    rpi_modules_value_init("uptime", rpi_cpu_get_uptime, NULL, &(module->values_head.values));
     rpi_modules_value_init("temperature", rpi_cpu_get_temperature, NULL, &(module->values_head.values));
 }

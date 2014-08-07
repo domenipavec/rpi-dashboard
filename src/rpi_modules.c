@@ -21,6 +21,7 @@
 #include "rpi_config.h"
 #include "rpi_security.h"
 
+#include "rpi_general.h"
 #include "rpi_memory.h"
 #include "rpi_cpu.h"
 #include "rpi_network.h"
@@ -324,6 +325,7 @@ void rpi_modules_init(void)
     assert(modules_config != NULL);
 
     /* init modules */
+    rpi_general_init();
     rpi_memory_init();
     rpi_cpu_init();
     rpi_network_init();
