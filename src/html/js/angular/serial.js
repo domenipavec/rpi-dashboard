@@ -25,6 +25,15 @@ rpiDashboard.controller("SerialController", function($scope) {
     $scope.read = "";
     $scope.write = "";
     
+    $scope.baud = 9600;
+    $scope.baudOptions = [50, 110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200];
+    $.rpijs.get("serial/baud", function(msg) {
+        $scope.baud = msg;
+    });
+    $scope.baudChange = function() {
+        $.rpijs.post("serial/baud", $scope.baud);
+    };
+    
     $scope.start = function() {
         $scope.active = true;
         $.rpijs.get("serial/port", function(data) {

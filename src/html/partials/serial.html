@@ -1,6 +1,6 @@
 <form class="form-horizontal" name="serial-form" ng-submit="send()">
 
-    <div class="form-group"">
+    <div class="form-group">
         <label for="serial-read" class="col-sm-2 control-label">Read</label>
         <div class="col-sm-6" ng-show="active">
             <textarea rows="5" id="serial-read" ng-model="read" class="form-control" readonly></textarea>
@@ -10,7 +10,7 @@
         </div>
     </div>
 
-    <div class="form-group"">
+    <div class="form-group">
         <label for="serial-write" class="col-sm-2 control-label">Write</label>
         <div class="col-sm-5">
             <input type="text" id="serial-write" ng-model="write" class="form-control" required />
@@ -18,6 +18,14 @@
         <div class="col-sm-1">
             <button type="submit" class="btn btn-primary">Send</button>
         </div>
+    </div>
+
+    <div class="form-group">
+        <label for="serial-baud" class="col-sm-2 control-label">Baud rate</label>
+        <div class="col-sm-3">
+            <select id="serial-baud" class="form-control" ng-model="baud" ng-options="b for b in baudOptions" ng-change="baudChange()" />
+        </div>
+    
     </div>
 
 </form>
