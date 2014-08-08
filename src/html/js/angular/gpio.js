@@ -123,12 +123,30 @@ GpioPinClass.prototype.toggleClick = function() {
 };
 
 rpiDashboard.controller("GpioController", function($scope) {
+    $scope.pins = [];
+    var active = true;
+
     $.rpijs.get("gpio", function(data) {
         $scope.$apply(function() {
-            $scope.pins = [];
-            angular.forEach(data, function (value, key) {
-                $scope.pins.push(new GpioPinClass(key, value));
-            });
+            if ($scope.pins.length == 0) {
+                angular.forEach(data, function (value, key) {
+                    $scope.pins.push(new GpioPinClass(key, value));
+                });
+            } else {
+                angular.forEach(data, function (value, key) {
+                    var i = parseInt(key);
+                    if ($scope.pins[i].mode == "input" || $scope.pins[i].mode == "undefined") {
+                        $scope.pins[i].value = value.value;
+                    }
+                });
+            }
         });
+        return active;
+    }, {
+        update: 1000
+    });
+    
+    $scope.$on("$destroy", function() {
+        active = false;
     });
 });
