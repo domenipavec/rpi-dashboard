@@ -18,7 +18,7 @@
 registerPage('/gpio', {
     templateUrl: 'partials/gpio.html',
     controller: 'GpioController'
-}, ['gpio'], "GPIO", "Show and control GPIO pins of your Raspberry Pi.");
+}, ['gpio', 'general'], "GPIO", "Show and control GPIO pins of your Raspberry Pi.");
 
 GpioPinClass = function(key, value) {
     this.id = key;
@@ -148,4 +148,16 @@ rpiDashboard.controller("GpioController", function($scope) {
     $scope.$on("$destroy", function() {
         active = false;
     });
+    
+    $scope.pinoutButtonText = "Show pinout";
+    $scope.pinoutLoad = function() {
+        $scope.pinoutImageSource = "http://wiringpi.com/wp-content/uploads/2013/03/gpio1.png";
+        $.rpijs.get("general/board-rev", function(msg) {
+            if (msg == 2) {
+                $scope.$apply(function() {
+                    $scope.pinoutSecondarySource = "http://wiringpi.com/wp-content/uploads/2013/03/gpio21.png";
+                });
+            }
+        });
+    };
 });
