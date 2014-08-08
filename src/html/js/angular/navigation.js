@@ -20,10 +20,14 @@ rpiDashboard.factory('Navigation', function($location, User) {
     var menu = [];
     
     return {
-        register: function(path, accessDependencies, menuName) {
+        register: function(path, accessDependencies, menuName, menuTitle) {
             ads[path] = accessDependencies;
+            if (menuTitle == undefined) {
+                menuTitle = "";
+            }
             menu.push({
                 name: menuName,
+                title: menuTitle,
                 path: path
             });
         },

@@ -18,7 +18,7 @@
 registerPage('/gpio', {
     templateUrl: 'partials/gpio.html',
     controller: 'GpioController'
-}, ['gpio'], "GPIO");
+}, ['gpio'], "GPIO", "Show and control GPIO pins of your Raspberry Pi.");
 
 GpioPinClass = function(key, value) {
     this.id = key;

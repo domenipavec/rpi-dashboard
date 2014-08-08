@@ -18,7 +18,7 @@
 registerPage('/spi', {
     templateUrl: 'partials/spi.html',
     controller: 'SPIController'
-}, ['spi'], "SPI");
+}, ['spi'], "SPI", "Simultaneously write and read data on SPI bus.");
 
 rpiDashboard.controller("SPIController", function($scope) {
     $scope.bus = 0;

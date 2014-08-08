@@ -18,7 +18,7 @@
 registerPage('/network', {
     templateUrl: 'partials/network.html',
     controller: 'NetworkController'
-}, ['network', 'logger'], "Network");
+}, ['network', 'logger'], "Network", "Show network configuration and usage with history graphs.");
 
 networkData = {};
 networkData.list = {};

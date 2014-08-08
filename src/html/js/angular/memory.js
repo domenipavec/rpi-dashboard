@@ -18,7 +18,7 @@
 registerPage('/memory', {
     templateUrl: 'partials/memory.html',
     controller: 'MemoryController'
-}, ['memory', 'logger'], "Memory");
+}, ['memory', 'logger'], "Memory", "Show memory and swap usage with history graphs.");
 
 registerWidget(5, function($scope) {
         $scope.ramChart = memoryData.ramChart;

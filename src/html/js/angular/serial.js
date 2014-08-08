@@ -18,7 +18,7 @@
 registerPage('/serial', {
     templateUrl: 'partials/serial.html',
     controller: 'SerialController'
-}, ['serial'], "Serial");
+}, ['serial'], "Serial", "Send and receive data through serial (UART) port.");
 
 rpiDashboard.controller("SerialController", function($scope) {
     $scope.active = false;

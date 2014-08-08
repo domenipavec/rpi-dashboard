@@ -18,7 +18,7 @@
 registerPage('/shift', {
     templateUrl: 'partials/shift.html',
     controller: 'ShiftController'
-}, ['shift'], "Shift");
+}, ['shift'], "Shift", "Shift 8-bits of data in/out on data pin using another pin as a clock.");
 
 rpiDashboard.controller("ShiftController", function($scope) {
     $scope.actions = [

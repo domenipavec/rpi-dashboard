@@ -18,7 +18,7 @@
 registerPage('/cpu', {
     templateUrl: 'partials/cpu.html',
     controller: 'CpuController'
-}, ['cpu', 'general', 'logger'], "CPU");
+}, ['cpu', 'general', 'logger'], "CPU", "Show cpu usage and temperature with history graphs.");
 
 registerWidget(3, function($scope, $timeout) {
         var updateUptime = function() {

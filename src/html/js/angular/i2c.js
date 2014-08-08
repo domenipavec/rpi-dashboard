@@ -18,7 +18,7 @@
 registerPage('/i2c', {
     templateUrl: 'partials/i2c.html',
     controller: 'I2CController'
-}, ['i2c'], "I2C");
+}, ['i2c'], "I2C", "Read and write to devices on I2C bus.");
 
 rpiDashboard.controller("I2CController", function($scope) {
     $scope.address = 96;
