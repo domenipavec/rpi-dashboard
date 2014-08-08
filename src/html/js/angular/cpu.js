@@ -18,7 +18,37 @@
 registerPage('/cpu', {
     templateUrl: 'partials/cpu.html',
     controller: 'CpuController'
-}, ['cpu', 'logger'], "CPU");
+}, ['cpu', 'general', 'logger'], "CPU");
+
+registerWidget(3, function($scope, $timeout) {
+        var updateUptime = function() {
+            $scope.uptime++;
+            updateUptime.timeout = $timeout(updateUptime, 1000);
+        };
+        $.rpijs.get("general/uptime", function(msg) {
+            $scope.$apply(function() {
+                $scope.uptime = msg - 1;
+            });
+            updateUptime();
+        });
+        $.rpijs.get("general/board-rev", function(msg) {
+            $scope.$apply(function() {
+                $scope.boardrev = msg;
+            });
+        });
+        $scope.$on('$destroy', function() {
+            $timeout.cancel(updateUptime.timeout);
+        });
+    },
+    "partials/widgets/general.html", ['general']);
+registerWidget(3, function($scope) {
+        $scope.cpuUsage = cpuData.usageGraph;
+    }, 
+    "partials/widgets/cpu-usage.html", ['cpu']);
+registerWidget(4, function($scope) {
+        $scope.temperatureGauge = cpuData.temperatureGauge;
+    },
+    "partials/widgets/cpu-temp.html", ['cpu']);
 
 cpuData = {};
 
@@ -218,4 +248,12 @@ rpiDashboard.controller('CpuController', function($scope, $timeout) {
     $scope.$on('$destroy', function() {
         $timeout.cancel(updateUptime.timeout);
     });
+});
+
+rpiDashboard.controller('CpuUsageWidgetController', function($scope) {
+    $scope.cpuUsage = cpuData.usageGraph;
+});
+
+rpiDashboard.controller('CpuTemperatureWidgetController', function($scope) {
+    $scope.temperatureGauge = cpuData.temperatureGauge;
 });

@@ -20,6 +20,12 @@ registerPage('/memory', {
     controller: 'MemoryController'
 }, ['memory', 'logger'], "Memory");
 
+registerWidget(5, function($scope) {
+        $scope.ramChart = memoryData.ramChart;
+        $scope.ramTotal = memoryData.memory.total;
+    }, 
+    "partials/widgets/ram-usage.html", ['memory']);
+
 memoryData = {};
 
 memoryData.memory = {

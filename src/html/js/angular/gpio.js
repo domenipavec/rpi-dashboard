@@ -51,7 +51,6 @@ GpioPinClass.prototype.pullShow = function() {
 };
 
 GpioPinClass.prototype.valueChange = function() {
-    console.log(this.value);
     if (this.value === null) {
         return;
     }

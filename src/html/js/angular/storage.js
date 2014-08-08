@@ -20,6 +20,13 @@ registerPage('/storage', {
     controller: 'StorageController'
 }, ['storage', 'logger'], "Storage");
 
+registerWidget(5, function($scope) {
+        $scope.storageRoot = angular.copy(memoryData.swapChart);
+        $scope.storageRoot.data.rows = storageData.rootFS;
+        $scope.storageRootTotalSize = storageData.rootTotalSize;
+    }, 
+    "partials/widgets/storage.html", ['storage']);
+
 storageData = {};
 storageData.storageTable = {
     type: "Table",

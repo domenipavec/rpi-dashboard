@@ -22,15 +22,37 @@ rpiDashboard.config(function($routeProvider) {
     });
 });
 rpiDashboard.run(function(Navigation) {
-    Navigation.registerDependencies('/', ['cpu', 'memory', 'storage', 'logger']);
+    Navigation.registerDependencies('/', []);
 });
 
-rpiDashboard.controller('MainController', function($scope) {
-    $scope.cpuUsage = cpuData.usageGraph;
-    $scope.temperatureGauge = cpuData.temperatureGauge;
-    $scope.ramChart = memoryData.ramChart;
-    $scope.ramTotal = memoryData.memory.total;
-    $scope.storageRoot = angular.copy(memoryData.swapChart);
-    $scope.storageRoot.data.rows = storageData.rootFS;
-    $scope.storageRootTotalSize = storageData.rootTotalSize;
+mainData = {};
+mainData.widgets = [];
+
+registerWidget = function(width, controller, partial, accessDependencies) {
+    mainData.widgets.push({
+        width: width,
+        controller: controller,
+        partial: partial,
+        access: accessDependencies
+    });
+};
+
+rpiDashboard.controller('MainController', function($scope, User) {
+    var filterWidgets = function() {
+        var fw = [];
+        angular.forEach(mainData.widgets, function(widget) {
+            if (User.checkDependencies(widget.access)) {
+                fw.push(widget); 
+            }
+        });
+        $scope.widgets = fw;
+    };
+    
+    $scope.$on("USER_STATUS_CHANGED", function() {
+        $scope.loggedIn = User.loggedIn;
+        filterWidgets();
+    });
+    
+    $scope.loggedIn = User.loggedIn;
+    filterWidgets();
 });
