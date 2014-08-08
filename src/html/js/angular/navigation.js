@@ -17,7 +17,7 @@
 
 rpiDashboard.factory('Navigation', function($location, User) {
     var ads = {};
-    var menu = [];
+    var menu = {};
     
     return {
         register: function(path, accessDependencies, menuName, menuTitle) {
@@ -25,11 +25,11 @@ rpiDashboard.factory('Navigation', function($location, User) {
             if (menuTitle == undefined) {
                 menuTitle = "";
             }
-            menu.push({
+            menu[path] = {
                 name: menuName,
                 title: menuTitle,
                 path: path
-            });
+            };
         },
         registerDependencies: function(path, accessDependencies) {
             ads[path] = accessDependencies;
@@ -45,6 +45,9 @@ rpiDashboard.factory('Navigation', function($location, User) {
                 }
             });
             return curMenu;
+        },
+        getMenuEntry: function(path) {
+            return menu[path];
         }
     };
 });
@@ -66,4 +69,35 @@ rpiDashboard.controller('NavigationController', function($scope, $location, User
     $scope.logout = function() {
         User.logout();
     }
+});
+
+rpiDashboard.controller('TitleDescriptionController', function($scope, $location, Navigation, $rootScope) {
+    $scope.description = "";
+    $scope.title = "";
+    var refresh = function() {
+        console.log("refresh");
+        var entry = Navigation.getMenuEntry($location.path());
+        if (entry == undefined) {
+            $scope.titleShow = false;
+            $scope.descriptionShow = false;
+        } else {
+            if (entry.name == undefined) {
+                $scope.titleShow = false;
+            } else {
+                $scope.titleShow = true;
+                $scope.title = entry.name;
+            }
+            if (entry.title == undefined) {
+                $scope.descriptionShow = false;
+            } else {
+                $scope.descriptionShow = true;
+                $scope.description = entry.title;
+            }
+        }
+    };
+    refresh();
+
+    $rootScope.$on('$routeChangeStart', function() {
+        refresh();
+    });
 });

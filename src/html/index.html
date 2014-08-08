@@ -23,7 +23,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#/">RPiDashboard</a>
+          <a class="navbar-brand" href="#/" title="Main page">RPiDashboard</a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -38,6 +38,10 @@
 </div>
 
 <div class="container">
+    <div ng-controller="TitleDescriptionController">
+        <h1 ng-show="titleShow">{{title}}</h1>
+        <p ng-show="descriptionShow">{{description}}</p>
+    </div>
     <div ng-view></div>
 </div>
 
