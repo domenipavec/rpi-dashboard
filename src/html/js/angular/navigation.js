@@ -75,7 +75,6 @@ rpiDashboard.controller('TitleDescriptionController', function($scope, $location
     $scope.description = "";
     $scope.title = "";
     var refresh = function() {
-        console.log("refresh");
         var entry = Navigation.getMenuEntry($location.path());
         if (entry == undefined) {
             $scope.titleShow = false;
