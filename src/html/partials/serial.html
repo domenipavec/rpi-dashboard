@@ -1,0 +1,25 @@
+<h1>Serial</h1>
+
+<form class="form-horizontal" name="serial-form" ng-submit="send()">
+
+    <div class="form-group"">
+        <label for="serial-read" class="col-sm-2 control-label">Read</label>
+        <div class="col-sm-6" ng-show="active">
+            <textarea rows="5" id="serial-read" ng-model="read" class="form-control" readonly></textarea>
+        </div>
+        <div class="col-sm-2" ng-hide="active">
+            <button type="button" class="btn btn-default" ng-click="start()" >Start</button>
+        </div>
+    </div>
+
+    <div class="form-group"">
+        <label for="serial-write" class="col-sm-2 control-label">Write</label>
+        <div class="col-sm-5">
+            <input type="text" id="serial-write" ng-model="write" class="form-control" required />
+        </div>
+        <div class="col-sm-1">
+            <button type="submit" class="btn btn-primary">Send</button>
+        </div>
+    </div>
+
+</form>
