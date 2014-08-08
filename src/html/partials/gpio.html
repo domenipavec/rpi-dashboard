@@ -7,17 +7,17 @@
         <form class="panel-body">
             <div class="form-group">
                 <label for="pin-{{pin.id}}-mode">Mode: </label>
-                <select id="pin-{{pin.id}}-mode" ng-model="pin.mode" ng-options="mode for mode in pin.getModes()" ng-change="pin.modeChange()" />
+                <select id="pin-{{pin.id}}-mode" class="form-control" ng-model="pin.mode" ng-options="mode for mode in pin.getModes()" ng-change="pin.modeChange()" />
             </div>
             
             <div class="form-group" ng-show="pin.pullShow()">
                 <label for="pin-{{pin.id}}-pull">Pull: </label>
-                <select id="pin-{{pin.id}}-pull" ng-model="pin.pull" ng-options="pull for pull in pin.pulls" ng-change="pin.pullChange()" />
+                <select id="pin-{{pin.id}}-pull" class="form-control" ng-model="pin.pull" ng-options="pull for pull in pin.pulls" ng-change="pin.pullChange()" />
             </div>
             
             <div class="form-group">
                 <label for="pin-{{pin.id}}-value">Value: </label>
-                <input type="number" id="pin-{{pin.id}}-value" min="0" max="{{pin.range}}" ng-model="pin.value" ng-change="pin.valueChange()" ng-readonly="pin.valueReadonly()" />
+                <input type="number" id="pin-{{pin.id}}-value" min="0" max="{{pin.range}}" class="form-control" ng-model="pin.value" ng-change="pin.valueChange()" ng-readonly="pin.valueReadonly()" />
             </div>
             
             <div class="form-group" ng-show="pin.toggleShow()">
@@ -26,12 +26,12 @@
             
             <div class="form-group" ng-show="pin.rangeShow()">
                 <label for="pin-{{pin.id}}-range">Range: </label>
-                <input type="number" id="pin-{{pin.id}}-range" min="2" max="65535" ng-model="pin.range" ng-change="pin.rangeChange()" />
+                <input type="number" id="pin-{{pin.id}}-range" min="2" max="65535" class="form-control" ng-model="pin.range" ng-change="pin.rangeChange()" />
             </div>
             
             <div class="form-group" ng-show="pin.frequencyShow()">
                 <label for="pin-{{pin.id}}-frequency">Frequency: </label>
-                <input type="number" id="pin-{{pin.id}}-frequency" min="1" max="{{pin.frequencyMax()}}" ng-model="pin.frequency" ng-change="pin.frequencyChange()" />
+                <input type="number" id="pin-{{pin.id}}-frequency" min="1" max="{{pin.frequencyMax()}}" class="form-control" ng-model="pin.frequency" ng-change="pin.frequencyChange()" />
             </div>
         </form>
         </div>

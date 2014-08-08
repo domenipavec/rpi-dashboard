@@ -4,35 +4,35 @@
 
     <div class="form-group">
         <label for="i2c-address" class="col-sm-2 control-label">Address</label>
-        <div class="col-sm-10">
-            <input type="number" id="i2c-address" min="3" max="119" ng-model="address" required />
+        <div class="col-sm-2">
+            <input type="number" id="i2c-address" min="3" max="119" class="form-control" ng-model="address" required />
         </div>
     </div>
 
     <div class="form-group">
         <label for="i2c-action" class="col-sm-2 control-label">Action</label>
-        <div class="col-sm-10">
-            <select type="number" id="i2c-action" ng-model="action" ng-options="a as a.text for a in actions" />
+        <div class="col-sm-2">
+            <select type="number" id="i2c-action" class="form-control" ng-model="action" ng-options="a as a.text for a in actions" />
         </div>
     </div>
     
     <div class="form-group" ng-show="registerShow()">
         <label for="i2c-register" class="col-sm-2 control-label">Register</label>
-        <div class="col-sm-10">
-            <input type="number" id="i2c-value" min="0" max="255" ng-model="register" required />
+        <div class="col-sm-2">
+            <input type="number" id="i2c-value" min="0" max="255" class="form-control" ng-model="register" required />
         </div>
     </div>
     
     <div class="form-group" ng-show="valueShow()">
         <label for="i2c-value" class="col-sm-2 control-label">Value</label>
-        <div class="col-sm-10">
-            <input type="number" id="i2c-value" min="0" max="{{valueMax()}}" ng-model="value" required />
+        <div class="col-sm-2">
+            <input type="number" id="i2c-value" min="0" max="{{valueMax()}}" class="form-control" ng-model="value" required />
         </div>
     </div>
     
     <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
-            <button type="submit" class="btn btn-default" ng-click="buttonClick()">{{buttonText()}}</button>
+            <button type="submit" class="btn btn-primary" ng-click="buttonClick()">{{buttonText()}}</button>
         </div>
     </div>
     
