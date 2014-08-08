@@ -36,3 +36,6 @@
 .graph-blue {
     color: #3366cc;
 }
+.gpio .panel {
+    min-height: 15em;
+}

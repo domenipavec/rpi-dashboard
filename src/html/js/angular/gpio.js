@@ -109,6 +109,19 @@ GpioPinClass.prototype.frequencyMax = function() {
     }
 };
 
+GpioPinClass.prototype.toggleShow = function() {
+    return this.mode == "output";
+};
+
+GpioPinClass.prototype.toggleClick = function() {
+    if (this.value > 0) {
+        this.value = 0;
+    } else {
+        this.value = 1;
+    }
+    this.valueChange();
+};
+
 rpiDashboard.controller("GpioController", function($scope) {
     $.rpijs.get("gpio", function(data) {
         $scope.$apply(function() {
