@@ -21,8 +21,13 @@
 #storage-history-chart-container {
     min-width: 550px;
 }
-.history-text {
+.history {
     position: absolute;
+}
+.history-select {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
 }
 .graph-green {
     color: #109618;

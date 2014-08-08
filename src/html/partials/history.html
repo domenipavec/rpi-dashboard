@@ -1,7 +1,6 @@
-<div class="history-text form-inline">
-    <label>Show history for:</label>
-    <select class="form-control" ng-model="hg.graph" ng-options="graph.name for graph in hg.graphs"></select>
-</div>
+<p class="history">
+Show history for: <select class="form-control history-select" ng-model="hg.graph" ng-options="graph.name for graph in hg.graphs"></select>
+</p>
 <div class="history-container">
     <div google-chart chart="hg.graph" class="history-chart"></div>
 </div>
