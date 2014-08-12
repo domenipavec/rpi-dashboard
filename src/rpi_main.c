@@ -20,10 +20,13 @@
 #include "webservice.h"
 #include "packages/base64/base64.h"
 #include "packages/sha1/sha1.h"
+#include "packages/websocket/websocket.h"
 
 #include "rpi_modules.h"
 #include "rpi_security.h"
 #include "rpi_config.h"
+
+#include <assert.h>
 
 DUDA_REGISTER("Duda Raspberry Pi interface", "Raspberry Pi interface");
 
@@ -113,6 +116,9 @@ int duda_main()
     duda_load_package(base64, "base64");
     duda_load_package(sha1, "sha1");
     duda_load_package(json, "json");
+    duda_load_package(websocket, "websocket");
+
+    websocket->broadcaster();
 
     rpi_config_init();
     rpi_modules_init();

@@ -356,6 +356,15 @@ void rpi_logger_init(void)
     rra_init();
 
     module_init();
-    
-    worker->spawn(rpi_logger_worker, NULL);
+
+    // manually create thread, duda worker clashes with websockets for some reason
+    pthread_t tid;
+    pthread_attr_t thread_attr;
+    pthread_attr_init(&thread_attr);
+    pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
+
+    if (pthread_create(&tid, &thread_attr, rpi_logger_worker, NULL) != 0) {
+        msg->err("Could not start logger.");
+        exit(-1);
+    }
 }

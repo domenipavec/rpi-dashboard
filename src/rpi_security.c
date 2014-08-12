@@ -35,7 +35,7 @@ char * rpi_security_get_user(duda_request_t *dr)
 {
     char *res;
     char *sep_pointer;
-    int len, sep, basic_len;
+    int len, sep, basic_len, delete_res = 0;
     size_t auth_len;
     unsigned char *decoded = NULL;
     unsigned char digest[SHA1_DIGEST_LEN];
@@ -45,11 +45,14 @@ char * rpi_security_get_user(duda_request_t *dr)
     basic_len = strlen(basic);
 
     res = request->header_get(dr, "Authorization:");
-    if (res == NULL) {
-        return NULL;
+    if (res != NULL) {
+        len = strlen(res);
+        delete_res = 1;
+    } else {
+        if (cookie->get(dr, "RPiAuthorization", &res, &len) < 0) {
+            return NULL;
+        }
     }
-
-    len = strlen(res);
 
     /* Validate value length */
     if (len <= basic_len + 1) {
@@ -93,7 +96,9 @@ char * rpi_security_get_user(duda_request_t *dr)
         if (memcmp(entry->passwd_decoded, digest, SHA1_DIGEST_LEN) == 0) {
             
             mem->free(decoded);
-            mem->free(res);
+            if (delete_res) {
+                mem->free(res);
+            }
 
             return entry->user;
         }
@@ -105,7 +110,9 @@ char * rpi_security_get_user(duda_request_t *dr)
     if (decoded != NULL) {
         mem->free(decoded);
     }
-    mem->free(res);
+    if (delete_res) {
+        mem->free(res);
+    }
     return NULL;
 }
 
