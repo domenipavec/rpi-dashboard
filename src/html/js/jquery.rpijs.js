@@ -53,6 +53,11 @@ jQuery.extend({
 });
 /* end fragment */
 
+// let's invite Firefox to the party.
+if (window.MozWebSocket) {
+    window.WebSocket = window.MozWebSocket;
+}
+
 (function ($, undefined) {
     
     $.rpijs = {};
@@ -79,6 +84,11 @@ jQuery.extend({
         $.rpijs.password = password;
     };
     
+    /* return authorization string */
+    var authString = function() {
+        return "Basic " + btoa($.rpijs.username + ":" + $.rpijs.password);
+    };
+    
     /* get value according to specified options */
     $.rpijs.get = function(name, callback, options) {
         var settings = $.extend({}, $.rpijs.defaults, options);
@@ -91,7 +101,7 @@ jQuery.extend({
         $.ajax({
             url: $.rpijs.apiUrl + name,
             headers: {
-                Authorization: "Basic " + btoa($.rpijs.username + ":" + $.rpijs.password)
+                Authorization: authString()
             }
         }).done(function(object) {
             var ret = callback(parse(object, name, options));
@@ -109,12 +119,34 @@ jQuery.extend({
         return $.ajax({
             url: $.rpijs.apiUrl + name,
             headers: {
-                Authorization: "Basic " + btoa($.rpijs.username + ":" + $.rpijs.password)
+                Authorization: authString()
             },
             type: "POST",
             data: $.stringify(data),
             contentType: "application/json"
         }).done(callback);
+    };
+    
+    /* initialize WebSocket connection */
+    $.rpijs.websocket = function(name, callback) {
+        if (window.WebSocket === undefined) {
+            return undefined;
+        }
+        var path = "";
+        if (location.protocol == "https:") {
+            path += "wss://";
+        } else {
+            path += "ws://";
+        }
+        path += location.host + location.pathname + $.rpijs.apiUrl + name;
+        document.cookie = "RPiAuthorization="+authString();
+        var conn = new WebSocket(path);
+        if (callback !== undefined) {
+            conn.onmessage = function(event) {
+                callback($.parseJSON(event.data));
+            };
+        }
+        return conn;
     };
     
     /* Format all values specified in format option */
