@@ -29,6 +29,8 @@
 #include <softPwm.h>
 #include <softTone.h>
 
+#include <sys/wait.h>
+
 static gpio_pin_t pins[MAX_PINS];
 static int npins;
 static const char *gpio_mode_str[] = {
@@ -53,6 +55,7 @@ static void init_pin(int i)
     pins[i].value = 0;
     pins[i].frequency = 1000;
     pins[i].range = 100;
+    pins[i].interrupts = 0;
 }
 
 static void recalculate_hw_pwm_clock()
@@ -72,6 +75,11 @@ static void pin_changed(int i)
     json_t *object;
     char key[3];
     char *response;
+
+    if (pins[i].mode != GPIO_INPUT) {
+        delay(1000);
+        return;
+    }
 
     sprintf(key, "%d", i);
 
@@ -107,6 +115,117 @@ static void isr18(void) { pin_changed(18); }
 static void isr19(void) { pin_changed(19); }
 static void isr20(void) { pin_changed(20); }
 
+static void gpio_set_edge(int i, const char *edge)
+{
+    char pin_s[8];
+    pid_t pid;
+
+    sprintf(pin_s, "%d", wpiPinToGpio(i));
+
+    if ((pid = fork()) < 0) { // Fail
+        msg->err("wiringPiISR: fork failed: %s", strerror(errno));
+        return;
+    }
+
+    if (pid == 0) { // Child, exec
+        if (access ("/usr/local/bin/gpio", X_OK) == 0) {
+            execl("/usr/local/bin/gpio", "gpio", "edge", pin_s, edge, (char *)NULL);
+            msg->err("wiringPiISR: execl failed: %s", strerror(errno));
+            return;
+        } else if (access ("/usr/bin/gpio", X_OK) == 0) {
+            execl ("/usr/bin/gpio", "gpio", "edge", pin_s, edge, (char *)NULL);
+            msg->err("wiringPiISR: execl failed: %s", strerror(errno));
+            return;
+        } else {
+            msg->err("wiringPiISR: Can't find gpio program");
+            return;
+        }
+    } else { // Parent, wait
+        wait(NULL);
+    }
+}
+
+static void interrupts_enable(int i)
+{
+    if (!pins[i].interrupts) {
+        pins[i].interrupts = 1;
+        switch (i) {
+            case 0:
+                wiringPiISR(0, INT_EDGE_BOTH, &isr0);
+                break;
+            case 1:
+                wiringPiISR(1, INT_EDGE_BOTH, &isr1);
+                break;
+            case 2:
+                wiringPiISR(2, INT_EDGE_BOTH, &isr2);
+                break;
+            case 3:
+                wiringPiISR(3, INT_EDGE_BOTH, &isr3);
+                break;
+            case 4:
+                wiringPiISR(4, INT_EDGE_BOTH, &isr4);
+                break;
+            case 5:
+                wiringPiISR(5, INT_EDGE_BOTH, &isr5);
+                break;
+            case 6:
+                wiringPiISR(6, INT_EDGE_BOTH, &isr6);
+                break;
+            case 7:
+                wiringPiISR(7, INT_EDGE_BOTH, &isr7);
+                break;
+            case 8:
+                wiringPiISR(8, INT_EDGE_BOTH, &isr8);
+                break;
+            case 9:
+                wiringPiISR(9, INT_EDGE_BOTH, &isr9);
+                break;
+            case 10:
+                wiringPiISR(10, INT_EDGE_BOTH, &isr10);
+                break;
+            case 11:
+                wiringPiISR(11, INT_EDGE_BOTH, &isr11);
+                break;
+            case 12:
+                wiringPiISR(12, INT_EDGE_BOTH, &isr12);
+                break;
+            case 13:
+                wiringPiISR(13, INT_EDGE_BOTH, &isr13);
+                break;
+            case 14:
+                wiringPiISR(14, INT_EDGE_BOTH, &isr14);
+                break;
+            case 15:
+                wiringPiISR(15, INT_EDGE_BOTH, &isr15);
+                break;
+            case 16:
+                wiringPiISR(16, INT_EDGE_BOTH, &isr16);
+                break;
+            case 17:
+                wiringPiISR(17, INT_EDGE_BOTH, &isr17);
+                break;
+            case 18:
+                wiringPiISR(18, INT_EDGE_BOTH, &isr18);
+                break;
+            case 19:
+                wiringPiISR(19, INT_EDGE_BOTH, &isr19);
+                break;
+            case 20:
+                wiringPiISR(20, INT_EDGE_BOTH, &isr20);
+                break;
+        }
+    } else {
+        gpio_set_edge(i, "both");
+    }
+}
+
+static void interrupts_disable(int i)
+{
+    if (pins[i].interrupts) {
+        gpio_set_edge(i, "none");
+    }
+}
+
 json_t * rpi_gpio_mode_get(duda_request_t *dr, int parameter)
 {
     return json->create_string(gpio_mode_str[pins[parameter].mode]);
@@ -137,12 +256,16 @@ json_t * rpi_gpio_mode_post(duda_request_t *dr, json_t *data, int parameter)
     if (pins[parameter].mode == GPIO_TONE) {
         softToneStop(parameter);
     }
+    if (pins[parameter].mode == GPIO_INPUT) {
+        interrupts_disable(parameter);
+    }
     pins[parameter].mode = mode;
     
     switch (mode) {
         case GPIO_INPUT:
             pinMode(parameter, INPUT);
             pullUpDnControl(parameter, pins[parameter].pull);
+            interrupts_enable(parameter);
             break;
         case GPIO_OUTPUT:
             pinMode(parameter, OUTPUT);
@@ -425,35 +548,12 @@ void rpi_gpio_init(void)
 
     wiringPiSetup();
 
-    wiringPiISR(0, INT_EDGE_BOTH, &isr0);
-    wiringPiISR(1, INT_EDGE_BOTH, &isr1);
-    wiringPiISR(2, INT_EDGE_BOTH, &isr2);
-    wiringPiISR(3, INT_EDGE_BOTH, &isr3);
-    wiringPiISR(4, INT_EDGE_BOTH, &isr4);
-    wiringPiISR(5, INT_EDGE_BOTH, &isr5);
-    wiringPiISR(6, INT_EDGE_BOTH, &isr6);
-    wiringPiISR(7, INT_EDGE_BOTH, &isr7);
-    wiringPiISR(8, INT_EDGE_BOTH, &isr8);
-    wiringPiISR(9, INT_EDGE_BOTH, &isr9);
-    wiringPiISR(10, INT_EDGE_BOTH, &isr10);
-    wiringPiISR(11, INT_EDGE_BOTH, &isr11);
-    wiringPiISR(12, INT_EDGE_BOTH, &isr12);
-    wiringPiISR(13, INT_EDGE_BOTH, &isr13);
-    wiringPiISR(14, INT_EDGE_BOTH, &isr14);
-    wiringPiISR(15, INT_EDGE_BOTH, &isr15);
-    wiringPiISR(16, INT_EDGE_BOTH, &isr16);
-
     if (piBoardRev() == 1) {
         valueHandle = "%d0:16";
         npins = 17;
     } else {
         valueHandle = "%d0:20";
         npins = 21;
-
-        wiringPiISR(17, INT_EDGE_BOTH, &isr17);
-        wiringPiISR(18, INT_EDGE_BOTH, &isr18);
-        wiringPiISR(19, INT_EDGE_BOTH, &isr19);
-        wiringPiISR(20, INT_EDGE_BOTH, &isr20);
     }
 
     for (i = 0; i < npins; i++) {

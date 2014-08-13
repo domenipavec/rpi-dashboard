@@ -37,6 +37,7 @@ typedef struct {
     int value;
     long frequency;
     int range;
+    int interrupts;
 } gpio_pin_t;
 
 void rpi_gpio_init(void);
