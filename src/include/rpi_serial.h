@@ -20,6 +20,10 @@
 #ifndef RPI_SERIAL_H
 #define RPI_SERIAL_H
 
+#include "packages/json/json.h"
+
 void rpi_serial_init(void);
+
+json_t * rpi_serial_port_get(duda_request_t *dr, int parameter);
 
 #endif

@@ -20,16 +20,38 @@
 #include "rpi_serial.h"
 
 #include "rpi_modules.h"
+#include "rpi_websocket.h"
 
 #include "packages/json/json.h"
+#include "packages/websocket/websocket.h"
 
 #include <wiringPi.h>
 #include <wiringSerial.h>
+
+#include <sys/signal.h>
+#include <fcntl.h>
 
 #define SERIAL_DEVICE "/dev/ttyAMA0"
 
 static int fd;
 static int baud;
+static int serial_channel;
+
+static int signal_initialized;
+
+static void signal_handler_IO(int status)
+{
+    json_t *object;
+    char *response;
+
+    object = rpi_serial_port_get(NULL, -1);
+    response = json->print(object);
+
+    websocket->broadcast_all((unsigned char *)response, strlen(response), WS_OPCODE_TEXT, serial_channel);
+
+    json->delete(object);
+    mem->free(response);
+}
 
 json_t * rpi_serial_baud_post(duda_request_t *dr, json_t *data, int parameter)
 {
@@ -83,28 +105,60 @@ json_t * rpi_serial_port_get(duda_request_t *dr, int parameter)
 {
     int len, i;
     char *buffer;
+    json_t *str;
     
     if (fd == -1) {
         fd = serialOpen(SERIAL_DEVICE, baud);
     }
     if (fd == -1) {
-        return json->create_string("");
+        return json->create_string("Could not open serial device.");
     }
-    
+
+    if (dr != NULL) {
+        fcntl(fd, F_SETFL, O_RDWR);
+    }
+
     len = serialDataAvail(fd);
     if (len < 1) {
         return json->create_string("");
     }
 
     buffer = mem->alloc(len+1);
-    gc->add(dr, buffer);
     buffer[len] = '\0';
     
     for (i = 0; i < len; i++) {
         buffer[i] = (char)serialGetchar(fd);
     }
     
-    return json->create_string(buffer);
+    str =  json->create_string(buffer);
+    mem->free(buffer);
+    return str;
+}
+
+json_t * rpi_serial_ws(duda_request_t *dr, int parameter)
+{
+    struct sigaction saio;
+
+    if (fd == -1) {
+        fd = serialOpen(SERIAL_DEVICE, baud);
+    }
+    if (fd == -1) {
+        return json->create_string("Could not open serial device.");
+    }
+
+    if (!signal_initialized) {
+        // initialize interrupts
+        saio.sa_handler = signal_handler_IO;
+        saio.sa_flags = 0;
+        saio.sa_restorer = NULL; 
+        sigaction(SIGIO,&saio,NULL);
+        signal_initialized = 1;
+
+        fcntl(fd, F_SETOWN, getpid());
+    }
+    fcntl(fd, F_SETFL, O_ASYNC);
+
+    return rpi_websocket_handshake(dr, serial_channel);
 }
 
 /* register and initialize module */
@@ -112,9 +166,12 @@ void rpi_serial_init(void)
 {
     fd = -1;
     baud = 9600;
+    signal_initialized = 0;
+    serial_channel = rpi_websocket_get_channel();
 
     rpi_module_t *module = rpi_modules_module_init("serial", NULL, NULL);
 
+    rpi_modules_value_init("ws", rpi_serial_ws, NULL, &(module->values_head.values));
     rpi_modules_value_init("baud", rpi_serial_baud_get, rpi_serial_baud_post, &(module->values_head.values));
     rpi_modules_value_init("port", rpi_serial_port_get, rpi_serial_port_post, &(module->values_head.values));
 }

@@ -24,6 +24,7 @@ rpiDashboard.controller("SerialController", function($scope) {
     $scope.active = false;
     $scope.read = "";
     $scope.write = "";
+    var ws = undefined;
     
     $scope.baud = 9600;
     $scope.baudOptions = [50, 110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200];
@@ -34,12 +35,29 @@ rpiDashboard.controller("SerialController", function($scope) {
         $.rpijs.post("serial/baud", $scope.baud);
     };
     
-    $scope.start = function() {
-        $scope.active = true;
+    var poll = function() {
         $.rpijs.get("serial/port", function(data) {
-            $scope.read += data;
+            $scope.$apply(function() {
+                $scope.read += data;
+            });
             return $scope.active;
         }, {update:1000});
+    };
+    
+    $scope.start = function() {
+        $scope.active = true;
+        ws = $.rpijs.websocket("serial/ws", function(data) {
+            $scope.$apply(function() {
+                $scope.read += data;
+            });
+        });
+        if (ws !== undefined) {
+            ws.onclose = function() {
+                poll();
+            };
+        } else {
+            poll();
+        }
     };
     
     $scope.send = function() {
@@ -52,5 +70,8 @@ rpiDashboard.controller("SerialController", function($scope) {
     
     $scope.$on("$destroy", function() {
         $scope.active = false;
+        if (ws !== undefined) {
+            ws.close();
+        }
     });
 });
