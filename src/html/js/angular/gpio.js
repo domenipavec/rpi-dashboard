@@ -163,8 +163,7 @@ rpiDashboard.controller("GpioController", function($scope) {
             ws.close();
         }
     });
-    
-    $scope.pinoutButtonText = "Show pinout";
+
     $scope.pinoutLoad = function() {
         $scope.pinoutImageSource = "http://wiringpi.com/wp-content/uploads/2013/03/gpio1.png";
         $.rpijs.get("general/board-rev", function(msg) {
