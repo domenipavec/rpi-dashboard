@@ -125,6 +125,18 @@ rpiDashboard.controller("GpioController", function($scope) {
     $scope.pins = [];
     var active = true;
 
+    var ws = $.rpijs.websocket("gpio/ws", function(data) {
+        angular.forEach(data, function (value, key) {
+            var i = parseInt(key);
+            $scope.pins[i].value = value;
+        });
+    });
+    if (ws !== undefined) {
+        ws.onopen = function() {
+            active = false;
+        };
+    }
+    
     $.rpijs.get("gpio/pins", function(data) {
         $scope.$apply(function() {
             if ($scope.pins.length == 0) {
@@ -147,6 +159,9 @@ rpiDashboard.controller("GpioController", function($scope) {
     
     $scope.$on("$destroy", function() {
         active = false;
+        if (ws !== undefined) {
+            ws.close();
+        }
     });
     
     $scope.pinoutButtonText = "Show pinout";
