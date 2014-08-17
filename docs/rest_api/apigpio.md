@@ -98,3 +98,18 @@ POST to **gpio**
     }
 }
 ```
+
+## WebSocket
+
+For accessing GPIO WebSocket interface connect to **gpio/ws** with [$.rpijs.websocket()](../rpijs_jquery_plugin/rpijswebsocket.md).
+
+The server broadcasts information about pin value changes when the pin is in input mode. The message is in JSON object format.
+
+You cannot send any commands to server via websocket.
+
+Example message (pin 1 changed value to 1):
+```
+{
+    "1": "1"
+}
+```
