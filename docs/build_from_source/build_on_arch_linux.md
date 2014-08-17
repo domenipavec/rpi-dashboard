@@ -31,7 +31,7 @@ git clone https://github.com/matematik7/rpi-dashboard.git
 ```
 7. Checkout release version
 ```
-(cd rpi-dashboard && git checkout tags/v0.1.1)
+(cd rpi-dashboard && git checkout tags/v0.2.0)
 ```
 8. Build rpi-dashboard
 ```
