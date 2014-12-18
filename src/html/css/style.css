@@ -8,9 +8,6 @@
     height: 100%;
     position: absolute;
 }
-.mainpage-panel-body {
-    height: 250px;
-}
 .history-chart {
     height: 100%;
 }
@@ -43,4 +40,16 @@
 }
 .gpio .panel {
     min-height: 22em;
+}
+.main-placeholder {
+    background: #eee;
+    border: dashed 1px #777;
+    height: 293px;
+    margin-bottom: 20px;
+}
+.main-panel-heading {
+    cursor: move;
+}
+.main-panel-body {
+    height: 250px;
 }

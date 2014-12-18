@@ -46,6 +46,11 @@ rpiDashboard.controller('MainController', function($scope, User) {
             }
         });
         $scope.widgets = fw;
+        $( "#main-sort" ).sortable({
+            handle: ".panel-heading",
+            placeholder: "col-sm-3 main-placeholder"
+        });
+        $( "#main-sort" ).disableSelection();
     };
     
     $scope.$on("USER_STATUS_CHANGED", function() {
