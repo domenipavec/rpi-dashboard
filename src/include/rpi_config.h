@@ -24,6 +24,9 @@ typedef struct {
     /* default access permissions */
     int default_allow_flag;
     struct mk_list *default_allowed_users;
+    /* default write access permission */
+    int default_allow_write_flag;
+    struct mk_list *default_allowed_write_users;
 } rpi_config_t;
 
 extern rpi_config_t rpi_config;

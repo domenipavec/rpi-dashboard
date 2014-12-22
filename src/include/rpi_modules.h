@@ -49,6 +49,9 @@ typedef struct rpi_module {
     /* access permissions */
     int allow_flag;
     struct mk_list *allowed_users;
+    /* write access permissions */
+    int allow_write_flag;
+    struct mk_list *allowed_write_users;
 
     /* values tree */
     rpi_module_value_t values_head;
@@ -61,6 +64,9 @@ rpi_module_t * rpi_modules_find(mk_pointer find);
 
 /* find all modules that user has permission to access */
 json_t * rpi_modules_user_list(char *user);
+
+/* find all modules that user has write access to */
+json_t * rpi_modules_user_write_list(char *user);
 
 /* takes path, and constructs corresponding json */
 json_t * rpi_modules_json(duda_request_t *dr, 

@@ -65,7 +65,26 @@ json_t * rpi_modules_user_list(char *user)
     
     mk_list_foreach(head, &modules_list) {
         module = mk_list_entry(head, rpi_module_t, _head);
-        if (rpi_security_check_permission(user, module) == 0) {
+        if (rpi_security_check_permission(user, module, MK_FALSE) == 0) {
+            json->add_to_array(array, json->create_string(module->values_head.name));
+        }
+    }
+    
+    return array;
+}
+
+/* find all modules that user has write access */
+json_t * rpi_modules_user_write_list(char *user)
+{
+    struct mk_list * head;
+    rpi_module_t * module;
+    json_t *array;
+    
+    array = json->create_array();
+    
+    mk_list_foreach(head, &modules_list) {
+        module = mk_list_entry(head, rpi_module_t, _head);
+        if (rpi_security_check_permission(user, module, MK_TRUE) == 0) {
             json->add_to_array(array, json->create_string(module->values_head.name));
         }
     }
@@ -251,7 +270,9 @@ rpi_module_t * rpi_modules_module_init(const char *name,
     /* set defaults from global config */
     module->allow_flag = rpi_config.default_allow_flag;
     module->allowed_users = rpi_config.default_allowed_users;
-    
+    module->allow_write_flag = rpi_config.default_allow_write_flag;
+    module->allowed_write_users = rpi_config.default_allowed_write_users;
+
     /* try to load config */
     if (modules_config == NULL) {
         return module;
@@ -260,12 +281,14 @@ rpi_module_t * rpi_modules_module_init(const char *name,
     if (config_sect == NULL) {
         return module;
     }
+
     /* delete disabled modules */
     if (fconf->section_key(config_sect, "Disabled", DUDA_CONFIG_BOOL) == (void *)MK_TRUE) {
         mk_list_del(&(module->_head));
         mem->free(module);
         return NULL;
     }
+
     /* parse settings */
     config_value = fconf->section_key(config_sect, "Access", DUDA_CONFIG_STR);
     if (config_value != NULL) {
@@ -276,6 +299,16 @@ rpi_module_t * rpi_modules_module_init(const char *name,
     if (config_value != NULL) {
         module->allowed_users = (struct mk_list *)config_value;
     }
+    config_value = fconf->section_key(config_sect, "WriteAccess", DUDA_CONFIG_STR);
+    if (config_value != NULL) {
+        module->allow_write_flag = rpi_modules_parse_allow_flag((char *)config_value);
+        mem->free(config_value);
+    }
+    config_value = fconf->section_key(config_sect, "AllowedWriteUsers", DUDA_CONFIG_LIST);
+    if (config_value != NULL) {
+        module->allowed_write_users = (struct mk_list *)config_value;
+    }
+
     return module;
 }
 

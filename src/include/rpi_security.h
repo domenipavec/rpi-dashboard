@@ -36,7 +36,7 @@ struct user {
     struct mk_list _head;
 };
 
-int rpi_security_check_permission(const char *user, rpi_module_t * module);
+int rpi_security_check_permission(const char *user, rpi_module_t * module, int write);
 char * rpi_security_get_user(duda_request_t *dr);
 
 void rpi_security_init(void);

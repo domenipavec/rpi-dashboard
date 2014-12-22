@@ -29,6 +29,10 @@ static void load_default_values(void)
     rpi_config.default_allow_flag = RPI_ALLOW_ALLUSERS;
     rpi_config.default_allowed_users = (struct mk_list *)mem->alloc(sizeof(struct mk_list));
     mk_list_init(rpi_config.default_allowed_users);
+
+    rpi_config.default_allow_write_flag = RPI_ALLOW_ALLUSERS;
+    rpi_config.default_allowed_write_users = (struct mk_list *)mem->alloc(sizeof(struct mk_list));
+    mk_list_init(rpi_config.default_allowed_write_users);
 }
 
 void rpi_config_init(void)
@@ -61,6 +65,18 @@ void rpi_config_init(void)
     if (dconf_value != NULL) {
         mem->free(rpi_config.default_allowed_users);
         rpi_config.default_allowed_users = (struct mk_list *)dconf_value;
+    }
+
+    dconf_value = fconf->section_key(dconf_sect, "DefaultWriteAccess", DUDA_CONFIG_STR);
+    if (dconf_value != NULL) {
+        rpi_config.default_allow_write_flag = rpi_modules_parse_allow_flag((char *)dconf_value);
+        mem->free(dconf_value);
+    }
+    
+    dconf_value = fconf->section_key(dconf_sect, "DefaultAllowedWriteUsers", DUDA_CONFIG_LIST);
+    if (dconf_value != NULL) {
+        mem->free(rpi_config.default_allowed_write_users);
+        rpi_config.default_allowed_write_users = (struct mk_list *)dconf_value;
     }
     
     fconf->free_conf(dconf);
