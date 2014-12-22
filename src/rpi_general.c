@@ -56,6 +56,8 @@ void rpi_general_init(void)
 {
     rpi_module_t *module = rpi_modules_module_init("general", NULL, NULL);
     
-    rpi_modules_value_init("uptime", rpi_general_uptime_get, NULL, &(module->values_head.values));
-    rpi_modules_value_init("board-rev", rpi_general_board_rev_get, NULL, &(module->values_head.values));
+    if (module != NULL) {
+        rpi_modules_value_init("uptime", rpi_general_uptime_get, NULL, &(module->values_head.values));
+        rpi_modules_value_init("board-rev", rpi_general_board_rev_get, NULL, &(module->values_head.values));
+    }
 }

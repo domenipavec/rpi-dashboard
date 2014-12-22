@@ -123,6 +123,8 @@ void rpi_storage_init(void)
 {
     rpi_module_t *module = rpi_modules_module_init("storage", NULL, NULL);
     
-    rpi_modules_value_init("list", rpi_storage_get_list, NULL, &(module->values_head.values));
-    rpi_modules_value_init("throughput", rpi_storage_get_throughput, NULL, &(module->values_head.values));
+    if (module != NULL) {
+        rpi_modules_value_init("list", rpi_storage_get_list, NULL, &(module->values_head.values));
+        rpi_modules_value_init("throughput", rpi_storage_get_throughput, NULL, &(module->values_head.values));
+    }
 }

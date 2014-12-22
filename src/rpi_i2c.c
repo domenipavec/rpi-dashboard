@@ -205,10 +205,12 @@ void rpi_i2c_init(void)
     
     rpi_module_t *module = rpi_modules_module_init("i2c", NULL, NULL);
 
-    rpi_modules_value_init("byte", rpi_i2c_byte_get, rpi_i2c_byte_post, &(module->values_head.values));
-    rpi_module_value_t *r8branch = rpi_modules_branch_init("register8", rpi_i2c_register8_post, &(module->values_head.values));
-    rpi_module_value_t *r16branch = rpi_modules_branch_init("register16", rpi_i2c_register16_post, &(module->values_head.values));
+    if (module != NULL) {
+        rpi_modules_value_init("byte", rpi_i2c_byte_get, rpi_i2c_byte_post, &(module->values_head.values));
+        rpi_module_value_t *r8branch = rpi_modules_branch_init("register8", rpi_i2c_register8_post, &(module->values_head.values));
+        rpi_module_value_t *r16branch = rpi_modules_branch_init("register16", rpi_i2c_register16_post, &(module->values_head.values));
 
-    rpi_modules_value_init("%d0:255", rpi_i2c_register8_n_get, rpi_i2c_register8_n_post, &(r8branch->values));
-    rpi_modules_value_init("%d0:255", rpi_i2c_register16_n_get, rpi_i2c_register16_n_post, &(r16branch->values));
+        rpi_modules_value_init("%d0:255", rpi_i2c_register8_n_get, rpi_i2c_register8_n_post, &(r8branch->values));
+        rpi_modules_value_init("%d0:255", rpi_i2c_register16_n_get, rpi_i2c_register16_n_post, &(r16branch->values));
+    }
 }

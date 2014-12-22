@@ -115,6 +115,8 @@ void rpi_spi_init(void)
     
     rpi_module_t *module = rpi_modules_module_init("spi", NULL, NULL);
 
-    rpi_module_value_t *branch = rpi_modules_branch_init("%d0:1", rpi_spi_post, &(module->values_head.values));
-    rpi_modules_value_init("frequency", rpi_spi_frequency_get, rpi_spi_frequency_post, &(branch->values));
+    if (module != NULL) {
+        rpi_module_value_t *branch = rpi_modules_branch_init("%d0:1", rpi_spi_post, &(module->values_head.values));
+        rpi_modules_value_init("frequency", rpi_spi_frequency_get, rpi_spi_frequency_post, &(branch->values));
+    }
 }

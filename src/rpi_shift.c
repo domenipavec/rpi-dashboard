@@ -124,6 +124,8 @@ void rpi_shift_init(void)
     
     rpi_module_t *module = rpi_modules_module_init("shift", NULL, NULL);
 
-    rpi_modules_value_init("in", rpi_shift_get, rpi_shift_in_post, &(module->values_head.values));
-    rpi_modules_value_init("out", rpi_shift_get, rpi_shift_out_post, &(module->values_head.values));
+    if (module != NULL) {
+        rpi_modules_value_init("in", rpi_shift_get, rpi_shift_in_post, &(module->values_head.values));
+        rpi_modules_value_init("out", rpi_shift_get, rpi_shift_out_post, &(module->values_head.values));
+    }
 }

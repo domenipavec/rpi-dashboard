@@ -562,14 +562,16 @@ void rpi_gpio_init(void)
 
     rpi_module_t *module = rpi_modules_module_init("gpio", NULL, rpi_gpio_post);
 
-    rpi_modules_value_init("ws", rpi_gpio_ws, NULL, &(module->values_head.values));
-    
-    rpi_module_value_t *pins = rpi_modules_branch_init("pins", NULL, &(module->values_head.values));
-    rpi_module_value_t *branch = rpi_modules_branch_init(valueHandle, rpi_gpio_pin_post, &(pins->values));
+    if (module != NULL) {
+        rpi_modules_value_init("ws", rpi_gpio_ws, NULL, &(module->values_head.values));
+        
+        rpi_module_value_t *pins = rpi_modules_branch_init("pins", NULL, &(module->values_head.values));
+        rpi_module_value_t *branch = rpi_modules_branch_init(valueHandle, rpi_gpio_pin_post, &(pins->values));
 
-    rpi_modules_value_init("mode", rpi_gpio_mode_get, rpi_gpio_mode_post, &(branch->values));
-    rpi_modules_value_init("pull", rpi_gpio_pull_get, rpi_gpio_pull_post, &(branch->values));
-    rpi_modules_value_init("value", rpi_gpio_value_get, rpi_gpio_value_post, &(branch->values));
-    rpi_modules_value_init("frequency", rpi_gpio_frequency_get, rpi_gpio_frequency_post, &(branch->values));
-    rpi_modules_value_init("range", rpi_gpio_range_get, rpi_gpio_range_post, &(branch->values));
+        rpi_modules_value_init("mode", rpi_gpio_mode_get, rpi_gpio_mode_post, &(branch->values));
+        rpi_modules_value_init("pull", rpi_gpio_pull_get, rpi_gpio_pull_post, &(branch->values));
+        rpi_modules_value_init("value", rpi_gpio_value_get, rpi_gpio_value_post, &(branch->values));
+        rpi_modules_value_init("frequency", rpi_gpio_frequency_get, rpi_gpio_frequency_post, &(branch->values));
+        rpi_modules_value_init("range", rpi_gpio_range_get, rpi_gpio_range_post, &(branch->values));
+    }
 }

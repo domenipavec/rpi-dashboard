@@ -364,7 +364,9 @@ void rpi_network_init(void)
 {
     rpi_module_t *module = rpi_modules_module_init("network", NULL, NULL);
     
-    rpi_modules_value_init("packets", rpi_network_get_packets, NULL, &(module->values_head.values));
-    rpi_modules_value_init("bytes", rpi_network_get_bytes, NULL, &(module->values_head.values));
-    rpi_modules_value_init("list", rpi_network_get_list, NULL, &(module->values_head.values));
+    if (module != NULL) {
+        rpi_modules_value_init("packets", rpi_network_get_packets, NULL, &(module->values_head.values));
+        rpi_modules_value_init("bytes", rpi_network_get_bytes, NULL, &(module->values_head.values));
+        rpi_modules_value_init("list", rpi_network_get_list, NULL, &(module->values_head.values));
+    }
 }

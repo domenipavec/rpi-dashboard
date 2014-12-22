@@ -171,7 +171,9 @@ void rpi_serial_init(void)
 
     rpi_module_t *module = rpi_modules_module_init("serial", NULL, NULL);
 
-    rpi_modules_value_init("ws", rpi_serial_ws, NULL, &(module->values_head.values));
-    rpi_modules_value_init("baud", rpi_serial_baud_get, rpi_serial_baud_post, &(module->values_head.values));
-    rpi_modules_value_init("port", rpi_serial_port_get, rpi_serial_port_post, &(module->values_head.values));
+    if (module != NULL) {
+        rpi_modules_value_init("ws", rpi_serial_ws, NULL, &(module->values_head.values));
+        rpi_modules_value_init("baud", rpi_serial_baud_get, rpi_serial_baud_post, &(module->values_head.values));
+        rpi_modules_value_init("port", rpi_serial_port_get, rpi_serial_port_post, &(module->values_head.values));
+    }
 }
