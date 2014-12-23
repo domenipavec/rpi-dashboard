@@ -16,12 +16,12 @@
  */
 
 rpiDashboard.factory('Navigation', function($location, User) {
-    var ads = {};
+    var accessDependencies = {};
     var menu = {};
     
     return {
-        register: function(path, accessDependencies, menuName, menuTitle) {
-            ads[path] = accessDependencies;
+        register: function(path, ads, menuName, menuTitle) {
+            accessDependencies[path] = ads;
             if (menuTitle == undefined) {
                 menuTitle = "";
             }
@@ -31,16 +31,16 @@ rpiDashboard.factory('Navigation', function($location, User) {
                 path: path
             };
         },
-        registerDependencies: function(path, accessDependencies) {
-            ads[path] = accessDependencies;
+        registerDependencies: function(path, ads) {
+            accessDependencies[path] = ads;
         },
         getDependencies: function() {
-            return ads[$location.path()];
+            return accessDependencies[$location.path()];
         },
         getMenu: function() {
             var curMenu = [];
             angular.forEach(menu, function(entry) {
-                if (User.checkDependencies(ads[entry.path])) {
+                if (User.checkDependencies(accessDependencies[entry.path])) {
                     curMenu.push(entry);
                 }
             });

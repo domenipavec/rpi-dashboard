@@ -15,17 +15,11 @@
  *  limitations under the License.
  */
 
+/* factory to handle user login and logout */
 rpiDashboard.factory('User', function($q, $cookies, $rootScope, $location) {
+    /* modules user has access to */
     var modules = [];
-
-    var hasOwnValue = function(object, val) {
-        for(var prop in object) {
-            if(object.hasOwnProperty(prop) && object[prop] === val) {
-                return true;   
-            }
-        }
-        return false;
-    }
+    var modules_write = [];
 
     var userFactory = {
         loggedIn: false,
@@ -44,6 +38,7 @@ rpiDashboard.factory('User', function($q, $cookies, $rootScope, $location) {
                 userFactory.loggedIn = msg.user !== null;
                 userFactory.username = msg.user;
                 modules = msg.modules;
+                modules_write = msg['modules-write'];
                 if (userFactory.loggedIn || username == "") {
                     if (remember) {
                         $cookies.RPiUsername = username;
@@ -70,13 +65,28 @@ rpiDashboard.factory('User', function($q, $cookies, $rootScope, $location) {
         getModules: function() {
             return modules;
         },
+        /* accepts list of read dependencies, or dict of read write deps */
         checkDependencies: function(dependencies) {
             var success = true;
-            angular.forEach(dependencies, function(value) {
-                if (!hasOwnValue(modules, value)) {
-                    success = false;
-                }
-            });
+            if (angular.isArray(dependencies)) {
+                angular.forEach(dependencies, function(value, key) {
+                    if ($.inArray(value, modules) == -1) {
+                        success = false;
+                    }
+                });
+            } else {
+                angular.forEach(dependencies, function(value, key) {
+                    if (value == 'write') {
+                        if ($.inArray(key, modules_write) == -1 || $.inArray(key, modules) == -1) {
+                            success = false;
+                        }
+                    } else {
+                        if ($.inArray(key, modules) == -1) {
+                            success = false;
+                        }
+                    }
+                });
+            }
             return success;
         }
     };
@@ -86,6 +96,7 @@ rpiDashboard.factory('User', function($q, $cookies, $rootScope, $location) {
     return userFactory;
 });
 
+/* controller for login page */
 rpiDashboard.controller('LoginController', function($scope, User, $location, $cookies) {    
     $scope.rememberMe = true;
     $scope.loggedIn = User.loggedIn;
@@ -100,6 +111,7 @@ rpiDashboard.controller('LoginController', function($scope, User, $location, $co
     };
 });
 
+/* register login page */
 rpiDashboard.config(function($routeProvider) {
     $routeProvider.when('/login', {
         templateUrl: 'partials/login.html',
@@ -108,10 +120,8 @@ rpiDashboard.config(function($routeProvider) {
 });
 
 rpiDashboard.run(function ($rootScope, $location, Navigation, User) {
+    /* check permission on route change */
     $rootScope.$on('$routeChangeStart', function (event, prev,  curr) {
-        if (User.getModules() === null) {
-            return;
-        }
         if (!User.checkDependencies(Navigation.getDependencies())) {
             if (User.loggedIn) {
                 $rootScope.msgError = "You do not have permission to access '"+$location.path()+"'.";
@@ -124,6 +134,7 @@ rpiDashboard.run(function ($rootScope, $location, Navigation, User) {
         }
     });
     
+    /* check permission on login/logout */
     $rootScope.$on('USER_STATUS_CHANGED', function() {
         if (!User.checkDependencies(Navigation.getDependencies())) {
             User.goNext = $location.path();

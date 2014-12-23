@@ -15,10 +15,16 @@
  *  limitations under the License.
  */
 
-registerPage('/storage', {
-    templateUrl: 'partials/storage.html',
-    controller: 'StorageController'
-}, ['storage', 'logger'], "Storage", "Show storage mount points with usage and throughput information with history graphs.");
+registerPage({
+    path: '/storage',
+    route: {
+        templateUrl: 'partials/storage.html',
+        controller: 'StorageController'
+    },
+    accessDependencies: ['storage', 'logger'],
+    title: "Storage",
+    description: "Show storage mount points with usage and throughput information with history graphs."
+});
 
 registerWidget(5, function($scope) {
         $scope.storageRoot = angular.copy(memoryData.swapChart);

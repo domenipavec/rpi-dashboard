@@ -17,12 +17,12 @@
 
 rpiDashboard = angular.module('rpiDashboard', ['ngRoute', 'ngCookies', 'googlechart']);
 
-registerPage = function(path, options, accessDependencies, menuName, menuTitle) {
+registerPage = function(opt) {
     rpiDashboard.config(function($routeProvider) {
-        $routeProvider.when(path, options);
+        $routeProvider.when(opt.path, opt.route);
     });
     rpiDashboard.run(function(Navigation) {
-        Navigation.register(path, accessDependencies, menuName, menuTitle);
+        Navigation.register(opt.path, opt.accessDependencies, opt.title, opt.description);
     });
 };
 

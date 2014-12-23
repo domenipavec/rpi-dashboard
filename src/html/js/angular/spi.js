@@ -15,10 +15,16 @@
  *  limitations under the License.
  */
 
-registerPage('/spi', {
-    templateUrl: 'partials/spi.html',
-    controller: 'SPIController'
-}, ['spi'], "SPI", "Simultaneously write and read data on SPI bus.");
+registerPage({
+    path: '/spi',
+    route: {
+        templateUrl: 'partials/spi.html',
+        controller: 'SPIController'
+    },
+    accessDependencies: {spi: 'write'},
+    title: "SPI",
+    description: "Simultaneously write and read data on SPI bus."
+});
 
 rpiDashboard.controller("SPIController", function($scope) {
     $scope.bus = 0;

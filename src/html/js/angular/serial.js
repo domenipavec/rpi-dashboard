@@ -15,10 +15,16 @@
  *  limitations under the License.
  */
 
-registerPage('/serial', {
-    templateUrl: 'partials/serial.html',
-    controller: 'SerialController'
-}, ['serial'], "Serial", "Send and receive data through serial (UART) port.");
+registerPage({
+    path: '/serial',
+    route: {
+        templateUrl: 'partials/serial.html',
+        controller: 'SerialController'
+    },
+    accessDependencies: {serial: 'write'},
+    title: "Serial",
+    description: "Send and receive data through serial (UART) port."
+});
 
 rpiDashboard.controller("SerialController", function($scope) {
     $scope.active = false;

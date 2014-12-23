@@ -15,10 +15,16 @@
  *  limitations under the License.
  */
 
-registerPage('/gpio', {
-    templateUrl: 'partials/gpio.html',
-    controller: 'GpioController'
-}, ['gpio', 'general'], "GPIO", "Show and control GPIO pins of your Raspberry Pi.");
+registerPage({
+    path: '/gpio',
+    route: {
+        templateUrl: 'partials/gpio.html',
+        controller: 'GpioController'
+    },
+    accessDependencies: {gpio: 'write', general: 'read'},
+    title: "GPIO",
+    description: "Show and control GPIO pins of your Raspberry Pi."
+});
 
 GpioPinClass = function(key, value) {
     this.id = key;

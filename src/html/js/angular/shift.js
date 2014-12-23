@@ -15,10 +15,16 @@
  *  limitations under the License.
  */
 
-registerPage('/shift', {
-    templateUrl: 'partials/shift.html',
-    controller: 'ShiftController'
-}, ['shift'], "Shift", "Shift 8-bits of data in/out on data pin using another pin as a clock.");
+registerPage({
+    path: '/shift',
+    route: {
+        templateUrl: 'partials/shift.html',
+        controller: 'ShiftController'
+    },
+    accessDependencies: {shift: 'write'},
+    title: "Shift",
+    description: "Shift 8-bits of data in/out on data pin using another pin as a clock."
+});
 
 rpiDashboard.controller("ShiftController", function($scope) {
     $scope.actions = [

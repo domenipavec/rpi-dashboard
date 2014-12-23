@@ -15,10 +15,16 @@
  *  limitations under the License.
  */
 
-registerPage('/memory', {
-    templateUrl: 'partials/memory.html',
-    controller: 'MemoryController'
-}, ['memory', 'logger'], "Memory", "Show memory and swap usage with history graphs.");
+registerPage({
+    path: '/memory',
+    route: {
+        templateUrl: 'partials/memory.html',
+        controller: 'MemoryController'
+    },
+    accessDependencies: ['memory', 'logger'],
+    title: "Memory",
+    description: "Show memory and swap usage with history graphs."
+});
 
 registerWidget(5, function($scope) {
         $scope.ramChart = memoryData.ramChart;

@@ -15,10 +15,16 @@
  *  limitations under the License.
  */
 
-registerPage('/cpu', {
-    templateUrl: 'partials/cpu.html',
-    controller: 'CpuController'
-}, ['cpu', 'general', 'logger'], "CPU", "Show cpu usage and temperature with history graphs.");
+registerPage({
+    path: '/cpu',
+    route: {
+        templateUrl: 'partials/cpu.html',
+        controller: 'CpuController'
+    },
+    accessDependencies: ['cpu', 'general', 'logger'],
+    title: "CPU",
+    description: "Show cpu usage and temperature with history graphs."
+});
 
 registerWidget(3, function($scope, $timeout) {
         var updateUptime = function() {

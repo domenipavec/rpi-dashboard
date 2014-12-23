@@ -15,10 +15,16 @@
  *  limitations under the License.
  */
 
-registerPage('/network', {
-    templateUrl: 'partials/network.html',
-    controller: 'NetworkController'
-}, ['network', 'logger'], "Network", "Show network configuration and usage with history graphs.");
+registerPage({
+    path: '/network',
+    route: {
+        templateUrl: 'partials/network.html',
+        controller: 'NetworkController'
+    },
+    accessDependencies: ['network', 'logger'],
+    title: "Network",
+    description: "Show network configuration and usage with history graphs."
+});
 
 networkData = {};
 networkData.list = {};
