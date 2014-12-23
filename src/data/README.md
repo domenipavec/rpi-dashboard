@@ -1,4 +1,4 @@
 duda-raspberry data folder
 ==========================
 
-Service stores RRD database here.
+Service stores data files here.

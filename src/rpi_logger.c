@@ -38,7 +38,7 @@ static rpi_logger_rra_t rra_list[RRA_LIST_LEN];
 static const char *DST_GAUGE = "GAUGE";
 static const char *DST_COUNTER = "COUNTER";
 
-/* add a group of values */
+/* init a group of values */
 static void add_group(char *module, const char *path, const char *dst)
 {
     rpi_logger_group_t *g;
@@ -67,7 +67,7 @@ static void add_group(char *module, const char *path, const char *dst)
         exit(-1);
     }
 
-    /* combine module and path to name_part */
+    // combine module and path to name_part
     if (strlen(path) > 0) {
         name_part = rpi_string_concatN(3, module, "-", path);
 
@@ -99,6 +99,7 @@ static void groups_init(void)
     add_group("network", "bytes", DST_COUNTER);
 }
 
+/* init rra */
 static void add_rra(int i, const char *name, int steps, int rows)
 {
     rra_list[i].name = name;
@@ -135,6 +136,12 @@ static void create_rrdfile(const char *fn, const char *dst)
     mem->free(ds);
 }
 
+/* get filename for value name */
+static char * get_filename(const char *name) {
+    return rpi_string_concatN(4, data->get_path(), "logger/", name, ".rrd");
+}
+
+/* store value in rrd */
 static void parse_value(const json_t *json_value, const char *name, const char *dst)
 {
     char *file_name;
@@ -142,33 +149,40 @@ static void parse_value(const json_t *json_value, const char *name, const char *
     const char *params[1];
     params[0] = str_value;
 
-    file_name = rpi_string_concatN(3, data->get_path(), name, ".rrd");
+    // create rrd file if it does not exist
+    file_name = get_filename(name);
     if (access(file_name, F_OK) == -1) {
         msg->info("LOGGER: Creating '%s.rrd' file.", name);
         create_rrdfile(file_name, dst);
     }
 
+    // print int for counter or double
     if (dst == DST_COUNTER) {
         snprintf(str_value, sizeof(str_value), "N:%.0f", json_value->valuedouble);
     } else {
         snprintf(str_value, sizeof(str_value), "N:%f", json_value->valuedouble);
     }
 
+    // store in rrd
     assert_rrd(rrd_update_r(file_name, "value", 1, params));
 
     mem->free(file_name);
 }
 
+/* parse json object for storing in rrd */
 static void parse_json(const json_t *json_object, const char *name_part, const char *dst)
 {
     json_t *child_json_object;
     char *child_name_part;
     char *name_part_extend;
     
+    // store final value to rrd file
     if (json_object->type == cJSON_Number) {
         parse_value(json_object, name_part, dst);
         return;
     }
+    
+    // parse json tree and store each value
     if (json_object->type == cJSON_Object) {
         name_part_extend = rpi_string_concat(name_part, "-");
         for (child_json_object = json_object->child;
@@ -182,6 +196,7 @@ static void parse_json(const json_t *json_object, const char *name_part, const c
     }
 }
 
+/* populate rrd file with a set of values */
 static void rpi_logger_update(void)
 {
     rpi_logger_group_t *entry_group;
@@ -189,6 +204,7 @@ static void rpi_logger_update(void)
     json_t *json_object;
     json_t *json_delete;
     
+    // get json for each group and parse it
     mk_list_foreach(entry, &groups_list) {
         entry_group = mk_list_entry(entry, rpi_logger_group_t, _head);
         json_object = rpi_modules_json(NULL, 
@@ -202,6 +218,7 @@ static void rpi_logger_update(void)
     };
 }
 
+/* log worker function */
 static void * rpi_logger_worker(void *arg)
 {
     for(;;) {
@@ -214,6 +231,7 @@ static void * rpi_logger_worker(void *arg)
     return NULL;
 }
 
+/* get log data for rra and value name */
 static json_t *rpi_logger_get_value(int rrai, const char *name) 
 {
     char *file_name;
@@ -228,7 +246,8 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
     min = NAN;
     max = NAN;
 
-    file_name = rpi_string_concatN(3, data->get_path(), name, ".rrd");
+    // check if file accessible
+    file_name = get_filename(name);
     if (access(file_name, F_OK) == -1) {
         mem->free(file_name);
         return json->create_null();
@@ -236,17 +255,22 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
     
     object = json->create_object();
     
+    // calculate time frame
     step = 60*rra_list[rrai].steps;
     end = time(NULL);
     end -= end%step;
     start = end - (step*rra_list[rrai].rows);
+    
+    // fetch data from file
     assert_rrd(rrd_fetch_r(file_name, "AVERAGE", &start, &end, &step, &ds_cnt, &ds_namv, &values));
     value = values;
     
+    // header data
     json->add_to_object(object, "end", json->create_number((double)(end-step)));
     json->add_to_object(object, "start", json->create_number((double)(start+step)));
     json->add_to_object(object, "step", json->create_number((double)step));
     
+    // populate data to json
     array = json->create_array();
     for (ti = start + step; ti < end; ti += step) {
         if (max != max || *value > max) {
@@ -263,6 +287,8 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
         value++;
     }
     json->add_to_object(object, "data", array);
+    
+    // init min and max if enough data
     if (min != min) {
         json->add_to_object(object, "min", json->create_null());
     } else {
@@ -274,6 +300,7 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
         json->add_to_object(object, "max", json->create_number(max));
     }
     
+    // free all rrd objects
     for (i = 0; i < ds_cnt; ++i) {
         free(ds_namv[i]);
     }
@@ -284,6 +311,7 @@ static json_t *rpi_logger_get_value(int rrai, const char *name)
     return object;
 }
 
+/* get log data for rra */
 static json_t *rpi_logger_get(int rrai, duda_request_t *dr)
 {
     char *value;
@@ -292,11 +320,13 @@ static json_t *rpi_logger_get(int rrai, duda_request_t *dr)
     
     object = json->create_object();
     
+    // value specified in query string
     value = qs->get(dr, "value");
     if (value == NULL) {
         return object;
     }
     
+    // iterate over values, separated by '|'
     len = strlen(value);
     for (last = (i = 0); i < len; i++) {
         if (value[i] == '/') {
@@ -354,12 +384,14 @@ void rpi_logger_init(void)
         exit(-1);
     }
 
+    // init groups of values to be logged
     groups_init();
+    // init rras
     rra_init();
-
+    // init web access
     module_init();
 
-    // manually create thread, duda worker clashes with websockets for some reason
+    // manually create log thread, duda worker clashes with websockets for some reason
     pthread_t tid;
     pthread_attr_t thread_attr;
     pthread_attr_init(&thread_attr);
