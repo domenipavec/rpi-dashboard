@@ -18,16 +18,16 @@
 rpiDashboard = angular.module('rpiDashboard', ['ngRoute', 'ngCookies', 'googlechart']);
 
 registerPage = function(opt) {
-    rpiDashboard.config(function($routeProvider) {
+    rpiDashboard.config(['$routeProvider', function($routeProvider) {
         $routeProvider.when(opt.path, opt.route);
-    });
-    rpiDashboard.run(function(Navigation) {
+    }]);
+    rpiDashboard.run(['Navigation', function(Navigation) {
         Navigation.register(opt.path, opt.accessDependencies, opt.title, opt.description);
-    });
+    }]);
 };
 
 backgroundUpdate = function(dependencies, t, f) {
-    rpiDashboard.run(function($rootScope, User, $timeout, $q) {
+    rpiDashboard.run(['$rootScope', 'User', '$timeout', '$q', function($rootScope, User, $timeout, $q) {
         var update = function() {
             if (!User.checkDependencies(dependencies)) {
                 return;
@@ -46,7 +46,7 @@ backgroundUpdate = function(dependencies, t, f) {
         });
 
         update();
-    });
+    }]);
 };
 
 vObject = function(value, filter) {
@@ -61,11 +61,11 @@ cObject = function(value) {
     return {"c":value};
 };
 
-rpiDashboard.config(function($routeProvider) {
+rpiDashboard.config(['$routeProvider', function($routeProvider) {
     $routeProvider.otherwise({
         redirectTo: "/"
     });
-});
+}]);
 
 var bytesFilter = function(value, precision) {
     return $.rpijs.parseNumber(value, {valueType: 'binary', decimals: precision});

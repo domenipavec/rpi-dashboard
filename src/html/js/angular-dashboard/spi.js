@@ -26,7 +26,7 @@ registerPage({
     description: "Simultaneously write and read data on SPI bus."
 });
 
-rpiDashboard.controller("SPIController", function($scope) {
+rpiDashboard.controller("SPIController", ['$scope', function($scope) {
     $scope.bus = 0;
     $scope.read = "";
     $scope.write = "";
@@ -75,4 +75,4 @@ rpiDashboard.controller("SPIController", function($scope) {
     };
     
     $scope.busChange();
-});
+}]);

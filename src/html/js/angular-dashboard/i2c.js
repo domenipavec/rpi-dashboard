@@ -26,7 +26,7 @@ registerPage({
     description: "Read and write to devices on I2C bus."
 });
 
-rpiDashboard.controller("I2CController", function($scope) {
+rpiDashboard.controller("I2CController", ['$scope', function($scope) {
     $scope.address = 96;
     $scope.actions = [
         {
@@ -135,4 +135,4 @@ rpiDashboard.controller("I2CController", function($scope) {
     $scope.buttonClick = function() {
         $scope.finished = false;
     };
-});
+}]);

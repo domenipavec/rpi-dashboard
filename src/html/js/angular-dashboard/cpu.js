@@ -26,7 +26,7 @@ registerPage({
     description: "Show cpu usage and temperature with history graphs."
 });
 
-registerWidget(3, function($scope, $timeout) {
+registerWidget(3, ['$scope', '$timeout', function($scope, $timeout) {
         var updateUptime = function() {
             $scope.uptime++;
             updateUptime.timeout = $timeout(updateUptime, 1000);
@@ -45,15 +45,15 @@ registerWidget(3, function($scope, $timeout) {
         $scope.$on('$destroy', function() {
             $timeout.cancel(updateUptime.timeout);
         });
-    },
+    }],
     "partials/widgets/general.html", ['general']);
-registerWidget(3, function($scope) {
+registerWidget(3, ['$scope', function($scope) {
         $scope.cpuUsage = cpuData.usageGraph;
-    }, 
+    }], 
     "partials/widgets/cpu-usage.html", ['cpu']);
-registerWidget(4, function($scope) {
+registerWidget(4, ['$scope', function($scope) {
         $scope.temperatureGauge = cpuData.temperatureGauge;
-    },
+    }],
     "partials/widgets/cpu-temp.html", ['cpu']);
 
 cpuData = {};
@@ -237,7 +237,7 @@ backgroundUpdate(['cpu', 'logger'], 1000, function(done) {
     }, cpuData.usageFetchFormat);
 });
 
-rpiDashboard.controller('CpuController', function($scope, $timeout) {
+rpiDashboard.controller('CpuController', ['$scope', '$timeout', function($scope, $timeout) {
     var updateUptime = function() {
         $scope.uptime++;
         updateUptime.timeout = $timeout(updateUptime, 1000);
@@ -254,12 +254,12 @@ rpiDashboard.controller('CpuController', function($scope, $timeout) {
     $scope.$on('$destroy', function() {
         $timeout.cancel(updateUptime.timeout);
     });
-});
+}]);
 
-rpiDashboard.controller('CpuUsageWidgetController', function($scope) {
+rpiDashboard.controller('CpuUsageWidgetController', ['$scope', function($scope) {
     $scope.cpuUsage = cpuData.usageGraph;
-});
+}]);
 
-rpiDashboard.controller('CpuTemperatureWidgetController', function($scope) {
+rpiDashboard.controller('CpuTemperatureWidgetController', ['$scope', function($scope) {
     $scope.temperatureGauge = cpuData.temperatureGauge;
-});
+}]);

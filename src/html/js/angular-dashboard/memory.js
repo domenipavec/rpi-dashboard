@@ -26,10 +26,10 @@ registerPage({
     description: "Show memory and swap usage with history graphs."
 });
 
-registerWidget(5, function($scope) {
+registerWidget(5, ['$scope', function($scope) {
         $scope.ramChart = memoryData.ramChart;
         $scope.ramTotal = memoryData.memory.total;
-    }, 
+    }], 
     "partials/widgets/ram-usage.html", ['memory']);
 
 memoryData = {};
@@ -225,6 +225,6 @@ backgroundUpdate(['memory', 'logger'], 5000, function(done) {
     });
 });
 
-rpiDashboard.controller('MemoryController', function($scope, $filter) {
+rpiDashboard.controller('MemoryController', ['$scope', '$filter', function($scope, $filter) {
     $scope.memoryData = memoryData;
-});
+}]);

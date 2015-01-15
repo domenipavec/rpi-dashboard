@@ -26,11 +26,11 @@ registerPage({
     description: "Show storage mount points with usage and throughput information with history graphs."
 });
 
-registerWidget(5, function($scope) {
+registerWidget(5, ['$scope', function($scope) {
         $scope.storageRoot = angular.copy(memoryData.swapChart);
         $scope.storageRoot.data.rows = storageData.rootFS;
         $scope.storageRootTotalSize = storageData.rootTotalSize;
-    }, 
+    }], 
     "partials/widgets/storage.html", ['storage']);
 
 storageData = {};
@@ -168,6 +168,6 @@ backgroundUpdate(['storage', 'logger'], 60000, function(done) {
     });
 });
 
-rpiDashboard.controller('StorageController', function($scope) {
+rpiDashboard.controller('StorageController', ['$scope', function($scope) {
     $scope.storageData = storageData;
-});
+}]);

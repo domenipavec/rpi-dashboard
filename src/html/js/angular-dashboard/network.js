@@ -93,6 +93,6 @@ backgroundUpdate(['network', 'logger'], 1000, function(done) {
     }, networkData.throughputRequestOptions);
 });
 
-rpiDashboard.controller('NetworkController', function($scope) {
+rpiDashboard.controller('NetworkController', ['$scope', function($scope) {
     $scope.list = networkData.list;
-});
+}]);

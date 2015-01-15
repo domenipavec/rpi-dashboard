@@ -26,7 +26,7 @@ registerPage({
     description: "Send and receive data through serial (UART) port."
 });
 
-rpiDashboard.controller("SerialController", function($scope) {
+rpiDashboard.controller("SerialController", ['$scope', function($scope) {
     $scope.active = false;
     $scope.read = "";
     $scope.write = "";
@@ -80,4 +80,4 @@ rpiDashboard.controller("SerialController", function($scope) {
             ws.close();
         }
     });
-});
+}]);

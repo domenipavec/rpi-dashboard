@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-rpiDashboard.factory('Navigation', function($location, User) {
+rpiDashboard.factory('Navigation', ['$location', 'User', function($location, User) {
     var accessDependencies = {};
     var menu = {};
     
@@ -50,9 +50,9 @@ rpiDashboard.factory('Navigation', function($location, User) {
             return menu[path];
         }
     };
-});
+}]);
 
-rpiDashboard.controller('NavigationController', function($scope, $location, User, Navigation) {
+rpiDashboard.controller('NavigationController', ['$scope', '$location', 'User', 'Navigation', function($scope, $location, User, Navigation) {
     $scope.loggedIn = false;
     $scope.menu = [];
     
@@ -69,9 +69,9 @@ rpiDashboard.controller('NavigationController', function($scope, $location, User
     $scope.logout = function() {
         User.logout();
     }
-});
+}]);
 
-rpiDashboard.controller('TitleDescriptionController', function($scope, $location, Navigation, $rootScope) {
+rpiDashboard.controller('TitleDescriptionController', ['$scope', '$location', 'Navigation', '$rootScope', function($scope, $location, Navigation, $rootScope) {
     $scope.description = "";
     $scope.title = "";
     var refresh = function() {
@@ -99,4 +99,4 @@ rpiDashboard.controller('TitleDescriptionController', function($scope, $location
     $rootScope.$on('$routeChangeStart', function() {
         refresh();
     });
-});
+}]);

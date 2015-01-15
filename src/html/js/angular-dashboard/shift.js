@@ -26,7 +26,7 @@ registerPage({
     description: "Shift 8-bits of data in/out on data pin using another pin as a clock."
 });
 
-rpiDashboard.controller("ShiftController", function($scope) {
+rpiDashboard.controller("ShiftController", ['$scope', function($scope) {
     $scope.actions = [
         {
             id: 0,
@@ -76,4 +76,4 @@ rpiDashboard.controller("ShiftController", function($scope) {
     $scope.buttonClick = function() {
         $scope.finished = false;
     };
-});
+}]);

@@ -16,7 +16,7 @@
  */
 
 /* factory to handle user login and logout */
-rpiDashboard.factory('User', function($q, $cookies, $rootScope, $location) {
+rpiDashboard.factory('User', ['$q', '$cookies', '$rootScope', '$location', function($q, $cookies, $rootScope, $location) {
     /* modules user has access to */
     var modules = [];
     var modules_write = [];
@@ -94,10 +94,10 @@ rpiDashboard.factory('User', function($q, $cookies, $rootScope, $location) {
     userFactory.login($cookies.RPiUsername, $cookies.RPiPassword);
     
     return userFactory;
-});
+}]);
 
 /* controller for login page */
-rpiDashboard.controller('LoginController', function($scope, User, $location, $cookies) {    
+rpiDashboard.controller('LoginController', ['$scope', 'User', '$location', '$cookies', function($scope, User, $location, $cookies) {    
     $scope.rememberMe = true;
     $scope.loggedIn = User.loggedIn;
     $scope.user = User.username;
@@ -109,17 +109,17 @@ rpiDashboard.controller('LoginController', function($scope, User, $location, $co
     $scope.logout = function() {
         User.logout();
     };
-});
+}]);
 
 /* register login page */
-rpiDashboard.config(function($routeProvider) {
+rpiDashboard.config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/login', {
         templateUrl: 'partials/login.html',
         controller: 'LoginController'
     });
-});
+}]);
 
-rpiDashboard.run(function ($rootScope, $location, Navigation, User) {
+rpiDashboard.run(['$rootScope', '$location', 'Navigation', 'User', function ($rootScope, $location, Navigation, User) {
     /* check permission on route change */
     $rootScope.$on('$routeChangeStart', function (event, prev,  curr) {
         if (!User.checkDependencies(Navigation.getDependencies())) {
@@ -142,4 +142,4 @@ rpiDashboard.run(function ($rootScope, $location, Navigation, User) {
             $rootScope.$apply();
         }
     });
-});
+}]);

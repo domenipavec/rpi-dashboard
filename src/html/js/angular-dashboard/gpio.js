@@ -127,7 +127,7 @@ GpioPinClass.prototype.toggleClick = function() {
     this.valueChange();
 };
 
-rpiDashboard.controller("GpioController", function($scope) {
+rpiDashboard.controller("GpioController", ['$scope', function($scope) {
     $scope.pins = [];
     var active = true;
 
@@ -182,4 +182,4 @@ rpiDashboard.controller("GpioController", function($scope) {
             }
         });
     };
-});
+}]);

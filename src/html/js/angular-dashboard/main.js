@@ -15,15 +15,15 @@
  *  limitations under the License.
  */
 
-rpiDashboard.config(function($routeProvider) {
+rpiDashboard.config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/', {
         templateUrl: 'partials/main.html',
         controller: 'MainController'
     });
-});
-rpiDashboard.run(function(Navigation) {
+}]);
+rpiDashboard.run(['Navigation', function(Navigation) {
     Navigation.registerDependencies('/', []);
-});
+}]);
 
 mainData = {};
 mainData.widgets = [];
@@ -37,7 +37,7 @@ registerWidget = function(width, controller, partial, accessDependencies) {
     });
 };
 
-rpiDashboard.controller('MainController', function($scope, User) {
+rpiDashboard.controller('MainController', ['$scope', 'User', function($scope, User) {
     var filterWidgets = function() {
         var fw = [];
         angular.forEach(mainData.widgets, function(widget) {
@@ -60,4 +60,4 @@ rpiDashboard.controller('MainController', function($scope, User) {
     
     $scope.loggedIn = User.loggedIn;
     filterWidgets();
-});
+}]);
