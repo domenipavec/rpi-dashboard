@@ -32,3 +32,6 @@ _book
 
 # RRDtool
 *.rrd
+
+# data
+*.dat
