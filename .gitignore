@@ -38,3 +38,9 @@ _book
 
 # java min-s in subfolders of js
 src/html/js/*/*.min.js
+
+# css min
+*.min.css
+
+# cssqc
+parsetab.py
