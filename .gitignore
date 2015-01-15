@@ -24,7 +24,7 @@
 
 # Duda specific
 *.d
-Makefile
+src/Makefile
 *.duda
 
 # gitbook
@@ -35,3 +35,6 @@ _book
 
 # data
 *.dat
+
+# java min-s in subfolders of js
+src/html/js/*/*.min.js
