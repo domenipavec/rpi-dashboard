@@ -108,9 +108,9 @@ backgroundUpdate(['storage', 'logger'], 1000, function(done) {
                     type: "number"
                 });
                 if (values.length != 0) {
-                    values += "|";
+                    values += "~";
                 }
-                values += "storage/throughput/"+name+"/total";
+                values += "storage-throughput-"+name+"-total";
                 storageData.throughputRequest.format.push({
                     key: [name, "total"],
                     rate: true

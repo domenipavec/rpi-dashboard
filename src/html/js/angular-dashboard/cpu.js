@@ -186,7 +186,7 @@ backgroundUpdate(['cpu', 'logger'], 1000, function(done) {
                 lineWidth: 1
             },
             procentsFilter,
-            "cpu/usage/user|cpu/usage/system|cpu/usage/iowait|cpu/usage/total",
+            "cpu-usage-user~cpu-usage-system~cpu-usage-iowait~cpu-usage-total",
             function(data) {
                 var total = data["cpu-usage-total"];
                 delete data["cpu-usage-total"];
@@ -211,7 +211,7 @@ backgroundUpdate(['cpu', 'logger'], 1000, function(done) {
             {
             },
             celsiusFilter,
-            "cpu/temperature"
+            "cpu-temperature"
         );
     }
     

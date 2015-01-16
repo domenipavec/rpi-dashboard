@@ -332,7 +332,7 @@ static json_t *rpi_logger_get(int rrai, duda_request_t *dr)
         if (value[i] == '/') {
             value[i] = '-';
         }
-        if (value[i] == '|') {
+        if (value[i] == '|' || value[i] == '~') {
             value[i] = '\0';
             json->add_to_object(object, value+last, rpi_logger_get_value(rrai, value + last));
             last = i+1;

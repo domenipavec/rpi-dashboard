@@ -68,7 +68,7 @@ backgroundUpdate(['network', 'logger'], 1000, function(done) {
                         lineWidth: 1
                     },
                     bpsFilter,
-                    "network/bytes/tx/"+name+"|network/bytes/rx/"+name
+                    "network-bytes-tx-"+name+"~network-bytes-rx-"+name
                 );
             });
             networkData.ready = true;

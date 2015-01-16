@@ -1,4 +1,4 @@
-JAVA_CMD=java
+export JAVA_CMD=java
 
 FILES=dashboard.js history.js login.js navigation.js main.js cpu.js \
 	memory.js network.js storage.js gpio.js i2c.js spi.js serial.js \

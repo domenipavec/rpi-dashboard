@@ -165,7 +165,7 @@ historyGraph = function(type, cols, additionalOptions, filter, loggerValues, pre
                 });
             }
             graph.data.rows = [];
-            var firstKey = loggerValues.split("|")[0].replace(/\//g, "-");
+            var firstKey = loggerValues.split(/\||~/)[0].replace(/\//g, "-");
             var now = data[firstKey].start;
             for (i = 0; now <= data[firstKey].end; i++, now += data[firstKey].step) {
                 var row = cObject([

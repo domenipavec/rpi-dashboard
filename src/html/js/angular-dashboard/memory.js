@@ -152,7 +152,7 @@ backgroundUpdate(['memory', 'logger'], 5000, function(done) {
                 colors: ['#dc3912', '#ff9900', '#3366cc', '#109618']
             },
             bytesFilter,
-            "memory/processes|memory/buffers|memory/cached|memory/free"
+            "memory-processes~memory-buffers~memory-cached~memory-free"
         );
         
         memoryData.swapHistory = historyGraph(
@@ -174,7 +174,7 @@ backgroundUpdate(['memory', 'logger'], 5000, function(done) {
                 colors: ['#dc3912', '#109618'],
             },
             bytesFilter,
-            "memory/swap/used|memory/swap/free"
+            "memory-swap-used~memory-swap-free"
         );
     }
 

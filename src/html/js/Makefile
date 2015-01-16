@@ -1,4 +1,4 @@
-JAVA_CMD=java
+export JAVA_CMD=java
 
 SUBDIRS=jquery-rpijs angular-dashboard
 
