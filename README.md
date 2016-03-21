@@ -25,3 +25,43 @@ Documentation with installation instructions: [gitbooks](https://matematik7.gitb
 - Shifting 8-bits in/out on two pins
 - WebSocket support for GPIO and serial
 - Modular main page on dashboard
+
+## Screenshots:
+
+### Login screen
+![Login screen](screenshots/login.png)
+
+### Main dashboard page
+![Main dashboard page](screenshots/main.png)
+
+### Page with cpu information
+![Page with cpu information](screenshots/cpu.png)
+
+### Page with information about ram and swap
+![Page with information about ram and swap](screenshots/memory.png)
+
+### Page with network information
+![Page with network information](screenshots/network.png)
+
+### Page with information about storage
+![Page with information about storage](screenshots/storage.png)
+
+### Page with GPIO control
+![Page with GPIO control](screenshots/gpio.png)
+
+### GPIO page with pinout shown
+![GPIO page with pinout shown](screenshots/gpio-pinout.png)
+
+### Page with i2c control
+![Page with i2c control](screenshots/i2c.png)
+
+### Page for SPI control
+![Page for SPI control](screenshots/spi.png)
+
+### Page for serial communication
+![Page for serial communication](screenshots/serial.png)
+
+### Page for shift control
+![Page for shift control](screenshots/shift.png)
+
+
