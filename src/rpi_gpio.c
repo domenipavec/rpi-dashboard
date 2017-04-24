@@ -246,7 +246,7 @@ json_t * rpi_gpio_mode_post(duda_request_t *dr, json_t *data, int parameter)
     if (mode == -1) {
         return NULL;
     }
-    
+
     if (mode == pins[parameter].mode) {
         return json->create_string("Successful!");
     }
@@ -260,7 +260,7 @@ json_t * rpi_gpio_mode_post(duda_request_t *dr, json_t *data, int parameter)
         interrupts_disable(parameter);
     }
     pins[parameter].mode = mode;
-    
+
     switch (mode) {
         case GPIO_INPUT:
             pinMode(parameter, INPUT);
@@ -293,7 +293,7 @@ json_t * rpi_gpio_mode_post(duda_request_t *dr, json_t *data, int parameter)
             }
             break;
     }
-    
+
     return json->create_string("Successful!");
 }
 
@@ -317,16 +317,16 @@ json_t * rpi_gpio_pull_post(duda_request_t *dr, json_t *data, int parameter)
     if (pull == -1) {
         return NULL;
     }
-    
+
     if (pull == pins[parameter].pull) {
         return json->create_string("Successful!");
     }
     pins[parameter].pull = pull;
-    
+
     if (pins[parameter].mode == GPIO_INPUT) {
         pullUpDnControl(parameter, pull);
     }
-    
+
     return json->create_string("Successful!");
 }
 
@@ -347,12 +347,12 @@ json_t * rpi_gpio_value_post(duda_request_t *dr, json_t *data, int parameter)
     if (value < 0 || value > pins[parameter].range) {
         return NULL;
     }
-    
+
     if (value == pins[parameter].value) {
         return json->create_string("Successful!");
     }
     pins[parameter].value = value;
-    
+
     switch (pins[parameter].mode) {
         case GPIO_UNDEFINED:
         case GPIO_INPUT:
@@ -375,7 +375,7 @@ json_t * rpi_gpio_value_post(duda_request_t *dr, json_t *data, int parameter)
             }
             break;
     }
-    
+
     return json->create_string("Successful!");
 }
 
@@ -393,20 +393,20 @@ json_t * rpi_gpio_frequency_post(duda_request_t *dr, json_t *data, int parameter
     if (frequency < 1) {
         return NULL;
     }
-    
+
     if (frequency == pins[parameter].frequency) {
         return json->create_string("Successful!");
     }
     pins[parameter].frequency = frequency;
-    
+
     if (pins[parameter].mode == GPIO_TONE && pins[parameter].value != 0) {
         softToneWrite(parameter, frequency);
     }
-    
+
     if (pins[parameter].mode == GPIO_PWM && parameter == HWPWM) {
         recalculate_hw_pwm_clock();
     }
-    
+
     return json->create_string("Successful!");
 }
 
@@ -424,12 +424,12 @@ json_t * rpi_gpio_range_post(duda_request_t *dr, json_t *data, int parameter)
     if (range < 1) {
         return NULL;
     }
-    
+
     if (range == pins[parameter].range) {
         return json->create_string("Successful!");
     }
     pins[parameter].range = range;
-    
+
     if (pins[parameter].value > range) {
         pins[parameter].value = range;
     }
@@ -452,7 +452,7 @@ json_t * rpi_gpio_pin_post(duda_request_t *dr, json_t *data, int parameter)
     json_t *item;
     json_t *ret;
     int success = 1;
-    
+
     if (data->type != cJSON_Object) {
         return NULL;
     }
@@ -529,7 +529,7 @@ json_t * rpi_gpio_post(duda_request_t *dr, json_t *data, int parameter)
             json->add_to_object(ret, child->string, json->create_string("Unsupported action or invalid parameters!"));
         }
     }
-    
+
     return ret;
 }
 
@@ -543,28 +543,28 @@ void rpi_gpio_init(void)
 {
     int i;
     const char *valueHandle;
-    
+
     gpio_channel = rpi_websocket_get_channel();
-
-    wiringPiSetup();
-
-    if (piBoardRev() == 1) {
-        valueHandle = "%d0:16";
-        npins = 17;
-    } else {
-        valueHandle = "%d0:20";
-        npins = 21;
-    }
-
-    for (i = 0; i < npins; i++) {
-        init_pin(i);
-    }
 
     rpi_module_t *module = rpi_modules_module_init("gpio", NULL, rpi_gpio_post);
 
     if (module != NULL) {
+        wiringPiSetup();
+
+        if (piBoardRev() == 1) {
+            valueHandle = "%d0:16";
+            npins = 17;
+        } else {
+            valueHandle = "%d0:20";
+            npins = 21;
+        }
+
+        for (i = 0; i < npins; i++) {
+            init_pin(i);
+        }
+
         rpi_modules_value_init("ws", rpi_gpio_ws, NULL, &(module->values_head.values));
-        
+
         rpi_module_value_t *pins = rpi_modules_branch_init("pins", NULL, &(module->values_head.values));
         rpi_module_value_t *branch = rpi_modules_branch_init(valueHandle, rpi_gpio_pin_post, &(pins->values));
 

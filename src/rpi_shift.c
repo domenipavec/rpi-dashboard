@@ -41,7 +41,7 @@ static int parse_parameters(json_t *data, parameters_t *parameters)
     if (data->type != cJSON_Object) {
         return -1;
     }
-    
+
     dataitem = json->get_object_item(data, "order");
     if (dataitem == NULL || dataitem->type != cJSON_String) {
         return -1;
@@ -53,7 +53,7 @@ static int parse_parameters(json_t *data, parameters_t *parameters)
     } else {
         return -1;
     }
-    
+
     dataitem = json->get_object_item(data, "data");
     if (dataitem == NULL || dataitem->type != cJSON_Number) {
         return -1;
@@ -62,7 +62,7 @@ static int parse_parameters(json_t *data, parameters_t *parameters)
         return -1;
     }
     parameters->data = dataitem->valueint;
-    
+
     dataitem = json->get_object_item(data, "clock");
     if (dataitem == NULL || dataitem->type != cJSON_Number) {
         return -1;
@@ -71,7 +71,7 @@ static int parse_parameters(json_t *data, parameters_t *parameters)
         return -1;
     }
     parameters->clock = dataitem->valueint;
-    
+
     dataitem = json->get_object_item(data, "value");
     if (dataitem == NULL) {
         return 1;
@@ -108,7 +108,7 @@ json_t *rpi_shift_out_post(duda_request_t *dr, json_t *data, int parameter)
     if (parse_parameters(data, &parameters) != 0) {
         return NULL;
     }
-    
+
     shiftOut(parameters.data, parameters.clock, parameters.order, parameters.value);
     return json->create_string("Successful!");
 }
@@ -116,15 +116,15 @@ json_t *rpi_shift_out_post(duda_request_t *dr, json_t *data, int parameter)
 /* register and initialize module */
 void rpi_shift_init(void)
 {
-    if (piBoardRev() == 1) {
-        npins = 16;
-    } else {
-        npins = 20;
-    }
-    
     rpi_module_t *module = rpi_modules_module_init("shift", NULL, NULL);
 
     if (module != NULL) {
+        if (piBoardRev() == 1) {
+            npins = 16;
+        } else {
+            npins = 20;
+        }
+
         rpi_modules_value_init("in", rpi_shift_get, rpi_shift_in_post, &(module->values_head.values));
         rpi_modules_value_init("out", rpi_shift_get, rpi_shift_out_post, &(module->values_head.values));
     }
